@@ -187,7 +187,7 @@ func investigate(listing: Dictionary, action_id: String) -> Dictionary:
 	return {
 		"listing": updated,
 		"consumed": true,
-		"message":"[%s] %s" % [clue["kind"], clue["text"]]
+		"message":str(clue["text"])
 	}
 
 
@@ -306,7 +306,7 @@ func negotiation_evidence_options(listing: Dictionary) -> Array:
 			continue
 		result.append({
 			"clue_index": i,
-			"label":"[%s] %s" % [clue["kind"], clue["text"]]
+			"label":str(clue["text"])
 		})
 	return result
 
@@ -440,7 +440,7 @@ func run_post_inspection(listing: Dictionary, action_id: String) -> Dictionary:
 		"listing": updated,
 		"consumed": true,
 		"cost": option_cost,
-		"message":"[%s] %s" % [clue["kind"], clue["text"]]
+		"message":str(clue["text"])
 	}
 
 
