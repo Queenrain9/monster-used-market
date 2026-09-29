@@ -162,6 +162,48 @@ func validate_content() -> Array:
 		if not found_upgrades.has(upgrade_id):
 			errors.append("필수 업그레이드 %s가 없습니다." % upgrade_id)
 
+	var covered_collection_items: Array = []
+	for set_data in Content.COLLECTION_SETS:
+		var set_id = str(set_data.get("id", ""))
+		var set_items: Array = set_data.get("item_ids", [])
+		if set_id.is_empty() or str(set_data.get("name", "")).is_empty() or set_items.is_empty():
+			errors.append("수집 세트 데이터가 불완전합니다.")
+			continue
+		for item_id_value in set_items:
+			var collection_item_id = str(item_id_value)
+			if not item_ids.has(collection_item_id):
+				errors.append("%s 수집 세트에 존재하지 않는 아이템 %s가 있습니다." % [set_id, collection_item_id])
+			if covered_collection_items.has(collection_item_id):
+				errors.append("아이템 %s가 여러 기본 수집 세트에 중복됩니다." % collection_item_id)
+			else:
+				covered_collection_items.append(collection_item_id)
+	if covered_collection_items.size() != item_ids.size():
+		errors.append("기본 수집 세트가 전체 아이템을 정확히 한 번씩 덮지 않습니다.")
+
+	var achievement_ids: Array = []
+	for achievement in Content.ACHIEVEMENTS:
+		var achievement_id = str(achievement.get("id", ""))
+		if achievement_id.is_empty() or str(achievement.get("name", "")).is_empty():
+			errors.append("업적 데이터가 불완전합니다.")
+		elif achievement_ids.has(achievement_id):
+			errors.append("중복 업적 id %s가 있습니다." % achievement_id)
+		else:
+			achievement_ids.append(achievement_id)
+
+	var goal_ids: Array = []
+	for goal in Content.LONG_TERM_GOALS:
+		var goal_id = str(goal.get("id", ""))
+		if goal_id.is_empty() or str(goal.get("name", "")).is_empty():
+			errors.append("장기 목표 데이터가 불완전합니다.")
+			continue
+		if goal_ids.has(goal_id):
+			errors.append("중복 장기 목표 id %s가 있습니다." % goal_id)
+		goal_ids.append(goal_id)
+		if str(goal.get("kind", "")) not in ["items", "sets"] or int(goal.get("target", 0)) <= 0:
+			errors.append("%s 장기 목표 진행 조건이 유효하지 않습니다." % goal_id)
+		if int(goal.get("reward_gold", 0)) < 0 or int(goal.get("reward_reputation", 0)) < 0:
+			errors.append("%s 장기 목표 보상이 음수입니다." % goal_id)
+
 	for profile_id in Content.PROFILE_CLUES.keys():
 		if not Content.INVESTIGATION_PROFILES.has(profile_id):
 			errors.append("단서 풀 %s에 대응하는 조사 프로필이 없습니다." % profile_id)
