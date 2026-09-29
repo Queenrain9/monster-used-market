@@ -144,6 +144,9 @@ func _test_browsing(cards) -> void:
 	var seller_type_name = str(Content.SELLER_TYPES[seller_type]["name"])
 	_expect(not pre_purchase_text.contains("[긍정적]") and not pre_purchase_text.contains("[부정적]") and not pre_purchase_text.contains("[애매한]"), "detail must show clue facts without polarity labels")
 	_expect(not pre_purchase_text.contains(seller_type_name), "detail must show seller behavior cues without naming the archetype")
+	var item_options = game.engine.investigation_options(game.market_items[0])
+	for i in range(game.inspect_buttons.size()):
+		_expect(game.inspect_buttons[i].text.begins_with(str(item_options[i]["short_label"])), "detail investigation buttons must use the current item's investigation profile")
 	game.inspect_buttons[0].pressed.emit()
 	_expect(game.investigation_remaining == 3, "A investigation must consume one shared opportunity")
 	var a_clues = game.market_items[0]["discovered_clues"].duplicate(true)
@@ -451,7 +454,7 @@ func _finish() -> void:
 	game.queue_free()
 	await _settle()
 	if errors.is_empty():
-		print("HOME FEED SMOKE OK v0.2.11: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
+		print("HOME FEED SMOKE OK v0.2.12: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
 		quit(0)
 	else:
 		for message in errors:
