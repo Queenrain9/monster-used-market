@@ -189,7 +189,7 @@ func _test_browsing(cards) -> void:
 	_expect(game.deal_last_action.text.contains("직전 제안"), "seller response state must expose the player's previous offer")
 	_expect(not game.deal_price_change.text.is_empty(), "seller response state must expose whether the seller price changed or stayed")
 	_expect(game.deal_round_label.text.contains("1 / 3"), "negotiation status must visibly update the spent round")
-	_expect(game.deal_patience_label.size.x >= 90.0 and game.deal_patience_label.autowrap_mode == TextServer.AUTOWRAP_OFF, "patience status must remain a readable single-line indicator")
+	_expect(game.deal_patience_label.size.y <= 32.0 and game.deal_patience_label.autowrap_mode == TextServer.AUTOWRAP_OFF and game.deal_patience_label.text.contains("인내"), "patience status must remain a readable single-line indicator")
 	var deal_text = _visible_text(game.get_node("Margin/RootVBox/DealPanel"))
 	_expect(not deal_text.contains("[긍정적]") and not deal_text.contains("[부정적]") and not deal_text.contains("[애매한]"), "negotiation evidence must not expose clue polarity")
 	game._go_market()
