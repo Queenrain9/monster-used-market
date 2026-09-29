@@ -151,7 +151,7 @@ Gate:
 Gate:
 placeholder art 상태에서도 모든 상호작용 feedback이 완성돼 있다.
 
-## P8 — Content & Release Completion
+## P8 — Content & Release Completion ✅ IMPLEMENTED v1.0.0-rc1
 
 - 확장 콘텐츠 팩
 - 밸런스 pass
@@ -207,3 +207,24 @@ Design Lock
 순서로 끝낸다.
 
 다음 단계는 이전 단계의 시스템을 지우는 방식으로 만들지 않는다.
+
+
+## Release Candidate Freeze
+
+Gameplay repository status: **v1.0.0-rc1**
+
+P1~P8 production gates are closed.
+
+After this point, gameplay code changes are limited to:
+- reproducible release blockers
+- real-device compatibility defects
+- save corruption / migration defects
+- final-asset integration defects
+
+The following are **not** grounds for reopening gameplay scope:
+- new gameplay feature ideas
+- new currencies/systems
+- extra minigames
+- redesigning completed flows
+
+Remaining production is final asset/audio creation, real-device QA, signing and store packaging.
