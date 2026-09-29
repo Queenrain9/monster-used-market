@@ -1621,8 +1621,12 @@ func _update_header() -> void:
 
 
 func _configure_mobile_ui() -> void:
+	var money_grid = $Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid
 	for label in find_children("*", "Label", true, false):
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		if label.get_parent() == money_grid:
+			label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		else:
+			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	for button in find_children("*", "Button", true, false):
 		# Godot-owned dialog buttons use intrinsic text widths. Wrapping them
 		# reduces their HBox minimum to padding and makes their labels disappear.
