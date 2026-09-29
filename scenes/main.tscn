@@ -497,50 +497,100 @@ autowrap_mode = 2
 [node name="InvestigationTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "더 알아보기"
+text = "판매자와 대화"
 
 [node name="DetailBudget" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
 theme_override_font_sizes/font_size = 11
-text = "더 물어보거나 확인할 수 있음 4번"
+text = "질문하거나 확인할 수 있음 4번"
+
+[node name="ChatPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="Portrait" type="TextureRect" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="SellerName" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "판매자"
+
+[node name="SellerStatus" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "최근 접속"
+
+[node name="MessagesScroll" type="ScrollContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box"]
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Messages" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/MessagesScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="ChoiceHint" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
+text = "무엇을 물어볼까요?"
 
 [node name="InvestigationGrid" type="GridContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
-columns = 3
+columns = 2
 theme_override_constants/h_separation = 5
 theme_override_constants/v_separation = 5
 
 [node name="InspectButton1" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "외형"
 
 [node name="InspectButton2" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "각인"
 
 [node name="InspectButton3" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "작동 상태"
 
 [node name="InspectButton4" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "출처 묻기"
 
 [node name="InspectButton5" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
@@ -578,14 +628,14 @@ autowrap_mode = 2
 [node name="KnownTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "내가 알아낸 것"
+text = "거래 메모"
 
 [node name="ClueList" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.32, 0.35, 0.39, 1)
-text = "확인한 정보"
+text = "아직 메모한 내용이 없습니다."
 autowrap_mode = 2
 
 [node name="MarketPricePanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
