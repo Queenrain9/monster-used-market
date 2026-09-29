@@ -18,7 +18,8 @@ func content_summary() -> Dictionary:
 		"seller_types": Content.SELLER_TYPES.size(),
 		"sellers": Content.SELLERS.size(),
 		"buyers": Content.BUYERS.size(),
-		"clues": Content.CLUES.size()
+		"clues": Content.CLUES.size(),
+		"investigation_profiles": Content.ITEM_INVESTIGATION_PROFILES.size()
 	}
 
 
@@ -35,6 +36,25 @@ func validate_content() -> Array:
 		errors.append("구매자 유형이 5종보다 적습니다.")
 	if int(summary["clues"]) < 25:
 		errors.append("단서가 25개보다 적습니다.")
+	if int(summary["investigation_profiles"]) < Content.ITEMS.size():
+		errors.append("아이템별 조사 프로필이 부족합니다.")
+	for item in Content.ITEMS:
+		var item_id = str(item["id"])
+		if not Content.ITEM_INVESTIGATION_PROFILES.has(item_id):
+			errors.append("%s 조사 프로필이 없습니다." % item_id)
+			continue
+		var profile: Array = Content.ITEM_INVESTIGATION_PROFILES[item_id]
+		if profile.size() != 5:
+			errors.append("%s 조사 행동은 5개여야 합니다." % item_id)
+			continue
+		var ids = {}
+		for action in profile:
+			var action_id = str(action.get("id", ""))
+			if action_id.is_empty() or ids.has(action_id):
+				errors.append("%s 조사 행동 ID가 비어 있거나 중복됩니다." % item_id)
+			ids[action_id] = true
+			if str(action.get("short_label", "")).is_empty() or str(action.get("label", "")).is_empty():
+				errors.append("%s 조사 행동 라벨이 비어 있습니다." % item_id)
 	return errors
 
 
@@ -114,18 +134,23 @@ func generate_listing(item: Dictionary) -> Dictionary:
 
 
 func investigation_options(listing: Dictionary) -> Array:
-	var options = Content.INVESTIGATION_ACTIONS.duplicate(true)
-	for option in options:
-		if option["id"] == "function":
-			if listing["tags"].has("마법") or listing["tags"].has("영혼"):
-				option["label"] = "마력 반응 확인"
-			elif listing["tags"].has("기계"):
-				option["label"] = "작동 상태 확인"
-			elif listing["category"] in ["재료", "연금재료", "보석"]:
-				option["label"] = "재질 상태 확인"
-			else:
-				option["label"] = "기능 / 구조 상태 확인"
-	return options
+	var item_id = str(listing.get("item_id", ""))
+	if Content.ITEM_INVESTIGATION_PROFILES.has(item_id):
+		return Content.ITEM_INVESTIGATION_PROFILES[item_id].duplicate(true)
+
+	var fallback = Content.INVESTIGATION_ACTIONS.duplicate(true)
+	for option in fallback:
+		option["short_label"] = str(option["label"])
+		if option["id"] == "market":
+			option["market"] = true
+		else:
+			option["clue_slot"] = {
+				"exterior":0,
+				"mark":1,
+				"function":2,
+				"origin":3
+			}.get(str(option["id"]), 0)
+	return fallback
 
 
 func investigate(listing: Dictionary, action_id: String) -> Dictionary:
@@ -147,7 +172,13 @@ func investigate(listing: Dictionary, action_id: String) -> Dictionary:
 	updated["inspected_actions"] = inspected
 	updated["listing_status"] = "조사 중"
 
-	if action_id == "market":
+	var selected_action = {}
+	for option in options:
+		if str(option["id"]) == action_id:
+			selected_action = option
+			break
+
+	if bool(selected_action.get("market", false)) or action_id == "market":
 		var low = max(500, int(round(float(updated["base_value"]) * 0.55)))
 		var high = int(round(float(updated["base_value"]) * 1.85))
 		var market_clue = {
@@ -159,15 +190,14 @@ func investigate(listing: Dictionary, action_id: String) -> Dictionary:
 			"aligned":true
 		}
 		_add_discovered_clue(updated, market_clue)
-		return {"listing": updated, "consumed": true, "message": market_clue["text"]}
+		return {
+			"listing": updated,
+			"consumed": true,
+			"message": market_clue["text"],
+			"action_label": str(selected_action.get("label", "시세 조사"))
+		}
 
-	var mapping = {
-		"exterior": 0,
-		"mark": 1,
-		"function": 2,
-		"origin": 3
-	}
-	var clue_index = int(mapping.get(action_id, 0))
+	var clue_index = int(selected_action.get("clue_slot", 0))
 	var clues: Array = updated["investigation_clues"]
 	var preferred_index = clamp(clue_index, 0, clues.size() - 1)
 	var clue = {}
@@ -187,7 +217,8 @@ func investigate(listing: Dictionary, action_id: String) -> Dictionary:
 	return {
 		"listing": updated,
 		"consumed": true,
-		"message":str(clue["text"])
+		"message":str(clue["text"]),
+		"action_label":str(selected_action.get("label", action_id))
 	}
 
 
