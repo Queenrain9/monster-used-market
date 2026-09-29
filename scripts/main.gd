@@ -20,6 +20,22 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var inventory_nav_button = $Margin/RootVBox/NavRow/InventoryNavButton
 @onready var records_nav_button = $Margin/RootVBox/NavRow/RecordsNavButton
 
+@onready var meta_strip = $Margin/RootVBox/MetaStrip
+@onready var day_label = $Margin/RootVBox/MetaStrip/Box/Row/DayLabel
+@onready var rank_label = $Margin/RootVBox/MetaStrip/Box/Row/RankLabel
+@onready var reputation_label = $Margin/RootVBox/MetaStrip/Box/Row/ReputationLabel
+@onready var goal_label = $Margin/RootVBox/MetaStrip/Box/GoalLabel
+
+@onready var commercial_shell = $CommercialShell
+@onready var title_view = $CommercialShell/Center/Card/TitleView
+@onready var onboarding_view = $CommercialShell/Center/Card/OnboardingView
+@onready var continue_button = $CommercialShell/Center/Card/TitleView/ContinueButton
+@onready var new_game_button = $CommercialShell/Center/Card/TitleView/NewGameButton
+@onready var onboarding_step_label = $CommercialShell/Center/Card/OnboardingView/StepLabel
+@onready var onboarding_title = $CommercialShell/Center/Card/OnboardingView/Title
+@onready var onboarding_body = $CommercialShell/Center/Card/OnboardingView/Body
+@onready var onboarding_next_button = $CommercialShell/Center/Card/OnboardingView/NextButton
+
 @onready var market_panel = $Margin/RootVBox/MarketPanel
 @onready var detail_panel = $Margin/RootVBox/DetailPanel
 @onready var seller_chat_panel = $Margin/RootVBox/SellerChatPanel
@@ -234,6 +250,15 @@ var current_stage = "market"
 var last_result_text = ""
 var last_result_record: Dictionary = {}
 
+var game_started = false
+var onboarding_complete = false
+var onboarding_page = 0
+var merchant_day = 1
+var merchant_reputation = 0
+var daily_goal_progress = 0
+var daily_goal_claimed = false
+var last_progress_message = ""
+
 
 func _ready() -> void:
 	theme = MarketTheme.build()
@@ -241,6 +266,8 @@ func _ready() -> void:
 	$Margin/RootVBox/Header/Brand.texture = Art.texture_for("ui", "brand")
 	$Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Art.texture = Art.texture_for("ui", "market")
 	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/ItemArt.texture = Art.texture_for("ui", "appraiser")
+	$CommercialShell/Center/Card/TitleView/Brand.texture = Art.texture_for("ui", "brand")
+	$CommercialShell/Center/Card/OnboardingView/Art.texture = Art.texture_for("ui", "market")
 	_configure_mobile_ui()
 	_connect_buttons()
 	_setup_options()
@@ -253,6 +280,13 @@ func _ready() -> void:
 
 	_update_header()
 	_restore_stage()
+
+	# Automated headless tests exercise the gameplay surface directly.
+	# Real players always enter through the commercial title shell.
+	if DisplayServer.get_name() == "headless":
+		commercial_shell.hide()
+	else:
+		_show_title_screen()
 	_save_game()
 
 
@@ -260,6 +294,9 @@ func _connect_buttons() -> void:
 	market_nav_button.pressed.connect(_go_market)
 	inventory_nav_button.pressed.connect(_go_inventory)
 	records_nav_button.pressed.connect(_go_records)
+	continue_button.pressed.connect(_continue_from_title)
+	new_game_button.pressed.connect(_new_game_from_title)
+	onboarding_next_button.pressed.connect(_advance_onboarding)
 
 	search_input.text_changed.connect(_on_home_search_changed)
 	recommend_tab_button.pressed.connect(_set_home_tab.bind("recommended"))
@@ -324,6 +361,138 @@ func _connect_buttons() -> void:
 
 	$Margin/RootVBox/ResultPanel/Scroll/Box/ResultMarketButton.pressed.connect(_go_market)
 	$Margin/RootVBox/ResultPanel/Scroll/Box/ResultInventoryButton.pressed.connect(_go_inventory)
+
+
+func _show_title_screen() -> void:
+	commercial_shell.show()
+	title_view.show()
+	onboarding_view.hide()
+	continue_button.disabled = not game_started
+	continue_button.text = "이어하기" if game_started else "이어할 게임 없음"
+
+
+func _continue_from_title() -> void:
+	if not game_started:
+		return
+	if onboarding_complete:
+		commercial_shell.hide()
+		_restore_stage()
+	else:
+		_show_onboarding_page(0)
+
+
+func _new_game_from_title() -> void:
+	_reset_core_progress()
+	game_started = true
+	onboarding_complete = false
+	_create_new_market(true, false)
+	_show_onboarding_page(0)
+	_save_game()
+
+
+func _show_onboarding_page(page: int) -> void:
+	onboarding_page = clamp(page, 0, 2)
+	commercial_shell.show()
+	title_view.hide()
+	onboarding_view.show()
+	var titles = [
+		"어둠마을에 도착했습니다",
+		"당신은 신참 물건상",
+		"첫 거래를 만들어보세요"
+	]
+	var bodies = [
+		"괴물들이 수상한 물건을 사고파는 동네 장터입니다.\n판매글만 믿지 말고, 상대에게 물어보고 직접 판단해야 합니다.",
+		"시작 자금은 50,000G.\n싸게 사는 것만으로는 부족합니다. 진짜 가치를 알아보고, 어디에 되팔지까지 결정하세요.",
+		"오늘의 첫 목표는 거래 1건을 끝까지 완료하는 것.\n매물 확인 → 판매자 대화 → 가격 제안 → 구매 → 감정/조사 → 재판매까지 이어가세요.\n\n보상: 500G + 평판 10"
+	]
+	onboarding_step_label.text = "%d / 3" % [onboarding_page + 1]
+	onboarding_title.text = titles[onboarding_page]
+	onboarding_body.text = bodies[onboarding_page]
+	onboarding_next_button.text = "장터 열기" if onboarding_page == 2 else "다음"
+
+
+func _advance_onboarding() -> void:
+	if onboarding_page < 2:
+		_show_onboarding_page(onboarding_page + 1)
+		return
+	_finish_onboarding()
+
+
+func _finish_onboarding() -> void:
+	onboarding_complete = true
+	current_stage = "market"
+	commercial_shell.hide()
+	_render_market()
+	_show_panel(market_panel)
+	_set_status("첫 거래를 시작하세요. 수상한 매물을 하나 골라 판매자에게 말을 걸어보세요.")
+	_save_game()
+
+
+func _reset_core_progress() -> void:
+	gold = STARTING_GOLD
+	total_deals = 0
+	today_deals = 0
+	today_date = Time.get_date_string_from_system()
+	best_profit = 0
+	worst_loss = 0
+	rare_items = []
+	owned_items = []
+	market_items = []
+	selected_market_index = -1
+	selected_owned_index = -1
+	current_stage = "market"
+	last_result_text = ""
+	last_result_record = {}
+	home_query = ""
+	home_tab = "recommended"
+	home_category = "전체"
+	merchant_day = 1
+	merchant_reputation = 0
+	daily_goal_progress = 0
+	daily_goal_claimed = false
+	last_progress_message = ""
+
+
+func _merchant_rank() -> String:
+	if merchant_reputation >= 600:
+		return "어둠마을 상인"
+	if merchant_reputation >= 300:
+		return "기묘품 중개상"
+	if merchant_reputation >= 150:
+		return "골목 상인"
+	if merchant_reputation >= 60:
+		return "동네 감정꾼"
+	return "견습 물건상"
+
+
+func _apply_trade_progress(profit: int, listing: Dictionary) -> Dictionary:
+	var reputation_gain = 10
+	if profit > 0:
+		reputation_gain += 5
+	if listing.get("discovered_clues", []).size() >= 2:
+		reputation_gain += 2
+	merchant_reputation += reputation_gain
+
+	var goal_gold = 0
+	var goal_reputation = 0
+	if daily_goal_progress < 1:
+		daily_goal_progress = 1
+	if daily_goal_progress >= 1 and not daily_goal_claimed:
+		daily_goal_claimed = true
+		goal_gold = 500
+		goal_reputation = 10
+		gold += goal_gold
+		merchant_reputation += goal_reputation
+
+	var total_rep = reputation_gain + goal_reputation
+	last_progress_message = "평판 +%d" % total_rep
+	if goal_gold > 0:
+		last_progress_message += " · 첫 거래 목표 완료 +%sG" % _money(goal_gold)
+	return {
+		"reputation_gain":total_rep,
+		"goal_gold":goal_gold,
+		"rank":_merchant_rank()
+	}
 
 
 func _setup_options() -> void:
