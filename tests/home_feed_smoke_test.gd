@@ -167,13 +167,22 @@ func _test_browsing(cards) -> void:
 	game.get_node("Margin/RootVBox/DetailPanel/Scroll/Box/StartDealButton").pressed.emit()
 	await _settle()
 	_expect(game.current_stage == "deal", "trade plan must still lead to negotiation")
+	_expect(not game.get_node("Margin/RootVBox/Header").visible and not game.get_node("Margin/RootVBox/NavRow").visible, "negotiation must use its dedicated focus screen")
+	_expect(game.deal_seller_price.text.contains("판매자 요구가") and game.deal_max_buy.text.contains("내 최대 매입가") and game.deal_expected_resale.text.contains("예상 재판매가"), "negotiation entry must show seller price, purchase ceiling and resale estimate together")
+	game.offer_slider.value = game.offer_slider.max_value
+	await _settle()
+	_expect(not game.offer_warning_label.text.is_empty(), "offer above the saved purchase ceiling must show a warning without blocking input")
 	game.evidence_option.select(game.evidence_option.item_count - 1)
 	await _assert_layout("long negotiation and evidence")
 	await _assert_popup(game.evidence_option, "evidence popup")
 	game.evidence_option.select(0)
 	game.offer_slider.value = game.offer_slider.min_value
 	game.get_node("Margin/RootVBox/DealPanel/Scroll/Box/SubmitOfferButton").pressed.emit()
+	await _settle()
 	_expect(game.current_stage == "deal" and int(game.market_items[0]["negotiation_state"]["rounds"]) == 1, "a low price must still receive a counter or refusal and spend a negotiation round")
+	_expect(game.deal_last_action.text.contains("직전 제안"), "seller response state must expose the player's previous offer")
+	_expect(not game.deal_price_change.text.is_empty(), "seller response state must expose whether the seller price changed or stayed")
+	_expect(game.deal_round_label.text.contains("1 / 3"), "negotiation status must visibly update the spent round")
 	game._go_market()
 	await _settle()
 	game._open_listing(0)
@@ -432,7 +441,7 @@ func _finish() -> void:
 	game.queue_free()
 	await _settle()
 	if errors.is_empty():
-		print("HOME FEED SMOKE OK v0.2.9: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
+		print("HOME FEED SMOKE OK v0.2.10: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
 		quit(0)
 	else:
 		for message in errors:
