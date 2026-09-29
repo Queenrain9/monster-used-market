@@ -1088,7 +1088,7 @@ theme_override_font_sizes/font_size = 9
 text = "기타"
 
 [node name="MarketBanner" type="PanelContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 54)
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 clip_contents = true
 
