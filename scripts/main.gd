@@ -2,6 +2,8 @@ extends Control
 
 const MarketEngine = preload("res://scripts/game_logic.gd")
 const Content = preload("res://data/content.gd")
+const Art = preload("res://scripts/art_catalog.gd")
+const MarketTheme = preload("res://scripts/market_theme.gd")
 const HomeFeed = preload("res://scripts/home_feed.gd")
 
 const STARTING_GOLD = 50000
@@ -24,7 +26,7 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var result_panel = $Margin/RootVBox/ResultPanel
 
 @onready var market_scroll = $Margin/RootVBox/MarketPanel/Scroll
-@onready var market_info_label = $Margin/RootVBox/MarketPanel/Scroll/Box/MarketState/MarketInfo
+@onready var market_info_label = $Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState/MarketInfo
 @onready var market_cards = [
 	$Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards/ListingCard1,
 	$Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards/ListingCard2,
@@ -113,6 +115,11 @@ var last_result_text = ""
 
 
 func _ready() -> void:
+	theme = MarketTheme.build()
+	$Backdrop.texture = Art.texture_for("ui", "market")
+	$Margin/RootVBox/Header/Brand.texture = Art.texture_for("ui", "brand")
+	$Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Art.texture = Art.texture_for("ui", "market")
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/AppraiserArt.texture = Art.texture_for("ui", "appraiser")
 	_configure_mobile_ui()
 	_connect_buttons()
 	_setup_options()
@@ -276,9 +283,10 @@ func _render_detail() -> void:
 
 	var seller: Dictionary = listing["seller"]
 	var personality: Dictionary = seller["personality"]
-	detail_title.text = "%s\n희망가 %sG" % [listing["name"], _money(int(listing["asking"]))]
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ItemArt.texture = Art.texture_for("items", str(listing.get("item_id", "")))
+	detail_title.text = "%s\n희망가 %sG" % [Art.item_name(listing), _money(int(listing["asking"]))]
 	detail_seller.text = "판매자 %s · %s\n%s\n판매자 주장: %s" % [
-		seller["name"], personality["name"], personality["summary"], listing["seller_claim"]["text"]
+		Art.seller_name(seller), personality["name"], personality["summary"], listing["seller_claim"]["text"]
 	]
 	detail_budget.text = "더 자세히 확인할 수 있는 정보: %d회" % investigation_remaining
 	detail_clues.text = "지금까지 확인한 정보\n%s" % _format_discovered_clues(listing)
@@ -392,8 +400,8 @@ func _render_deal() -> void:
 	var plan: Dictionary = listing.get("trade_plan", {})
 	var current_price = int(negotiation["current_price"])
 
-	deal_title.text = "%s · 판매자와 거래" % listing["name"]
-	deal_seller.text = "%s · %s" % [seller["name"], seller["personality"]["name"]]
+	deal_title.text = "%s · 판매자와 거래" % Art.item_name(listing)
+	deal_seller.text = "%s · %s" % [Art.seller_name(seller), seller["personality"]["name"]]
 	plan_summary.text = "내 예상 재판매가 %s\n내 최대 매입가 %sG" % [
 		plan.get("value_band", "-"), _money(int(plan.get("max_buy_price", 0)))
 	]
@@ -567,10 +575,11 @@ func _render_inventory() -> void:
 	for owned in owned_items:
 		var listing: Dictionary = owned["listing"]
 		var state_text = _owned_state_text(owned)
-		var full_text = "%s · 매입 %sG · %s" % [listing["name"], _money(int(owned["purchase_price"])), state_text]
+		var full_text = "%s · 매입 %sG · %s" % [Art.item_name(listing), _money(int(owned["purchase_price"])), state_text]
 		inventory_list.add_item(_compact_option_text(inventory_list, full_text))
 		inventory_list.set_item_tooltip(inventory_list.item_count - 1, full_text)
 
+	$Margin/RootVBox/InventoryPanel/Scroll/Box/ItemArt.visible = not owned_items.is_empty()
 	if owned_items.is_empty():
 		selected_owned_index = -1
 		inventory_detail.text = "아직 보유한 물건이 없습니다.\n마켓에서 물건을 구매하면 이곳에 들어옵니다."
@@ -596,8 +605,9 @@ func _render_inventory_detail() -> void:
 		return
 	var listing: Dictionary = owned["listing"]
 	var plan: Dictionary = listing.get("trade_plan", {})
+	$Margin/RootVBox/InventoryPanel/Scroll/Box/ItemArt.texture = Art.texture_for("items", str(listing.get("item_id", "")))
 	inventory_detail.text = "%s\n상태: %s\n매입가 %sG\n내 예상 재판매가 %s\n내 최대 매입가 %sG\n\n확인한 정보\n%s" % [
-		listing["name"],
+		Art.item_name(listing),
 		_owned_state_text(owned),
 		_money(int(owned["purchase_price"])),
 		plan.get("value_band", "-"),
@@ -642,7 +652,7 @@ func _render_appraisal() -> void:
 	var listing: Dictionary = owned["listing"]
 	var appraisal_data: Dictionary = owned.get("appraisal_data", {})
 
-	appraisal_title.text = "감정소 · %s" % listing["name"]
+	appraisal_title.text = "감정소 · %s" % Art.item_name(listing)
 	appraisal_info.text = "매입가 %sG · 검사비 누적 %sG · 전문 감정비 %sG" % [
 		_money(int(owned["purchase_price"])),
 		_money(int(owned["inspection_cost_total"])),
@@ -735,7 +745,7 @@ func _render_sale() -> void:
 	var offers: Array = owned["buyer_offers"]
 	var selected_buyer_index = int(owned.get("selected_buyer_index", -1))
 
-	sale_title.text = "재판매 · %s" % listing["name"]
+	sale_title.text = "재판매 · %s" % Art.item_name(listing)
 	if appraisal_data.is_empty():
 		sale_info.text = "전문 감정 없음 · 지금까지 모은 정보와 판매처 성향으로 판단하세요."
 	else:
@@ -823,6 +833,7 @@ func _sell_selected_buyer() -> void:
 	worst_loss = min(worst_loss, profit)
 
 	if str(listing["rarity"]) in ["희귀", "영웅", "전설"]:
+		# Cosmetic names must not create duplicate discoveries in existing saves.
 		var discovery = "%s · %s" % [listing["name"], listing["rarity"]]
 		if not rare_items.has(discovery):
 			rare_items.append(discovery)
@@ -845,7 +856,7 @@ func _sell_selected_buyer() -> void:
 	analysis += "• 판매처: %s — %s" % [offer["name"], offer["reason"]]
 
 	last_result_text = "거래 완료 · %s\n\n매입가 %sG\n검사/감정비 %sG\n판매가 %sG\n순이익 %s\n\n내 거래 계획 복기\n%s\n거래 분석\n%s\n\n실제 물건\n%s · %s · %s\n실제 가치 %sG\n\n현재 자산 %sG" % [
-		listing["name"], _money(purchase_price), _money(info_cost), _money(sale_price), _signed_money(profit),
+		Art.item_name(listing), _money(purchase_price), _money(info_cost), _money(sale_price), _signed_money(profit),
 		plan_text, analysis,
 		listing["state"], listing["rarity"], listing["condition"], _money(int(listing["actual_value"])), _money(gold)
 	]

@@ -20,6 +20,9 @@ jobs:
           unzip -q godot.zip -d .godot-bin
           chmod +x .godot-bin/Godot_v4.5.1-stable_linux.x86_64
 
+      - name: Import supplied textures
+        run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . --editor --import
+
       - name: Check content syntax
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . --check-only --script res://data/content.gd
 
@@ -50,3 +53,6 @@ jobs:
           XDG_DATA_HOME: ${{ runner.temp }}/monster-smoke-data
           MONSTER_SMOKE_DATA_ROOT: ${{ runner.temp }}/monster-smoke-data
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/home_feed_smoke_test.gd
+
+      - name: Verify artwork catalog and replacements
+        run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/art_smoke_test.gd

@@ -38,6 +38,18 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.045, 0.035, 0.052, 1)
 
+[node name="Backdrop" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+modulate = Color(0.3, 0.25, 0.35, 1)
+
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -45,10 +57,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
 [node name="RootVBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
@@ -57,18 +69,25 @@ theme_override_constants/separation = 6
 [node name="Header" type="HBoxContainer" parent="Margin/RootVBox"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
+
+[node name="Brand" type="TextureRect" parent="Margin/RootVBox/Header"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Title" type="Label" parent="Margin/RootVBox/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.956, 0.766, 0.368, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 17
 text = "괴물 중고마켓"
 autowrap_mode = 3
 
 [node name="GoldLabel" type="Label" parent="Margin/RootVBox/Header"]
-custom_minimum_size = Vector2(96, 0)
+custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.88, 0.48, 1)
 theme_override_font_sizes/font_size = 13
@@ -77,7 +96,7 @@ horizontal_alignment = 2
 autowrap_mode = 3
 
 [node name="InventoryCount" type="Label" parent="Margin/RootVBox/Header"]
-custom_minimum_size = Vector2(56, 0)
+custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "보유품 0"
@@ -109,23 +128,46 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
 
-[node name="MarketState" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+[node name="MarketBanner" type="PanelContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+clip_contents = true
+
+[node name="Art" type="TextureRect" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner"]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="ColorRect" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner"]
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.035, 0.02, 0.06, 0.68)
+
+[node name="Inset" type="MarginContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="MarketState" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset"]
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="MarketTitle" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketState"]
+[node name="MarketTitle" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "어둠마을 야시장"
 autowrap_mode = 3
 
-[node name="MarketIntro" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketState"]
+[node name="MarketIntro" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "오늘도 수상한 물건들이 올라와 있습니다."
 autowrap_mode = 3
 
-[node name="MarketInfo" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketState"]
+[node name="MarketInfo" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.77, 0.7, 0.9, 1)
@@ -181,11 +223,25 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
+[node name="ItemArt" type="TextureRect" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 116)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="DetailTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "매물 상세"
 autowrap_mode = 2
+
+[node name="ArtNote" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.73, 0.67, 0.6, 1)
+text = "대표 이미지입니다. 실제 상태와 진위는 조사로 확인하세요."
+autowrap_mode = 3
 
 [node name="SellerInfo" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
@@ -383,6 +439,13 @@ autowrap_mode = 2
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 
+[node name="ItemArt" type="TextureRect" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="InventoryDetail" type="Label" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
@@ -426,6 +489,13 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
+
+[node name="AppraiserArt" type="TextureRect" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
 
 [node name="AppraisalTitle" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
 layout_mode = 2

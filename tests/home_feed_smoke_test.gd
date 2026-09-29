@@ -59,8 +59,20 @@ func _test_public_feed(cards) -> void:
 		root.push_input(click)
 		await _settle()
 	_expect(game.current_stage == "detail" and game.selected_market_index == 0, "real card hit area must open the existing detail")
+	await _capture("listing-detail")
+	_expect(game.get_node("Margin/RootVBox/DetailPanel/Scroll/Box/ItemArt").texture == cards.get_child(0).get_node("Margin/Box/Top/Thumbnail").texture, "home and detail must show the same public artwork")
 	game._go_market()
 	await _settle()
+	var original_id = market[0]["listing_id"]
+	for i in range(100):
+		market[0]["listing_id"] = "feature-preview-%d" % i
+		if presenter.choose_featured_index(market) == 0:
+			break
+	game._render_market()
+	await _settle()
+	await _capture("home-special")
+	market[0]["listing_id"] = original_id
+	game._render_market()
 	var card = market[0]
 	card["seller"]["type"] = "urgent"
 	card["seller"]["personality"] = Content.SELLER_TYPES["urgent"].duplicate(true)
@@ -196,6 +208,7 @@ func _test_trade_flow(cards) -> void:
 	_expect(not game.next_market_button.disabled, "actual purchase must unlock next market without consuming all investigations")
 	_expect(cards.get_child(0).get_node("OpenButton").disabled, "completed listing must remain visible and cannot be bought again")
 	game._go_inventory()
+	_expect(game.get_node("Margin/RootVBox/InventoryPanel/Scroll/Box/ItemArt").texture == load("res://scripts/art_catalog.gd").texture_for("items", str(game.owned_items[0]["listing"]["item_id"])), "owned item must retain its public artwork")
 	var real_name = game.owned_items[0]["listing"]["name"]
 	game.owned_items[0]["listing"]["name"] = "매우 긴 보유품 이름 ".repeat(30)
 	game._render_inventory()
@@ -263,8 +276,13 @@ func _test_trade_flow(cards) -> void:
 	game._buy_current_price()
 	game._open_sale()
 	_expect(game.owned_items[0]["appraisal_data"].is_empty(), "selling without appraisal must remain possible")
+	# A pre-art save already contains this discovery under its original name.
+	game.owned_items[0]["listing"]["rarity"] = "희귀"
+	var legacy_discovery = "%s · 희귀" % game.owned_items[0]["listing"]["name"]
+	game.rare_items = [legacy_discovery]
 	game._select_buyer(3)
 	game._sell_selected_buyer()
+	_expect(game.rare_items == [legacy_discovery], "a cosmetic name must not duplicate an existing rare discovery")
 	_expect(game.total_deals == 2 and game.last_result_text.contains("검사/감정비 0G"), "unappraised scrap sale must keep a zero information cost and a real result")
 
 

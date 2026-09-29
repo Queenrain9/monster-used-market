@@ -1,6 +1,7 @@
 extends RefCounted
 
 # The feed is a public projection, never an appraisal or a recommendation.
+const Art = preload("res://scripts/art_catalog.gd")
 const Content = preload("res://data/content.gd")
 
 
@@ -32,13 +33,15 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 		tags.append("거래 가능")
 
 	return {
-		"name": str(listing.get("name", "")),
+		"name": Art.item_name(listing),
+		"item_art_id": str(listing.get("item_id", "")),
+		"seller_art_id": str(seller.get("id", "")),
 		"price_text": "%sG" % _money(int(listing.get("asking", 0))),
-		"seller_text": "판매자: %s" % str(seller.get("name", "")),
+		"seller_text": "판매자: %s" % Art.seller_name(seller),
 		"tags_text": " · ".join(tags),
 		"clue_text": str(listing.get("initial_clue", {}).get("text", "")),
 		"feature_text": "특별 매물" if featured and available else "",
-		"action_text": ("다시 보기 ›" if viewed else "자세히 보기 ›") if available else "거래 완료",
+		"action_text": ("다시 보기 ›" if viewed else "보기 ›") if available else "거래 완료",
 		"available": available
 	}
 
