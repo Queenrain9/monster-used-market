@@ -103,6 +103,15 @@ func _init() -> void:
 		return
 	for item in Content.ITEMS:
 		var probe = engine.generate_listing(item)
+		var stories: Array = item.get("market_stories", [])
+		if stories.is_empty() or not stories.has(str(probe.get("listing_story", ""))):
+			_fail("%s generated listing did not persist one of its seller stories" % item["id"])
+			return
+		var seller_meta: Dictionary = probe.get("seller", {})
+		for field in ["neighborhood", "meetup", "profile"]:
+			if str(seller_meta.get(field, "")).strip_edges().is_empty():
+				_fail("generated seller is missing local marketplace field %s" % field)
+				return
 		var options = engine.investigation_options(probe)
 		if options.size() != 5:
 			_fail("%s must expose exactly five investigation choices" % item["id"])
@@ -226,7 +235,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.2.14: scalable information economy, no hidden-value leakage, reusable content profiles and full trade flow")
+	print("SMOKE OK v0.2.15: monster local-marketplace stories, seller locality, scalable economy and full trade flow")
 	quit(0)
 
 
