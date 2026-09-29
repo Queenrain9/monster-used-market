@@ -27,6 +27,21 @@ func _init() -> void:
 		_fail("content validation failed: %s" % str(errors))
 		return
 
+	if Content.ITEMS.size() != 24:
+		_fail("commercial content pack must expose exactly 24 tradable item types")
+		return
+	if Content.DAY_EVENTS.size() < 8:
+		_fail("commercial content pack must expose at least 8 daily market rumors")
+		return
+	if Content.COLLECTION_SETS.size() < 8:
+		_fail("commercial content pack must expose at least 8 collection sets")
+		return
+	for item in Content.ITEMS:
+		var listing = engine.generate_listing(item)
+		if str(listing.get("item_id", "")) != str(item.get("id", "")) or int(listing.get("actual_value", 0)) <= 0 or int(listing.get("asking", 0)) <= 0:
+			_fail("commercial item cannot generate a valid tradable listing: %s" % item.get("id", ""))
+			return
+
 	# P2 world structure: each district must generate only its assigned sellers.
 	if Content.DISTRICTS.size() != 4:
 		_fail("commercial world must expose four districts")
