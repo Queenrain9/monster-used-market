@@ -78,11 +78,12 @@ func _test_public_feed(cards) -> void:
 	card["seller"]["personality"] = Content.SELLER_TYPES["urgent"].duplicate(true)
 	card["initial_clue"]["text"] = "공개된 흔적 하나."
 	card["seller_claim"]["text"] = "판매자 주장 비공개표식"
+	card["listing_story"] = "서랍 정리하다 나온 물건이라 올려요."
 	card["discovered_clues"].append({"kind": "시세", "text": "조사 결과 비공개표식"})
 	var public_data = presenter.describe_listing(card, true)
-	_expect(str(public_data["tags_text"]).contains("가격 협의"), "public feed should communicate negotiability without revealing seller archetype")
+	_expect(str(public_data["tags_text"]).contains("가격 제안"), "public feed should communicate local price-offer trading without revealing seller archetype")
 	_expect(not str(public_data).contains("급한 판매자"), "public feed must not reveal the hidden urgent seller archetype")
-	_expect(public_data["clue_text"] == "공개된 흔적 하나.", "home must expose only the initial clue")
+	_expect(public_data["clue_text"] == "서랍 정리하다 나온 물건이라 올려요.", "home card must read like the seller's post rather than a system clue")
 	var hidden_changed = card.duplicate(true)
 	hidden_changed["state"] = "모조품"
 	hidden_changed["condition"] = "손상"
@@ -142,8 +143,13 @@ func _test_browsing(cards) -> void:
 	var pre_purchase_text = _visible_text(game.get_node("Margin/RootVBox/DetailPanel"))
 	var seller_type = str(game.market_items[0]["seller"]["type"])
 	var seller_type_name = str(Content.SELLER_TYPES[seller_type]["name"])
+	var listing = game.market_items[0]
 	_expect(not pre_purchase_text.contains("[긍정적]") and not pre_purchase_text.contains("[부정적]") and not pre_purchase_text.contains("[애매한]"), "detail must show clue facts without polarity labels")
 	_expect(not pre_purchase_text.contains(seller_type_name), "detail must show seller behavior cues without naming the archetype")
+	_expect(game.detail_description.text.contains(game.feed.listing_story_text(listing)), "detail must present the seller-written listing story")
+	_expect(game.detail_info.text.contains(game.feed.public_meetup_text(listing)), "detail must expose a concrete local meetup spot")
+	_expect(game.seller_card_text.text.contains(game.feed.seller_profile_text(listing)), "detail seller card must show the monster seller's marketplace profile")
+	_expect(game.seller_portrait.texture == load("res://scripts/art_catalog.gd").texture_for("sellers", str(listing["seller"]["id"])), "detail must show the seller portrait")
 	var item_options = game.engine.investigation_options(game.market_items[0])
 	for i in range(game.inspect_buttons.size()):
 		_expect(game.inspect_buttons[i].text.begins_with(str(item_options[i]["short_label"])), "detail investigation buttons must use the current item's investigation profile")
@@ -177,7 +183,9 @@ func _test_browsing(cards) -> void:
 	await _settle()
 	_expect(game.current_stage == "deal", "trade plan must still lead to negotiation")
 	_expect(not game.get_node("Margin/RootVBox/Header").visible and not game.get_node("Margin/RootVBox/NavRow").visible, "negotiation must use its dedicated focus screen")
-	_expect(game.deal_seller_price.text.contains("판매자 요구가") and game.deal_max_buy.text.contains("내 최대 매입가") and game.deal_expected_resale.text.contains("예상 재판매가"), "negotiation entry must show seller price, purchase ceiling and resale estimate together")
+	_expect(game.deal_seller_price.text.contains("판매자가 올린 가격") and game.deal_max_buy.text.contains("내 최대 매입가") and game.deal_expected_resale.text.contains("예상 재판매가"), "price-offer screen must show seller listing price, purchase ceiling and resale estimate together")
+	_expect(game.deal_personality.text.contains(game.feed.public_meetup_text(game.market_items[0])), "price-offer screen must keep the local direct-trade context visible")
+	_expect(game.seller_speech.text.contains("아직 있어요"), "first price-offer state must feel like a seller reply instead of a system prompt")
 	game.offer_slider.value = game.offer_slider.max_value
 	await _settle()
 	_expect(not game.offer_warning_label.text.is_empty(), "offer above the saved purchase ceiling must show a warning without blocking input")
