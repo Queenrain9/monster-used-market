@@ -38,6 +38,8 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 		"seller_art_id": str(seller.get("id", "")),
 		"price_text": "%sG" % _money(int(listing.get("asking", 0))),
 		"seller_text": "판매자: %s" % Art.seller_name(seller),
+		"seller_short_text": Art.seller_name(seller),
+		"meta_text": "%s · %s" % [public_location_text(listing), public_age_text(listing)],
 		"tags_text": " · ".join(tags),
 		"clue_text": str(listing.get("initial_clue", {}).get("text", "")),
 		"feature_text": "특별 매물" if featured and available else "",
