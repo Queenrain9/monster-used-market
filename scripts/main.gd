@@ -38,6 +38,7 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var onboarding_next_button = $CommercialShell/Center/Card/OnboardingView/NextButton
 
 @onready var town_panel = $Margin/RootVBox/TownPanel
+@onready var workshop_panel = $Margin/RootVBox/WorkshopPanel
 @onready var market_panel = $Margin/RootVBox/MarketPanel
 @onready var detail_panel = $Margin/RootVBox/DetailPanel
 @onready var seller_chat_panel = $Margin/RootVBox/SellerChatPanel
@@ -88,6 +89,60 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info/EnterButton
 ]
 @onready var end_day_button = $Margin/RootVBox/TownPanel/Scroll/Box/EndDayButton
+
+@onready var workshop_gold_label = $Margin/RootVBox/WorkshopPanel/Scroll/Box/TopRow/GoldLabel
+@onready var workshop_rank_label = $Margin/RootVBox/WorkshopPanel/Scroll/Box/RankPanel/Box/RankLabel
+@onready var workshop_progress_label = $Margin/RootVBox/WorkshopPanel/Scroll/Box/RankPanel/Box/ProgressLabel
+@onready var workshop_unlock_label = $Margin/RootVBox/WorkshopPanel/Scroll/Box/RankPanel/Box/UnlockLabel
+@onready var upgrade_cards = [
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5
+]
+@onready var upgrade_name_labels = [
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box/Top/Name,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box/Top/Name,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box/Top/Name,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/Top/Name,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/Top/Name
+]
+@onready var upgrade_level_labels = [
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box/Top/Level,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box/Top/Level,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box/Top/Level,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/Top/Level,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/Top/Level
+]
+@onready var upgrade_description_labels = [
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box/Description,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box/Description,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box/Description,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/Description,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/Description
+]
+@onready var upgrade_effect_labels = [
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box/Effect,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box/Effect,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box/Effect,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/Effect,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/Effect
+]
+@onready var upgrade_requirement_labels = [
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box/Requirement,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box/Requirement,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box/Requirement,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/Requirement,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/Requirement
+]
+@onready var upgrade_buy_buttons = [
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box/BuyButton,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box/BuyButton,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box/BuyButton,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/BuyButton,
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/BuyButton
+]
 
 @onready var market_scroll = $Margin/RootVBox/MarketPanel/Scroll
 @onready var search_input = $Margin/RootVBox/MarketPanel/Scroll/Box/SearchInput
@@ -308,6 +363,13 @@ var market_visits_remaining = Content.DAY_MARKET_VISITS
 var day_start_gold = STARTING_GOLD
 var last_day_summary: Dictionary = {}
 var day_event_id = ""
+var upgrade_levels: Dictionary = {
+	"storage":0,
+	"notebook":0,
+	"appraisal":0,
+	"network":0,
+	"routes":0
+}
 
 
 func _ready() -> void:
@@ -360,6 +422,10 @@ func _connect_buttons() -> void:
 	for i in range(district_enter_buttons.size()):
 		district_enter_buttons[i].pressed.connect(_enter_district.bind(i))
 	end_day_button.pressed.connect(_end_day)
+	$Margin/RootVBox/TownPanel/Scroll/Box/WorkshopButton.pressed.connect(_go_workshop)
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/TopRow/BackButton.pressed.connect(_go_town)
+	for i in range(upgrade_buy_buttons.size()):
+		upgrade_buy_buttons[i].pressed.connect(_buy_upgrade.bind(i))
 	for i in range(market_cards.size()):
 		market_cards[i].opened.connect(_open_listing.bind(i))
 	for i in range(inspect_buttons.size()):
