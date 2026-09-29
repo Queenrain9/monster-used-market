@@ -29,6 +29,7 @@ func _run() -> void:
 		await _finish()
 		return
 	await _test_commercial_shell()
+	await _test_presentation_layer()
 	await _test_world_session()
 	await _test_dynamic_market_events()
 	await _test_relationship_progression()
@@ -42,6 +43,7 @@ func _run() -> void:
 	await _test_browsing(cards)
 	await _test_trade_flow(cards)
 	await _test_save_compatibility()
+	await _test_save_recovery()
 	await _finish()
 
 
@@ -61,6 +63,43 @@ func _test_commercial_shell() -> void:
 	_expect(game.day_label.text.contains("DAY 1") and game.rank_label.text == "견습 물건상" and game.reputation_label.text.contains("평판 0"), "commercial HUD must expose day, rank and reputation")
 	_expect(game.goal_label.text.contains("첫 거래 완료") and game.goal_label.text.contains("0/1"), "first session must expose a concrete daily objective")
 	await _assert_layout("commercial first session")
+
+
+func _test_presentation_layer() -> void:
+	game._show_settings()
+	await _settle()
+	_expect(game.settings_overlay.visible, "commercial settings must be available as an overlay")
+	_expect(game.settings_overlay.get_global_rect().size.x <= 390.5 and game.settings_overlay.get_global_rect().size.y <= 844.5, "settings overlay must fit the portrait viewport")
+
+	game.settings_music_slider.value = 0.35
+	game.settings_sfx_slider.value = 0.45
+	game.settings_haptics_check.button_pressed = false
+	game.settings_reduced_motion_check.button_pressed = true
+	game.settings_large_text_check.button_pressed = true
+	await _settle()
+	_expect(abs(float(game.presentation_settings["music_volume"]) - 0.35) < 0.001, "music volume setting must update live")
+	_expect(abs(float(game.presentation_settings["sfx_volume"]) - 0.45) < 0.001, "sfx volume setting must update live")
+	_expect(not bool(game.presentation_settings["haptics"]) and bool(game.presentation_settings["reduced_motion"]) and bool(game.presentation_settings["large_text"]), "accessibility and feedback toggles must update live")
+	_expect(FileAccess.file_exists(game.SETTINGS_PATH), "presentation settings must persist independently of game progress")
+
+	game._presentation_event("purchase", "success")
+	_expect(game.last_presentation_event == "purchase", "presentation event keys must work even before final audio files exist")
+	game.market_panel.modulate = Color(1, 1, 1, 0)
+	game._play_screen_enter(game.market_panel)
+	_expect(game.market_panel.modulate.a >= 0.99, "reduced-motion mode must skip animated screen fades")
+
+	game.tutorial_flags.erase("chat")
+	game._maybe_show_context_tip("chat", true)
+	_expect(game.context_tip.visible and game.context_tip_title.text.length() > 0, "contextual tutorial must be renderable on first visit")
+	game._dismiss_context_tip()
+	_expect(bool(game.tutorial_flags.get("chat", false)) and not game.context_tip.visible, "dismissing a contextual tip must persist its seen state")
+
+	# Return settings to normal test defaults while proving the file is writable.
+	game.settings_haptics_check.button_pressed = true
+	game.settings_reduced_motion_check.button_pressed = false
+	game.settings_large_text_check.button_pressed = false
+	game._hide_settings()
+	await _assert_layout("presentation settings")
 
 
 func _test_world_session() -> void:
@@ -835,6 +874,31 @@ func _expect(condition: bool, message: String) -> void:
 	checks += 1
 	if not condition:
 		errors.append(message)
+
+
+func _test_save_recovery() -> void:
+	game.gold = 123456
+	game.game_started = true
+	game.onboarding_complete = true
+	game._save_game()
+	game._save_game()
+	_expect(FileAccess.file_exists(game.SAVE_BACKUP_PATH), "atomic save flow must keep a previous known-good backup")
+
+	var corrupt = FileAccess.open(game.SAVE_PATH, FileAccess.WRITE)
+	_expect(corrupt != null, "test must be able to corrupt the primary save fixture")
+	if corrupt != null:
+		corrupt.store_string("{broken save")
+		corrupt.close()
+
+	game.queue_free()
+	await _settle()
+	game = MainScene.instantiate()
+	root.add_child(game)
+	await _settle()
+	_expect(game.gold == 123456, "corrupted primary save must automatically recover the previous good backup")
+	_expect(game.save_recovery_notice, "backup recovery must leave a player-facing recovery notice pending")
+	var repaired = game._read_save_dictionary(game.SAVE_PATH)
+	_expect(not repaired.is_empty() and int(repaired.get("gold", 0)) == 123456, "backup recovery must repair the primary save with valid data")
 
 
 func _finish() -> void:
