@@ -2747,7 +2747,7 @@ func _reset_save() -> void:
 
 func _save_game() -> void:
 	var payload = {
-		"version": 33,
+		"version": 34,
 		"home_scroll_offset": home_scroll_offset,
 		"home_query": home_query,
 		"home_tab": home_tab,
