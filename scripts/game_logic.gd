@@ -203,6 +203,41 @@ func investigation_options(listing: Dictionary) -> Array:
 			}.get(str(option["id"]), 0)
 	return fallback
 
+func _deterministic_action_signal(listing: Dictionary, action_id: String) -> String:
+	var truth_signal = _truth_signal(str(listing.get("state", "진품")))
+	var condition = str(listing.get("condition", "양호"))
+	var fingerprint = abs(int(("%s_%s" % [listing.get("listing_id", listing.get("item_id", "")), action_id]).hash()))
+
+	# Some checks are inconclusive so repeated play does not turn every action
+	# into a direct truth oracle.
+	if fingerprint % 4 == 0:
+		return "neutral"
+	if condition == "손상" and action_id in ["exterior", "function"]:
+		return "defect"
+	if condition == "사용감" and action_id == "function" and fingerprint % 3 == 0:
+		return "defect"
+	return truth_signal
+
+
+func _semantic_action_clue(listing: Dictionary, action_id: String) -> Dictionary:
+	var signal = _deterministic_action_signal(listing, action_id)
+	var channel: Dictionary = Content.INVESTIGATION_ACTION_CLUES.get(action_id, {})
+	var template: Dictionary = channel.get(signal, channel.get("neutral", {}))
+	var kind = "애매한"
+	if signal == "genuine":
+		kind = "긍정적"
+	elif signal in ["imitation", "defect"]:
+		kind = "부정적"
+	return {
+		"id":"action_%s_%s" % [action_id, signal],
+		"kind":kind,
+		"signal":signal,
+		"text":str(template.get("text", "확인했지만 결정적인 정보는 얻지 못했다.")),
+		"reveal":str(template.get("reveal", "결정적인 가치 판단 근거는 아니었다.")),
+		"aligned":signal != "neutral"
+	}
+
+
 func investigate(listing: Dictionary, action_id: String) -> Dictionary:
 	var updated = listing.duplicate(true)
 	var inspected: Array = updated.get("inspected_actions", [])
@@ -247,22 +282,10 @@ func investigate(listing: Dictionary, action_id: String) -> Dictionary:
 			"action_label": str(selected_action.get("label", "시세 조사"))
 		}
 
-	var clue_index = int(selected_action.get("clue_slot", 0))
-	var clues: Array = updated["investigation_clues"]
-	var preferred_index = clamp(clue_index, 0, clues.size() - 1)
-	var clue = {}
-	for offset in range(clues.size()):
-		var candidate_index = (preferred_index + offset) % clues.size()
-		var candidate: Dictionary = clues[candidate_index].duplicate(true)
-		if not _clue_discovered(updated, candidate):
-			clue = candidate
-			break
-
-	if clue.is_empty():
-		clue = clues[preferred_index].duplicate(true)
-		clue["id"] = "%s_%s_repeat" % [clue.get("id", "clue"), action_id]
-		clue["text"] = "%s 같은 징후가 다른 조사에서도 다시 확인됐다." % clue["text"]
-
+	var clue = _semantic_action_clue(updated, action_id)
+	if _clue_discovered(updated, clue):
+		clue = clue.duplicate(true)
+		clue["id"] = "%s_%s" % [clue["id"], str(updated.get("listing_id", "repeat")).right(6)]
 	_add_discovered_clue(updated, clue)
 	return {
 		"listing": updated,
