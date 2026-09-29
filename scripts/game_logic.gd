@@ -479,11 +479,40 @@ func appraise(listing: Dictionary) -> Dictionary:
 		else:
 			feedback.append("%s → 실제로는 결정적 근거가 아닌 예외적 흔적이었다." % clue["text"])
 
+	var rarity_order = {"일반":0, "고급":1, "희귀":2, "영웅":3, "전설":4}
+	var rarity_score = int(rarity_order.get(str(listing["rarity"]), 1))
+	var has_magic = listing["tags"].has("마법") or listing["tags"].has("영혼") or listing["tags"].has("연금")
+	var magic_grades = ["C", "B", "B", "A", "S"]
+	var magic_grade = magic_grades[rarity_score] if has_magic else "C"
+	var curse_grade = "없음"
+	if listing["tags"].has("저주"):
+		curse_grade = ["C", "B", "B", "A", "S"][rarity_score]
+
+	var value = int(listing["actual_value"])
+	var value_low = max(1, int(round(float(value) * 0.88 / 100.0)) * 100)
+	var value_high = max(value_low, int(round(float(value) * 1.18 / 100.0)) * 100)
+	var comment = ""
+	if listing["state"] == "진품":
+		comment = "원본 제작 특징이 확인됩니다."
+	elif listing["state"] == "모조품":
+		comment = "겉보기보다 복제 흔적이 분명합니다."
+	else:
+		comment = "원본 계열 물건이지만 기능 또는 구조 결함이 가치에 반영됩니다."
+	if str(listing["rarity"]) in ["영웅", "전설"]:
+		comment += " 희소성이 높아 전문 수집가에게는 추가 가치가 생길 수 있습니다."
+	else:
+		comment += " 최종 판매가는 구매자의 선호 속성에 따라 달라질 수 있습니다."
+
 	return {
 		"state": listing["state"],
 		"rarity": listing["rarity"],
 		"condition": listing["condition"],
-		"value": int(listing["actual_value"]),
+		"value": value,
+		"value_low": value_low,
+		"value_high": value_high,
+		"magic_grade": magic_grade,
+		"curse_grade": curse_grade,
+		"comment": comment,
 		"features": features,
 		"clue_feedback": feedback
 	}
