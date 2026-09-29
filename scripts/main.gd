@@ -696,6 +696,7 @@ func _next_rank_info() -> Dictionary:
 func _render_workshop() -> void:
 	_update_header()
 	workshop_gold_label.text = "%s G" % _money(gold)
+	workshop_gold_label.text = "%s G" % _money(gold)
 	workshop_rank_label.text = "%s · 평판 %d" % [_merchant_rank(), merchant_reputation]
 	var next_rank = _next_rank_info()
 	if str(next_rank["name"]) == "최고 등급":
@@ -1407,6 +1408,9 @@ func _start_deal() -> void:
 	var listing = _current_market_listing()
 	if listing.is_empty():
 		return
+	if owned_items.size() >= _inventory_capacity():
+		_set_status("보관 선반이 가득 찼습니다. 보유품을 판매하거나 작업실에서 보관 공간을 늘리세요.")
+		return
 	if resale_option.selected == 0:
 		_set_status("먼저 이 물건을 어느 정도에 되팔 수 있을지 예상해보세요.")
 		return
@@ -1520,16 +1524,19 @@ func _render_deal() -> void:
 	_update_offer_price_label()
 
 	var closed = bool(negotiation.get("closed", false))
-	deal_submit_button.disabled = closed
+	var storage_full = owned_items.size() >= _inventory_capacity()
+	deal_submit_button.disabled = closed or storage_full
 	deal_submit_button.text = "새 제안 불가" if closed else ("다시 제안 보내기" if rounds > 0 else "이 가격으로 제안 보내기")
 	offer_slider.editable = not closed
 	evidence_option.disabled = closed
 	for button in deal_preset_buttons:
 		button.disabled = closed
 
-	buy_current_button.disabled = gold < current_price
+	buy_current_button.disabled = gold < current_price or storage_full
 	buy_current_button.text = "%sG에 바로 거래" % _money(current_price)
-	if gold < current_price:
+	if storage_full:
+		deal_purchase_warning.text = "보관 공간 %d/%d · 보유품을 정리하거나 작업실에서 확장하세요." % [owned_items.size(), _inventory_capacity()]
+	elif gold < current_price:
 		deal_purchase_warning.text = "보유 골드보다 %sG 부족" % _money(current_price - gold)
 	elif closed:
 		deal_purchase_warning.text = "협상 종료 · 현재 가격에 구매하거나 거래를 보류하세요."
@@ -1566,6 +1573,9 @@ func _set_offer_discount(discount: float) -> void:
 func _submit_offer() -> void:
 	var listing = _current_market_listing()
 	if listing.is_empty():
+		return
+	if owned_items.size() >= _inventory_capacity():
+		_set_status("보관 공간이 가득 차 새 물건을 살 수 없습니다.")
 		return
 
 	var negotiation: Dictionary = listing["negotiation_state"]
@@ -1611,6 +1621,9 @@ func _complete_purchase(price: int) -> void:
 	var listing = _current_market_listing()
 	if listing.is_empty():
 		return
+	if owned_items.size() >= _inventory_capacity():
+		_set_status("보관 공간이 가득 찼습니다. 작업실의 보관 선반을 확장하거나 보유품을 판매하세요.")
+		return
 	if gold < price:
 		_set_status("보유 골드가 부족합니다.")
 		return
@@ -1635,7 +1648,7 @@ func _complete_purchase(price: int) -> void:
 		"appraisal_cost": 0,
 		"appraisal_data": {},
 		"buyer_offers": [],
-		"quote_requests_remaining": Content.QUOTE_REQUEST_BUDGET,
+		"quote_requests_remaining": _quote_request_capacity(),
 		"selected_buyer_index": -1
 	}
 	owned_items.append(owned)
@@ -1669,7 +1682,7 @@ func _go_inventory() -> void:
 	current_stage = "inventory"
 	_render_inventory()
 	_show_panel(inventory_panel)
-	_set_status("내가 산 물건을 여기서 보관하고, 감정하거나 판매할 수 있습니다.")
+	_set_status("보관 공간 %d/%d · 물건을 감정하거나 판매하고, 작업실에서 공간을 늘릴 수 있습니다." % [owned_items.size(), _inventory_capacity()])
 	_save_game()
 
 
@@ -1869,7 +1882,7 @@ func _render_appraisal() -> void:
 
 	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/ItemArt.texture = Art.texture_for("items", str(listing.get("item_id", "")))
 	appraisal_title.text = Art.item_name(listing)
-	var appraisal_cost = engine.professional_appraisal_cost(listing)
+	var appraisal_cost = _professional_appraisal_cost(listing)
 	var purchase_price = max(1, int(owned["purchase_price"]))
 	var appraisal_ratio = float(appraisal_cost) / float(purchase_price) * 100.0
 	appraisal_info.text = "매입가 %sG\n검사비 누적 %sG\n전문 감정 %sG · 매입가 대비 %.1f%%" % [
@@ -1959,13 +1972,13 @@ func _open_sale() -> void:
 		return
 	if owned.get("buyer_offers", []).is_empty():
 		owned["buyer_offers"] = engine.make_buyer_offers(owned["listing"])
-		owned["quote_requests_remaining"] = Content.QUOTE_REQUEST_BUDGET
+		owned["quote_requests_remaining"] = _quote_request_capacity()
 		owned["selected_buyer_index"] = -1
 		owned_items[selected_owned_index] = owned
 	current_stage = "sale"
 	_render_sale()
 	_show_panel(sale_panel)
-	_set_status("전문 판매처 3곳 중 견적은 두 곳에만 물어볼 수 있습니다. 고물상 즉시가는 항상 보입니다.")
+	_set_status("전문 판매처 3곳 중 최대 %d곳의 견적을 확인할 수 있습니다. 고물상 즉시가는 항상 보입니다." % _quote_request_capacity())
 	_save_game()
 
 
@@ -1998,7 +2011,7 @@ func _render_sale() -> void:
 			_money(high)
 		]
 
-	quote_state.text = "전문 견적 %d회 남음 · 요청한 곳만 가격 공개 · 고물상은 즉시가" % quote_remaining
+	quote_state.text = "전문 견적 %d/%d회 남음 · 요청한 곳만 가격 공개 · 고물상은 즉시가" % [quote_remaining, _quote_request_capacity()]
 
 	for i in range(buyer_buttons.size()):
 		var offer: Dictionary = offers[i]
@@ -2043,7 +2056,7 @@ func _render_sale() -> void:
 		else:
 			quote_button.text = "전문 견적 요청 기회를 모두 사용했습니다."
 	else:
-		sale_selected_label.text = "판매처를 선택하세요 · 전문 판매처는 두 곳만 견적 가능"
+		sale_selected_label.text = "판매처를 선택하세요 · 전문 견적 최대 %d곳" % _quote_request_capacity()
 		quote_button.text = "선택한 전문 판매처에 견적 요청"
 		sell_button.text = "판매처를 먼저 선택하세요"
 
@@ -2211,7 +2224,7 @@ func _select_option_by_text(option_button: OptionButton, text_value: String) -> 
 
 
 func _show_panel(target) -> void:
-	for panel in [town_panel, market_panel, detail_panel, seller_chat_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
+	for panel in [town_panel, workshop_panel, market_panel, detail_panel, seller_chat_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
 
 	var focus_mode = target == detail_panel or target == seller_chat_panel or target == deal_panel or target == appraisal_panel or target == sale_panel
@@ -2220,7 +2233,7 @@ func _show_panel(target) -> void:
 	status_panel.visible = target != market_panel and not focus_mode
 	nav_row.visible = not focus_mode
 
-	town_nav_button.set_pressed_no_signal(current_stage == "town")
+	town_nav_button.set_pressed_no_signal(current_stage in ["town", "workshop"])
 	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "chat", "deal"])
 	inventory_nav_button.set_pressed_no_signal(current_stage in ["inventory", "appraisal", "sale"])
 	records_nav_button.set_pressed_no_signal(current_stage == "result")
@@ -2305,6 +2318,9 @@ func _restore_stage() -> void:
 		"town":
 			_render_town()
 			_show_panel(town_panel)
+		"workshop":
+			_render_workshop()
+			_show_panel(workshop_panel)
 		"detail":
 			if selected_market_index >= 0 and selected_market_index < market_items.size():
 				_render_detail()
