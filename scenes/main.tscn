@@ -379,6 +379,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "장터 보기"
 
+[node name="WorkshopButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "내 작업실 · 장비와 동선 업그레이드"
+
 [node name="EndDayButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -392,6 +398,314 @@ theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
 text = "하루를 마감하면 남은 장터 방문 기회는 사라지고 다음 날이 시작됩니다."
 horizontal_alignment = 1
 autowrap_mode = 2
+
+[node name="WorkshopPanel" type="PanelContainer" parent="Margin/RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/WorkshopPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="TopRow" type="HBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/TopRow"]
+custom_minimum_size = Vector2(44,40)
+layout_mode = 2
+text = "←"
+
+[node name="Title" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 19
+text = "내 작업실"
+
+[node name="GoldLabel" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/TopRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "50,000 G"
+horizontal_alignment = 2
+
+[node name="RankPanel" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/RankPanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="RankLabel" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/RankPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "견습 물건상 · 평판 0"
+
+[node name="ProgressLabel" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/RankPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.39,0.28,0.77,1)
+text = "다음 등급"
+
+[node name="UnlockLabel" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/RankPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42,0.45,0.49,1)
+text = "해금 현황"
+autowrap_mode = 2
+
+[node name="Guide" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "평판으로 새 단계가 열리고, 골드를 투자해 작업실 기능을 확장합니다."
+autowrap_mode = 2
+
+[node name="UpgradeList" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="UpgradeCard1" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Top" type="HBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Name" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box/Top"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "업그레이드"
+
+[node name="Level" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box/Top"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Lv.0"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.34,0.37,0.42,1)
+text = "설명"
+autowrap_mode = 2
+
+[node name="Effect" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "현재 효과"
+
+[node name="Requirement" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.45,0.48,0.53,1)
+text = "다음 단계"
+
+[node name="BuyButton" type="Button" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1/Box"]
+custom_minimum_size = Vector2(0,38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "업그레이드"
+
+[node name="UpgradeCard2" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Top" type="HBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Name" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box/Top"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "업그레이드"
+
+[node name="Level" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box/Top"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Lv.0"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.34,0.37,0.42,1)
+text = "설명"
+autowrap_mode = 2
+
+[node name="Effect" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "현재 효과"
+
+[node name="Requirement" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.45,0.48,0.53,1)
+text = "다음 단계"
+
+[node name="BuyButton" type="Button" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2/Box"]
+custom_minimum_size = Vector2(0,38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "업그레이드"
+
+[node name="UpgradeCard3" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Top" type="HBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Name" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box/Top"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "업그레이드"
+
+[node name="Level" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box/Top"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Lv.0"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.34,0.37,0.42,1)
+text = "설명"
+autowrap_mode = 2
+
+[node name="Effect" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "현재 효과"
+
+[node name="Requirement" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.45,0.48,0.53,1)
+text = "다음 단계"
+
+[node name="BuyButton" type="Button" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3/Box"]
+custom_minimum_size = Vector2(0,38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "업그레이드"
+
+[node name="UpgradeCard4" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Top" type="HBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Name" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/Top"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "업그레이드"
+
+[node name="Level" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/Top"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Lv.0"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.34,0.37,0.42,1)
+text = "설명"
+autowrap_mode = 2
+
+[node name="Effect" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "현재 효과"
+
+[node name="Requirement" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.45,0.48,0.53,1)
+text = "다음 단계"
+
+[node name="BuyButton" type="Button" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box"]
+custom_minimum_size = Vector2(0,38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "업그레이드"
+
+[node name="UpgradeCard5" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Top" type="HBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Name" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/Top"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "업그레이드"
+
+[node name="Level" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/Top"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Lv.0"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.34,0.37,0.42,1)
+text = "설명"
+autowrap_mode = 2
+
+[node name="Effect" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "현재 효과"
+
+[node name="Requirement" type="Label" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.45,0.48,0.53,1)
+text = "다음 단계"
+
+[node name="BuyButton" type="Button" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box"]
+custom_minimum_size = Vector2(0,38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "업그레이드"
 
 [node name="MarketPanel" type="PanelContainer" parent="Margin/RootVBox"]
 layout_mode = 2
