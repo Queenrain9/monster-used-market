@@ -38,7 +38,7 @@ func _init() -> void:
 			listing.rarity = "전설"
 			_check(feed.describe_listing(listing, true) == data, "art must not reveal hidden truth")
 	if failures.is_empty():
-		print("ART SMOKE OK: 12 items, 8 sellers, replacement fallback, mobile textures, no truth leaks")
+		print("ART SMOKE OK: 24 items, 8 sellers, drop-in final slots, replacement fallback, mobile textures, no truth leaks")
 		quit(0)
 	else:
 		for failure in failures:
