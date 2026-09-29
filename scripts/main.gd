@@ -752,9 +752,10 @@ func _show_toast(text_value: String, event_id: String = "") -> void:
 	_toast_serial += 1
 	var serial = _toast_serial
 	toast_label.text = text_value
-	toast_panel.show()
 	if DisplayServer.get_name() == "headless":
+		toast_panel.hide()
 		return
+	toast_panel.show()
 	get_tree().create_timer(2.2).timeout.connect(_hide_toast_if_serial.bind(serial), CONNECT_ONE_SHOT)
 
 
@@ -1757,11 +1758,10 @@ func _buy_upgrade(index: int) -> void:
 		market_visits_remaining += gain
 	_update_header()
 	_render_workshop()
-	_set_status("%s Lv.%d 업그레이드 완료 · %s" % [
-		str(upgrade["name"]),
-		level + 1,
-		"현재 플레이에 바로 적용됩니다."
-	])
+	var upgrade_message = "%s Lv.%d 업그레이드 완료" % [str(upgrade["name"]), level + 1]
+	_set_status(upgrade_message + " · 현재 플레이에 바로 적용됩니다.")
+	_presentation_event("upgrade", "success")
+	_show_toast(upgrade_message)
 	_save_game()
 
 
@@ -1885,7 +1885,10 @@ func _end_day() -> void:
 	_update_header()
 	_render_town()
 	_show_panel(town_panel)
-	_set_status("DAY %d이 시작됐습니다. 새로운 상권과 매물을 확인하세요." % merchant_day)
+	var day_message = "DAY %d이 시작됐습니다." % merchant_day
+	_set_status(day_message + " 새로운 상권과 매물을 확인하세요.")
+	_presentation_event("day_end", "success")
+	_show_toast(day_message)
 	_save_game()
 
 
@@ -2081,6 +2084,7 @@ func _open_listing(index: int) -> void:
 	selected_market_index = index
 	$Margin/RootVBox/DetailPanel/Scroll.scroll_vertical = 0
 	current_stage = "detail"
+	_presentation_event("open_listing", "light")
 	_render_detail()
 	_show_panel(detail_panel)
 	_set_status("판매자가 올린 글을 보고 필요한 것만 더 물어보거나 확인한 뒤, 가격을 제안해보세요.")
@@ -2430,6 +2434,7 @@ func _investigate(option_index: int) -> void:
 			updated = _append_unseen_story_messages(updated)
 
 		_sync_market_listing(updated)
+		_presentation_event("message_send", "light")
 		_render_seller_chat()
 		_set_status("판매자와 대화를 이어갔습니다.")
 		_save_game()
@@ -2602,6 +2607,7 @@ func _set_offer_discount(discount: float) -> void:
 
 
 func _submit_offer() -> void:
+	_presentation_event("offer_submit", "medium")
 	var listing = _current_market_listing()
 	if listing.is_empty():
 		return
@@ -2704,7 +2710,10 @@ func _complete_purchase(price: int) -> void:
 	_update_header()
 	_render_inventory()
 	_show_panel(inventory_panel)
-	_set_status("%s에게서 물건을 받아왔습니다. 이제 감정할지, 바로 팔지, 보관할지 정할 수 있습니다." % Art.seller_name(listing.get("seller", {})))
+	var purchase_message = "%s에게서 물건을 받아왔습니다." % Art.seller_name(listing.get("seller", {}))
+	_set_status(purchase_message + " 이제 감정할지, 바로 팔지, 보관할지 정할 수 있습니다.")
+	_presentation_event("purchase", "success")
+	_show_toast(purchase_message)
 	_save_game()
 
 
@@ -3022,6 +3031,10 @@ func _professional_appraise() -> void:
 	if int(collection_reward.get("gold", 0)) > 0 or int(collection_reward.get("reputation", 0)) > 0:
 		appraisal_status += " " + last_collection_reward
 	_set_status(appraisal_status)
+	_presentation_event("appraisal_reveal", "success")
+	_show_toast("감정 완료 · %s" % Art.item_name(listing))
+	if not last_collection_reward.is_empty():
+		_show_toast(last_collection_reward, "goal_complete")
 	_save_game()
 
 
@@ -3257,6 +3270,10 @@ func _sell_selected_buyer() -> void:
 	if not last_collection_reward.is_empty():
 		result_status += " · " + last_collection_reward
 	_set_status(result_status)
+	_presentation_event("sale_complete", "success")
+	_show_toast("거래 완료 · 순이익 %s" % _signed_money(profit))
+	if not last_collection_reward.is_empty():
+		_show_toast(last_collection_reward, "goal_complete")
 	_save_game()
 
 
@@ -3312,6 +3329,12 @@ func _show_panel(target) -> void:
 	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "chat", "deal"])
 	inventory_nav_button.set_pressed_no_signal(current_stage in ["inventory", "appraisal", "sale"])
 	records_nav_button.set_pressed_no_signal(current_stage == "result")
+
+	_set_bgm_state(_bgm_state_for_target(target))
+	_capture_base_font_sizes()
+	_apply_accessibility_settings()
+	_play_screen_enter(target)
+	_maybe_show_context_tip(current_stage)
 
 
 func _update_header() -> void:
