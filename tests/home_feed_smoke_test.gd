@@ -31,6 +31,7 @@ func _run() -> void:
 	await _test_commercial_shell()
 	await _test_world_session()
 	await _test_relationship_progression()
+	await _test_collection_progression()
 	await _test_public_feed(cards)
 	await _test_browsing(cards)
 	await _test_trade_flow(cards)
@@ -181,6 +182,70 @@ func _test_relationship_progression() -> void:
 	await _assert_layout("seller relationships")
 
 
+func _test_collection_progression() -> void:
+	game._reset_core_progress()
+	game.game_started = true
+	game.onboarding_complete = true
+	game.gold = 100000
+	game.merchant_reputation = 0
+
+	var first_set: Dictionary = Content.COLLECTION_SETS[0]
+	var first_ids: Array = first_set["item_ids"]
+	var states = ["진품", "모조품", "결함품"]
+	var rarities = ["고급", "희귀", "영웅"]
+	var start_gold = game.gold
+	for i in range(first_ids.size()):
+		var item_id = str(first_ids[i])
+		var listing = {
+			"item_id":item_id,
+			"state":states[i % states.size()],
+			"rarity":rarities[i % rarities.size()]
+		}
+		game._record_collection_discovery(listing, "sale", (i + 1) * 1000, true)
+
+	_expect(game._collection_discovered_count() == 3, "P5 must track distinct discovered item types")
+	_expect(game._collection_discovered_states().size() == 3, "P5 must remember genuine imitation and defect discoveries")
+	_expect(game._completed_collection_sets() == 1, "discovering all items in a theme must complete that collection set")
+	_expect(bool(game.collection_goal_claimed.get("catalog_3", false)), "three discovered items must complete the first long-term catalog goal")
+	_expect(bool(game.collection_goal_claimed.get("set_1", false)), "completing a theme set must complete the collection-set goal")
+	_expect(game.gold == start_gold + 3500, "catalog_3 and set_1 rewards must grant exactly 3,500G once")
+	_expect(game.merchant_reputation == 20, "catalog_3 and set_1 rewards must grant exactly 20 reputation once")
+	for achievement_id in ["first_truth", "three_states", "one_set"]:
+		_expect(game.achievement_unlocks.has(achievement_id), "collection achievement %s must unlock from real collection state" % achievement_id)
+
+	var before_repeat_gold = game.gold
+	game._record_collection_discovery({
+		"item_id":str(first_ids[0]),
+		"state":"진품",
+		"rarity":"전설"
+	}, "sale", 5000, true)
+	_expect(game.gold == before_repeat_gold, "completed long-term collection rewards must never be paid twice")
+	var repeated_record = game._collection_record(str(first_ids[0]))
+	_expect(int(repeated_record["sales"]) == 2 and str(repeated_record["highest_rarity"]) == "전설", "repeat trades must update stats and highest rarity without duplicating discovery")
+
+	game._go_collection()
+	await _settle()
+	_expect(game.current_stage == "collection" and game.collection_panel.visible, "town collection entry must open a dedicated collection screen")
+	_expect(game.collection_item_list.item_count == Content.ITEMS.size(), "collection screen must list every content item slot")
+	_expect(game.collection_completion_label.text.contains("3 / %d" % Content.ITEMS.size()), "collection screen must show actual catalog completion")
+	_expect(game.collection_sets_text.text.contains(str(first_set["name"])) and game.collection_sets_text.text.contains("✓"), "completed theme set must be visible in the collection screen")
+	_expect(game.collection_goals_text.text.contains("첫 수집 장부") and game.collection_achievements_text.text.contains("첫 정체 확인"), "long-term goals and achievements must be visible in collection UI")
+	await _assert_layout("collection progression")
+
+	game._save_game()
+	var saved_records = JSON.parse_string(JSON.stringify(game.collection_records))
+	var saved_goals = JSON.parse_string(JSON.stringify(game.collection_goal_claimed))
+	var saved_achievements = JSON.parse_string(JSON.stringify(game.achievement_unlocks))
+	game.queue_free()
+	await _settle()
+	game = MainScene.instantiate()
+	root.add_child(game)
+	await _settle()
+	_expect(game.collection_records == saved_records, "collection records must survive save/load")
+	_expect(game.collection_goal_claimed == saved_goals, "claimed collection goals must survive save/load")
+	_expect(game.achievement_unlocks == saved_achievements, "achievement unlocks must survive save/load")
+
+
 func _test_public_feed(cards) -> void:
 	var presenter = load("res://scripts/home_feed.gd").new()
 	var engine = MarketEngine.new(20260929)
@@ -199,6 +264,11 @@ func _test_public_feed(cards) -> void:
 	game.daily_goal_progress = 0
 	game.daily_goal_claimed = false
 	game.last_result_text = ""
+	game.last_result_record = {}
+	game.collection_records = {}
+	game.collection_goal_claimed = {}
+	game.achievement_unlocks = {}
+	game.selected_collection_index = 0
 	game._update_header()
 	game._go_market()
 	await _settle()
@@ -478,6 +548,9 @@ func _test_trade_flow(cards) -> void:
 	_expect(game.gold == gold_before - inspection_cost - appraisal_cost, "optional professional appraisal must charge its dynamic fee")
 	_expect(int(game.owned_items[0]["appraisal_cost"]) == appraisal_cost, "owned item must persist the actual dynamic appraisal fee paid")
 	_expect(not game.owned_items[0]["appraisal_data"].is_empty(), "appraisal must keep the existing hidden-state result")
+	var appraised_item_id = str(game.owned_items[0]["listing"]["item_id"])
+	var appraised_record = game._collection_record(appraised_item_id)
+	_expect(bool(appraised_record["discovered"]) and int(appraised_record["appraisals"]) == 1, "professional appraisal must add the item's true identity to the collection")
 	_expect(game.appraisal_comment.text.contains("단서 복기"), "professional appraisal must reveal what discovered facts actually meant")
 	await _assert_layout("appraisal")
 	game._open_sale()
@@ -521,6 +594,8 @@ func _test_trade_flow(cards) -> void:
 	_expect(record.contains("실제 물건") and record.contains("거래 계획 복기"), "legacy completed record text must preserve judgment and hidden-state review")
 	_expect(record.contains("판매자 복기") and record.contains("실제 성향:"), "legacy record text must reveal the seller archetype only in post-trade review")
 	_expect(not game.last_result_record.is_empty(), "new transactions must persist a structured record payload")
+	var sold_collection_record = game._collection_record(appraised_item_id)
+	_expect(int(sold_collection_record["sales"]) == 1 and int(sold_collection_record["appraisals"]) == 1, "completed sale must update collection trade stats without duplicating the appraisal discovery")
 	_expect(int(game.last_result_record["profit"]) == sale_price - asking - inspection_cost - appraisal_cost, "structured record must preserve the exact trade profit")
 	_expect(game.record_hero.visible and game.record_money_panel.visible and game.record_truth_panel.visible, "completed trade must render structured record cards")
 	_expect(game.record_item_name.text == str(game.last_result_record["item_name"]), "record hero must show the actual traded item")
@@ -577,7 +652,7 @@ func _test_save_compatibility() -> void:
 	legacy["version"] = 22
 	legacy.erase("home_scroll_offset")
 	legacy.erase("last_result_record")
-	for field in ["game_started", "onboarding_complete", "merchant_day", "merchant_reputation", "daily_goal_progress", "daily_goal_claimed", "current_district_id", "market_visits_remaining", "day_start_gold", "last_day_summary", "day_event_id"]:
+	for field in ["game_started", "onboarding_complete", "merchant_day", "merchant_reputation", "daily_goal_progress", "daily_goal_claimed", "current_district_id", "market_visits_remaining", "day_start_gold", "last_day_summary", "day_event_id", "seller_relationships", "selected_relationship_seller_index", "collection_records", "collection_goal_claimed", "achievement_unlocks", "selected_collection_index"]:
 		legacy.erase(field)
 	for listing in legacy["market_items"]:
 		listing.erase("viewed")
@@ -598,6 +673,7 @@ func _test_save_compatibility() -> void:
 	_expect(game.game_started and game.onboarding_complete, "old v0.2.x saves must migrate as already-started games instead of forcing onboarding")
 	_expect(game.merchant_day == 1 and game.merchant_reputation >= game.total_deals * 15, "old saves must receive safe commercial progression defaults")
 	_expect(game.current_district_id == "night_market" and game.market_visits_remaining == Content.DAY_MARKET_VISITS, "old saves must migrate into the starting district with a full day visit budget")
+	_expect(not game.collection_records.is_empty(), "old saves with a recent completed trade must seed the new collection from legacy result data")
 	game._go_market()
 	game.records_nav_button.pressed.emit()
 	_expect(not game.last_result_record.is_empty(), "legacy saves without structured record data must be migrated from the old text record")
