@@ -161,7 +161,7 @@ func _test_browsing(cards) -> void:
 	var item_options = game.engine.investigation_options(game.market_items[0])
 	for i in range(game.inspect_buttons.size()):
 		_expect(game.inspect_buttons[i].text.begins_with(game.feed.investigation_button_text(item_options[i])), "detail investigation buttons must read like marketplace questions/checks")
-	var investigation_grid = game.get_node("Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid")
+	var investigation_grid = game.get_node("Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid")
 	var price_plan_cta = game.get_node("Margin/RootVBox/DetailPanel/Scroll/Box/NegotiationJumpButton")
 	_expect(investigation_grid.get_child_count() == 5 and price_plan_cta != null, "price planning CTA must be separate from the five investigation actions")
 	game.inspect_buttons[0].pressed.emit()
@@ -231,6 +231,7 @@ func _test_browsing(cards) -> void:
 	var origin_chat = _visible_text(game.chat_messages)
 	_expect(origin_chat.contains("이거 어디서 얻으셨어요?") and origin_chat.contains("대화 메모"), "origin investigation must appear as a buyer-seller exchange inside the persistent thread")
 	var saved_chat_count = game.market_items[0].get("chat_history", []).size()
+	_expect(saved_chat_count >= 6, "multiple inquiries must accumulate rather than replace the previous conversation")
 	game._go_market()
 	await _settle()
 	_expect(game.investigation_remaining == 0 and not game.next_market_button.disabled, "exhausting investigation must unlock the next market")
