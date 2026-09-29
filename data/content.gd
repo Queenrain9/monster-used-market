@@ -22,18 +22,18 @@ const CONDITION_MULTIPLIERS := {
 }
 
 const ITEMS := [
-	{"id":"moon_ring","name":"달빛 속삭임 반지","category":"장신구","tags":["마법","수집","고대"],"base_value":24000,"rarity_weights":{"고급":0.25,"희귀":0.34,"영웅":0.26,"전설":0.15},"state_weights":{"진품":0.58,"모조품":0.25,"결함품":0.17}},
-	{"id":"dragon_tooth","name":"용의 이빨","category":"재료","tags":["재료","용","연금"],"base_value":19000,"rarity_weights":{"일반":0.18,"고급":0.34,"희귀":0.31,"영웅":0.17},"state_weights":{"진품":0.50,"모조품":0.32,"결함품":0.18}},
-	{"id":"cursed_mirror","name":"저주받은 손거울","category":"유물","tags":["저주","고대","수집"],"base_value":16000,"rarity_weights":{"고급":0.42,"희귀":0.34,"영웅":0.18,"전설":0.06},"state_weights":{"진품":0.54,"모조품":0.18,"결함품":0.28}},
-	{"id":"soul_lantern","name":"영혼의 랜턴","category":"마도구","tags":["마법","영혼","고대"],"base_value":27000,"rarity_weights":{"고급":0.20,"희귀":0.42,"영웅":0.28,"전설":0.10},"state_weights":{"진품":0.62,"모조품":0.14,"결함품":0.24}},
-	{"id":"witch_thimble","name":"마녀의 은골무","category":"잡화","tags":["마법","공예","수집"],"base_value":9000,"rarity_weights":{"일반":0.24,"고급":0.42,"희귀":0.26,"영웅":0.08},"state_weights":{"진품":0.56,"모조품":0.28,"결함품":0.16}},
-	{"id":"goblin_watch","name":"고블린 회중시계","category":"장신구","tags":["기계","고대","수집"],"base_value":15000,"rarity_weights":{"일반":0.12,"고급":0.40,"희귀":0.35,"영웅":0.13},"state_weights":{"진품":0.57,"모조품":0.27,"결함품":0.16}},
-	{"id":"bone_flute","name":"망자의 뼈피리","category":"악기","tags":["저주","음악","수집"],"base_value":12500,"rarity_weights":{"일반":0.16,"고급":0.42,"희귀":0.31,"영웅":0.11},"state_weights":{"진품":0.52,"모조품":0.22,"결함품":0.26}},
-	{"id":"meteor_coin","name":"운석 동전","category":"수집품","tags":["수집","별","고대"],"base_value":21500,"rarity_weights":{"고급":0.22,"희귀":0.40,"영웅":0.27,"전설":0.11},"state_weights":{"진품":0.60,"모조품":0.29,"결함품":0.11}},
-	{"id":"phoenix_feather","name":"불사조 깃털","category":"재료","tags":["재료","마법","연금"],"base_value":23500,"rarity_weights":{"고급":0.20,"희귀":0.38,"영웅":0.31,"전설":0.11},"state_weights":{"진품":0.47,"모조품":0.39,"결함품":0.14}},
-	{"id":"mimic_key","name":"미믹의 황동열쇠","category":"열쇠","tags":["기계","마법","고대"],"base_value":11000,"rarity_weights":{"일반":0.22,"고급":0.44,"희귀":0.26,"영웅":0.08},"state_weights":{"진품":0.64,"모조품":0.20,"결함품":0.16}},
-	{"id":"mermaid_pearl","name":"심해 인어의 진주","category":"보석","tags":["수집","바다","마법"],"base_value":30000,"rarity_weights":{"고급":0.18,"희귀":0.37,"영웅":0.30,"전설":0.15},"state_weights":{"진품":0.45,"모조품":0.42,"결함품":0.13}},
-	{"id":"frost_vial","name":"빙결 정수 병","category":"연금재료","tags":["재료","연금","마법"],"base_value":14000,"rarity_weights":{"일반":0.12,"고급":0.43,"희귀":0.32,"영웅":0.13},"state_weights":{"진품":0.66,"모조품":0.12,"결함품":0.22}}
+	{"id":"moon_ring","name":"달빛 속삭임 반지","category":"장신구","tags":["마법","수집","고대"],"base_value":24000,"rarity_weights":{"고급":0.25,"희귀":0.34,"영웅":0.26,"전설":0.15},"state_weights":{"진품":0.58,"모조품":0.25,"결함품":0.17},"investigation_profile":"ornament_magic","investigation_overrides":{"exterior":{"short_label":"보석 결","label":"보석 안쪽 결을 빛에 비춰 본다"},"mark":{"short_label":"안쪽 각인","label":"반지 안쪽의 제작 각인을 확인한다"},"function":{"short_label":"마력 맥동","label":"달빛에 비춰 마력 맥동을 확인한다"},"market":{"short_label":"반지 시세","label":"비슷한 고대 마법 반지의 최근 거래가를 확인한다"}}},
+	{"id":"dragon_tooth","name":"용의 이빨","category":"재료","tags":["재료","용","연금"],"base_value":19000,"rarity_weights":{"일반":0.18,"고급":0.34,"희귀":0.31,"영웅":0.17},"state_weights":{"진품":0.50,"모조품":0.32,"결함품":0.18},"investigation_profile":"organic_material","investigation_overrides":{"exterior":{"short_label":"성장결","label":"표면의 성장결과 자연 마모를 살펴본다"},"mark":{"short_label":"뿌리 단면","label":"뿌리 쪽 절단면과 층을 확인한다"},"function":{"short_label":"밀도·무게","label":"들어 보며 밀도와 무게 균형을 확인한다"},"origin":{"short_label":"채취 경로","label":"판매자에게 어디서 채취된 이빨인지 묻는다"}}},
+	{"id":"cursed_mirror","name":"저주받은 손거울","category":"유물","tags":["저주","고대","수집"],"base_value":16000,"rarity_weights":{"고급":0.42,"희귀":0.34,"영웅":0.18,"전설":0.06},"state_weights":{"진품":0.54,"모조품":0.18,"결함품":0.28},"investigation_profile":"enchanted_relic","investigation_overrides":{"exterior":{"short_label":"은막 균열","label":"거울 은막과 가장자리 균열을 비스듬히 본다"},"mark":{"short_label":"뒷면 문양","label":"뒷판의 문양과 제작 흔적을 확인한다"},"function":{"short_label":"반사 반응","label":"얼굴과 촛불을 비춰 반사 반응을 확인한다"},"market":{"short_label":"저주유물 시세","label":"비슷한 저주 유물의 거래 범위를 확인한다"}},"unique_clues":[{"id":"mirror_u1","kind":"애매한","signal":"neutral","text":"거울을 기울일 때 아주 잠깐 뒤쪽 풍경이 늦게 따라온다.","reveal":"미세한 반사 지연은 저주 잔향이었지만 진위 자체를 확정하는 신호는 아니었다."}]},
+	{"id":"soul_lantern","name":"영혼의 랜턴","category":"마도구","tags":["마법","영혼","고대"],"base_value":27000,"rarity_weights":{"고급":0.20,"희귀":0.42,"영웅":0.28,"전설":0.10},"state_weights":{"진품":0.62,"모조품":0.14,"결함품":0.24},"investigation_profile":"enchanted_relic","investigation_overrides":{"exterior":{"short_label":"유리 그을음","label":"유리 안쪽의 그을음과 사용 흔적을 본다"},"mark":{"short_label":"프레임 각인","label":"금속 프레임과 바닥의 제작 각인을 확인한다"},"function":{"short_label":"심지 반응","label":"심지에 약한 마력을 대어 반응을 확인한다"},"origin":{"short_label":"사용 이력","label":"판매자에게 어디에서 쓰이던 랜턴인지 묻는다"}}},
+	{"id":"witch_thimble","name":"마녀의 은골무","category":"잡화","tags":["마법","공예","수집"],"base_value":9000,"rarity_weights":{"일반":0.24,"고급":0.42,"희귀":0.26,"영웅":0.08},"state_weights":{"진품":0.56,"모조품":0.28,"결함품":0.16},"investigation_profile":"crafted_magic","investigation_overrides":{"exterior":{"short_label":"바늘 자국","label":"표면의 바늘 자국과 마모 방향을 살펴본다"},"mark":{"short_label":"안쪽 표식","label":"골무 안쪽의 공방 표식과 마감을 확인한다"}}},
+	{"id":"goblin_watch","name":"고블린 회중시계","category":"장신구","tags":["기계","고대","수집"],"base_value":15000,"rarity_weights":{"일반":0.12,"고급":0.40,"희귀":0.35,"영웅":0.13},"state_weights":{"진품":0.57,"모조품":0.27,"결함품":0.16},"investigation_profile":"mechanical","investigation_overrides":{"mark":{"short_label":"무브먼트 각인","label":"뒷뚜껑을 열어 내부 각인과 부품 표식을 본다"},"function":{"short_label":"태엽 작동","label":"태엽을 감아 초침과 톱니 반응을 확인한다"},"market":{"short_label":"시계 시세","label":"고블린 기계식 회중시계의 거래가를 확인한다"}},"unique_clues":[{"id":"watch_u1","kind":"부정적","signal":"defect","text":"태엽을 감을 때 한 구간에서 미세하게 톱니가 튄다.","reveal":"내부 기어 하나가 마모되어 실제 수리 비용이 발생하는 결함이었다."}]},
+	{"id":"bone_flute","name":"망자의 뼈피리","category":"악기","tags":["저주","음악","수집"],"base_value":12500,"rarity_weights":{"일반":0.16,"고급":0.42,"희귀":0.31,"영웅":0.11},"state_weights":{"진품":0.52,"모조품":0.22,"결함품":0.26},"investigation_profile":"organic_instrument","investigation_overrides":{"exterior":{"short_label":"골질 표면","label":"뼈 표면의 결, 균열, 마모를 살펴본다"},"mark":{"short_label":"마디 각인","label":"마디와 취구 주변의 새김 흔적을 확인한다"}}},
+	{"id":"meteor_coin","name":"운석 동전","category":"수집품","tags":["수집","별","고대"],"base_value":21500,"rarity_weights":{"고급":0.22,"희귀":0.40,"영웅":0.27,"전설":0.11},"state_weights":{"진품":0.60,"모조품":0.29,"결함품":0.11},"investigation_profile":"collectible","investigation_overrides":{"exterior":{"short_label":"테두리 마모","label":"동전 테두리의 마모와 충격 흔적을 살펴본다"},"function":{"short_label":"자성·밀도","label":"자석 반응과 손에 느껴지는 밀도를 확인한다"},"market":{"short_label":"운석동전 시세","label":"운석 금속 수집품의 최근 거래가를 확인한다"}}},
+	{"id":"phoenix_feather","name":"불사조 깃털","category":"재료","tags":["재료","마법","연금"],"base_value":23500,"rarity_weights":{"고급":0.20,"희귀":0.38,"영웅":0.31,"전설":0.11},"state_weights":{"진품":0.47,"모조품":0.39,"결함품":0.14},"investigation_profile":"organic_material","investigation_overrides":{"exterior":{"short_label":"깃결·광택","label":"깃가지의 결, 색 변화, 자연 광택을 살펴본다"},"mark":{"short_label":"깃대 단면","label":"깃대 단면의 층과 인공 접합 흔적을 확인한다"},"function":{"short_label":"열 반응","label":"약한 열을 가까이 대어 색과 마력 반응을 본다"},"market":{"short_label":"연금재료 시세","label":"희귀 연금 재료와 불사조 깃털 거래가를 확인한다"}},"unique_clues":[{"id":"phoenix_u1","kind":"긍정적","signal":"genuine","text":"열을 가까이 대자 깃가지 끝의 빛이 사라지지 않고 안쪽으로 번진다.","reveal":"불꽃을 흉내 낸 염색이 아니라 실제 불사조 깃털의 열 반응이었다."}]},
+	{"id":"mimic_key","name":"미믹의 황동열쇠","category":"열쇠","tags":["기계","마법","고대"],"base_value":11000,"rarity_weights":{"일반":0.22,"고급":0.44,"희귀":0.26,"영웅":0.08},"state_weights":{"진품":0.64,"모조품":0.20,"결함품":0.16},"investigation_profile":"mechanical","investigation_overrides":{"exterior":{"short_label":"톱니 마모","label":"열쇠 톱니의 마모와 사용 방향을 살펴본다"},"mark":{"short_label":"손잡이 각인","label":"황동 손잡이의 각인과 접합부를 확인한다"},"function":{"short_label":"잠금 반응","label":"시험 자물쇠에 넣어 걸림과 마력 반응을 확인한다"},"origin":{"short_label":"획득 경로","label":"판매자에게 미믹과 관련된 입수 경로를 묻는다"},"market":{"short_label":"고대열쇠 시세","label":"고대·마법 열쇠류의 최근 거래가를 확인한다"}}},
+	{"id":"mermaid_pearl","name":"심해 인어의 진주","category":"보석","tags":["수집","바다","마법"],"base_value":30000,"rarity_weights":{"고급":0.18,"희귀":0.37,"영웅":0.30,"전설":0.15},"state_weights":{"진품":0.45,"모조품":0.42,"결함품":0.13},"investigation_profile":"ornament_magic","investigation_overrides":{"exterior":{"short_label":"표면 결","label":"진주층의 결, 광택, 작은 흠을 빛에 비춰 본다"},"mark":{"short_label":"천공 흔적","label":"구멍과 밑면의 가공 흔적을 확대해 본다"},"function":{"short_label":"수분·마력","label":"물방울을 대어 색과 마력 반응을 확인한다"},"origin":{"short_label":"채취 해역","label":"판매자에게 어느 해역에서 나온 진주인지 묻는다"},"market":{"short_label":"진주 시세","label":"심해 진주와 마법 보석의 최근 거래가를 확인한다"}}},
+	{"id":"frost_vial","name":"빙결 정수 병","category":"연금재료","tags":["재료","연금","마법"],"base_value":14000,"rarity_weights":{"일반":0.12,"고급":0.43,"희귀":0.32,"영웅":0.13},"state_weights":{"진품":0.66,"모조품":0.12,"결함품":0.22},"investigation_profile":"arcane_container","investigation_overrides":{"exterior":{"short_label":"병목 봉인","label":"병목의 봉인 상태와 서리 자국을 살펴본다"},"mark":{"short_label":"바닥 표식","label":"병 바닥의 제조 표식과 유리 가공을 확인한다"},"function":{"short_label":"냉기 반응","label":"병을 기울여 냉기와 내용물 반응을 확인한다"},"market":{"short_label":"정수 시세","label":"빙결 정수와 연금 용액의 최근 거래가를 확인한다"}}}
 ]
 
 const SELLER_TYPES := {
@@ -130,93 +130,118 @@ const INVESTIGATION_ACTIONS = [
 ]
 
 
-# v0.2.12 Item-Specific Investigation
-# Stable IDs preserve older saves, while each item exposes different player-facing
-# investigation points and can map those actions to different clue slots.
-const ITEM_INVESTIGATION_PROFILES := {
-	"moon_ring": [
-		{"id":"exterior","short_label":"보석 결","label":"보석 안쪽 결을 빛에 비춰 본다","clue_slot":0},
-		{"id":"mark","short_label":"안쪽 각인","label":"반지 안쪽의 제작 각인을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"마력 맥동","label":"달빛에 비춰 마력 맥동을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"전 주인","label":"판매자에게 이전 소유자와 입수 경로를 묻는다","clue_slot":3},
-		{"id":"market","short_label":"반지 시세","label":"비슷한 고대 마법 반지의 최근 거래가를 확인한다","market":true}
+# v0.2.13 Content Scalability
+# New items normally choose one reusable profile and only override exceptional actions.
+# The stable action IDs preserve old saves and gameplay logic.
+const INVESTIGATION_PROFILES := {
+	"ornament_magic": [
+		{"id":"exterior","short_label":"표면·광택","label":"표면의 결, 광택, 마모를 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"제작 표식","label":"안쪽이나 밑면의 제작 표식을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"마력 반응","label":"빛이나 약한 마력에 대한 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"소유 이력","label":"판매자에게 이전 소유자와 입수 경로를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"장신구 시세","label":"비슷한 장신구의 최근 거래가를 확인한다","market":true}
 	],
-	"dragon_tooth": [
-		{"id":"exterior","short_label":"성장결","label":"표면의 성장결과 자연 마모를 살펴본다","clue_slot":0},
-		{"id":"mark","short_label":"뿌리 단면","label":"뿌리 쪽 절단면과 층을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"밀도·무게","label":"들어 보며 밀도와 무게 균형을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"채취 경로","label":"판매자에게 어디서 채취된 이빨인지 묻는다","clue_slot":3},
-		{"id":"market","short_label":"용재료 시세","label":"용 계열 연금 재료의 최근 거래가를 확인한다","market":true}
+	"organic_material": [
+		{"id":"exterior","short_label":"표면 결","label":"자연 재질의 결, 마모, 변색을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"단면·성장 흔적","label":"단면과 성장·형성 흔적을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"밀도·반응","label":"무게, 밀도, 열·마력 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"채취 경로","label":"판매자에게 채취 장소와 입수 경로를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"재료 시세","label":"비슷한 희귀 재료의 최근 거래가를 확인한다","market":true}
 	],
-	"cursed_mirror": [
-		{"id":"exterior","short_label":"은막 균열","label":"거울 은막과 가장자리 균열을 비스듬히 본다","clue_slot":0},
-		{"id":"mark","short_label":"뒷면 문양","label":"뒷판의 문양과 제작 흔적을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"반사 반응","label":"얼굴과 촛불을 비춰 반사 반응을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"소유 이력","label":"판매자에게 이전 소유자와 사고 이력을 묻는다","clue_slot":3},
-		{"id":"market","short_label":"저주유물 시세","label":"비슷한 저주 유물의 거래 범위를 확인한다","market":true}
+	"enchanted_relic": [
+		{"id":"exterior","short_label":"표면 상태","label":"표면의 노화, 균열, 사용 흔적을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"제작 문양","label":"뒷면과 접합부의 제작 문양을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"이상 반응","label":"빛이나 마력에 나타나는 이상 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"소유 이력","label":"판매자에게 이전 소유자와 사용 이력을 묻는다","clue_slot":3},
+		{"id":"market","short_label":"유물 시세","label":"비슷한 마법 유물의 거래 범위를 확인한다","market":true}
 	],
-	"soul_lantern": [
-		{"id":"exterior","short_label":"유리 그을음","label":"유리 안쪽의 그을음과 사용 흔적을 본다","clue_slot":0},
-		{"id":"mark","short_label":"프레임 각인","label":"금속 프레임과 바닥의 제작 각인을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"심지 반응","label":"심지에 약한 마력을 대어 반응을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"사용 이력","label":"판매자에게 어디에서 쓰이던 랜턴인지 묻는다","clue_slot":3},
-		{"id":"market","short_label":"영혼도구 시세","label":"영혼 계열 마도구의 최근 거래가를 확인한다","market":true}
+	"mechanical": [
+		{"id":"exterior","short_label":"외장 마모","label":"외장과 작동부의 마모 방향을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"내부 각인","label":"내부 부품과 제작 각인을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"작동 상태","label":"기구를 직접 작동시켜 걸림과 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"수리 이력","label":"판매자에게 수리와 부품 교체 이력을 묻는다","clue_slot":3},
+		{"id":"market","short_label":"기계품 시세","label":"비슷한 고대 기계품의 최근 거래가를 확인한다","market":true}
 	],
-	"witch_thimble": [
-		{"id":"exterior","short_label":"바늘 자국","label":"표면의 바늘 자국과 마모 방향을 살펴본다","clue_slot":0},
-		{"id":"mark","short_label":"안쪽 표식","label":"골무 안쪽의 공방 표식과 마감을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"마력 잔향","label":"손가락에 끼워 남은 마력 잔향을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"공방 출처","label":"판매자에게 어느 마녀 공방 물건인지 묻는다","clue_slot":3},
-		{"id":"market","short_label":"골무 시세","label":"마녀 공예품과 은골무의 최근 거래가를 확인한다","market":true}
+	"crafted_magic": [
+		{"id":"exterior","short_label":"사용 흔적","label":"표면의 사용 흔적과 공예 마감을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"공방 표식","label":"안쪽의 공방 표식과 접합 마감을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"마력 잔향","label":"사용했을 때 남는 마력 잔향을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"공방·소유 이력","label":"판매자에게 제작 공방과 이전 소유자를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"공예품 시세","label":"비슷한 마법 공예품의 최근 거래가를 확인한다","market":true}
 	],
-	"goblin_watch": [
-		{"id":"exterior","short_label":"케이스 마모","label":"케이스의 찍힘과 손때 방향을 살펴본다","clue_slot":0},
-		{"id":"mark","short_label":"무브먼트 각인","label":"뒷뚜껑을 열어 내부 각인과 부품 표식을 본다","clue_slot":1},
-		{"id":"function","short_label":"태엽 작동","label":"태엽을 감아 초침과 톱니 반응을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"수리 이력","label":"판매자에게 수리·부품 교체 이력을 묻는다","clue_slot":3},
-		{"id":"market","short_label":"시계 시세","label":"고블린 기계식 회중시계의 거래가를 확인한다","market":true}
+	"organic_instrument": [
+		{"id":"exterior","short_label":"재질 표면","label":"재질의 결, 균열, 손때를 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"제작 흔적","label":"취구와 마디 주변의 제작 흔적을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"음정·공명","label":"짧게 연주해 음정과 공명이 안정적인지 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"연주자 이력","label":"판매자에게 이전 연주자와 입수 경로를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"악기 시세","label":"비슷한 희귀 악기의 최근 거래가를 확인한다","market":true}
 	],
-	"bone_flute": [
-		{"id":"exterior","short_label":"골질 표면","label":"뼈 표면의 결, 균열, 마모를 살펴본다","clue_slot":0},
-		{"id":"mark","short_label":"마디 각인","label":"마디와 취구 주변의 새김 흔적을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"음정·공명","label":"짧게 불어 음정과 공명이 끊기는지 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"연주자 출처","label":"판매자에게 이전 연주자와 입수 경로를 묻는다","clue_slot":3},
-		{"id":"market","short_label":"저주악기 시세","label":"저주 계열 악기와 뼈피리의 최근 거래가를 확인한다","market":true}
+	"collectible": [
+		{"id":"exterior","short_label":"표면·테두리","label":"표면과 테두리의 마모, 충격 흔적을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"제작 문양","label":"앞뒷면의 제작 문양과 깊이를 확인한다","clue_slot":1},
+		{"id":"function","short_label":"재질 반응","label":"무게, 자성, 재질 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"발견 경로","label":"판매자에게 발견 장소와 이전 소유자를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"수집품 시세","label":"비슷한 수집품의 최근 거래가를 확인한다","market":true}
 	],
-	"meteor_coin": [
-		{"id":"exterior","short_label":"테두리 마모","label":"동전 테두리의 마모와 충격 흔적을 살펴본다","clue_slot":0},
-		{"id":"mark","short_label":"주조 문양","label":"앞뒷면 문양의 깊이와 주조 흔적을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"자성·밀도","label":"자석 반응과 손에 느껴지는 밀도를 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"발견 경로","label":"판매자에게 운석과 함께 발견된 물건인지 묻는다","clue_slot":3},
-		{"id":"market","short_label":"운석동전 시세","label":"운석 금속 수집품의 최근 거래가를 확인한다","market":true}
+	"arcane_container": [
+		{"id":"exterior","short_label":"봉인·용기","label":"봉인 상태와 용기의 균열·변색을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"제조 표식","label":"바닥과 병목의 제조 표식을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"내용물 반응","label":"기울이거나 마력을 대어 내용물 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"제조·보관 경로","label":"판매자에게 제조자와 보관 경로를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"연금재료 시세","label":"비슷한 연금 재료의 최근 거래가를 확인한다","market":true}
+	]
+}
+
+# Optional profile-level clue pools. A new item automatically inherits these
+# without needing a bespoke clue set. Missing signals fall back to CLUES.
+const PROFILE_CLUES := {
+	"ornament_magic": [
+		{"id":"orn_g1","kind":"긍정적","signal":"genuine","text":"빛을 돌려 비추면 표면층의 무늬가 끊기지 않고 이어진다.","reveal":"표면 코팅이 아니라 재질 내부에서 형성된 진품 특유의 결이었다."},
+		{"id":"orn_i1","kind":"부정적","signal":"imitation","text":"광택이 닳은 부분에서 안쪽 재질의 색이 갑자기 달라진다.","reveal":"겉면만 고급 재질처럼 처리한 복제품 흔적이었다."},
+		{"id":"orn_d1","kind":"부정적","signal":"defect","text":"세팅과 몸체 사이가 미세하게 흔들린다.","reveal":"접합부가 약해져 수리가 필요한 상태였다."},
+		{"id":"orn_n1","kind":"애매한","signal":"neutral","text":"보관 천에 희미한 향이 남아 있다.","reveal":"보관 환경의 흔적일 뿐 가치와 직접 관계는 없었다."}
 	],
-	"phoenix_feather": [
-		{"id":"exterior","short_label":"깃결·광택","label":"깃가지의 결, 색 변화, 자연 광택을 살펴본다","clue_slot":0},
-		{"id":"mark","short_label":"깃대 단면","label":"깃대 단면의 층과 인공 접합 흔적을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"열 반응","label":"약한 열을 가까이 대어 색과 마력 반응을 본다","clue_slot":2},
-		{"id":"origin","short_label":"채집 경로","label":"판매자에게 어디에서 얻은 깃털인지 묻는다","clue_slot":3},
-		{"id":"market","short_label":"연금재료 시세","label":"희귀 연금 재료와 불사조 깃털 거래가를 확인한다","market":true}
+	"organic_material": [
+		{"id":"org_g1","kind":"긍정적","signal":"genuine","text":"표면과 단면의 결이 한 방향으로 자연스럽게 이어진다.","reveal":"겉면만 꾸민 가공품이 아니라 자연적으로 형성된 재질이었다."},
+		{"id":"org_i1","kind":"부정적","signal":"imitation","text":"단면 안쪽에 균일한 인공 기포가 반복된다.","reveal":"자연 재질을 흉내 낸 주조 복제품의 흔적이었다."},
+		{"id":"org_d1","kind":"부정적","signal":"defect","text":"안쪽 층 하나가 말라 갈라지며 힘을 받으면 벌어진다.","reveal":"보관 중 생긴 내부 손상이 실제 가치 하락으로 이어졌다."},
+		{"id":"org_n1","kind":"애매한","signal":"neutral","text":"표면 온도가 주변 물건보다 조금 다르게 느껴진다.","reveal":"재질 특성에 따른 차이로 진위 판단의 결정적 근거는 아니었다."}
 	],
-	"mimic_key": [
-		{"id":"exterior","short_label":"톱니 마모","label":"열쇠 톱니의 마모와 사용 방향을 살펴본다","clue_slot":0},
-		{"id":"mark","short_label":"손잡이 각인","label":"황동 손잡이의 각인과 접합부를 확인한다","clue_slot":1},
-		{"id":"function","short_label":"잠금 반응","label":"시험 자물쇠에 넣어 걸림과 마력 반응을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"획득 경로","label":"판매자에게 미믹과 관련된 입수 경로를 묻는다","clue_slot":3},
-		{"id":"market","short_label":"고대열쇠 시세","label":"고대·마법 열쇠류의 최근 거래가를 확인한다","market":true}
+	"enchanted_relic": [
+		{"id":"rel_g1","kind":"긍정적","signal":"genuine","text":"마력 반응이 장식이 아니라 구조 안쪽을 따라 이동한다.","reveal":"실제 제작 과정에서 형성된 마력 회로의 반응이었다."},
+		{"id":"rel_i1","kind":"부정적","signal":"imitation","text":"문양은 오래돼 보이지만 홈 안쪽에는 새 연마 흔적이 남아 있다.","reveal":"최근 복제한 뒤 표면만 인위적으로 낡힌 흔적이었다."},
+		{"id":"rel_d1","kind":"부정적","signal":"defect","text":"특정 지점에서만 마력 반응이 갑자기 끊긴다.","reveal":"내부 회로 일부가 손상된 결함이었다."},
+		{"id":"rel_n1","kind":"애매한","signal":"neutral","text":"가까이 두면 주변 촛불이 아주 약하게 흔들린다.","reveal":"잔류 마력 현상이었지만 진품 여부와 직접 연결되지는 않았다."}
 	],
-	"mermaid_pearl": [
-		{"id":"exterior","short_label":"표면 결","label":"진주층의 결, 광택, 작은 흠을 빛에 비춰 본다","clue_slot":0},
-		{"id":"mark","short_label":"천공 흔적","label":"구멍과 밑면의 가공 흔적을 확대해 본다","clue_slot":1},
-		{"id":"function","short_label":"수분·마력","label":"물방울을 대어 색과 마력 반응을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"채취 해역","label":"판매자에게 어느 해역에서 나온 진주인지 묻는다","clue_slot":3},
-		{"id":"market","short_label":"진주 시세","label":"심해 진주와 마법 보석의 최근 거래가를 확인한다","market":true}
+	"mechanical": [
+		{"id":"mec_g1","kind":"긍정적","signal":"genuine","text":"내부 부품의 마모 정도와 외장의 사용감이 비슷한 시기로 보인다.","reveal":"외장과 무브먼트가 함께 오래 사용된 원래 구성품이었다."},
+		{"id":"mec_i1","kind":"부정적","signal":"imitation","text":"겉면은 오래됐지만 내부 나사산은 지나치게 새것이다.","reveal":"최근 조립한 복제품에 오래된 외장만 씌운 흔적이었다."},
+		{"id":"mec_d1","kind":"부정적","signal":"defect","text":"작동 중 한 구간에서 반복적으로 걸리는 느낌이 난다.","reveal":"내부 부품 마모로 수리가 필요한 결함이었다."},
+		{"id":"mec_n1","kind":"애매한","signal":"neutral","text":"기름 냄새가 평소보다 강하게 난다.","reveal":"최근 정비 흔적이었지만 진위와는 직접 관계가 없었다."}
 	],
-	"frost_vial": [
-		{"id":"exterior","short_label":"병목 봉인","label":"병목의 봉인 상태와 서리 자국을 살펴본다","clue_slot":0},
-		{"id":"mark","short_label":"바닥 표식","label":"병 바닥의 제조 표식과 유리 가공을 확인한다","clue_slot":1},
-		{"id":"function","short_label":"냉기 반응","label":"병을 기울여 냉기와 내용물 반응을 확인한다","clue_slot":2},
-		{"id":"origin","short_label":"제조 경로","label":"판매자에게 제조자와 보관 경로를 묻는다","clue_slot":3},
-		{"id":"market","short_label":"정수 시세","label":"빙결 정수와 연금 용액의 최근 거래가를 확인한다","market":true}
+	"crafted_magic": [
+		{"id":"cra_g1","kind":"긍정적","signal":"genuine","text":"공방 표식과 손으로 다듬은 미세한 비대칭이 함께 남아 있다.","reveal":"해당 공방의 실제 수공 제작 방식과 일치했다."},
+		{"id":"cra_i1","kind":"부정적","signal":"imitation","text":"공방 표식 주변만 유난히 날카롭고 새것처럼 보인다.","reveal":"기존 물건에 유명 공방 표식을 나중에 새긴 흔적이었다."},
+		{"id":"cra_d1","kind":"부정적","signal":"defect","text":"사용할 때 한쪽 접합부에서 미세한 유격이 느껴진다.","reveal":"반복 사용으로 접합부가 약해진 상태였다."},
+		{"id":"cra_n1","kind":"애매한","signal":"neutral","text":"손에 쥐면 약한 따뜻함이 남는다.","reveal":"재질의 열 보존 특성일 뿐 진위 판단 근거는 아니었다."}
+	],
+	"organic_instrument": [
+		{"id":"ins_g1","kind":"긍정적","signal":"genuine","text":"재질의 자연 결이 음공 안쪽까지 이어져 있다.","reveal":"겉면만 꾸민 복제품이 아니라 한 재질로 제작된 물건이었다."},
+		{"id":"ins_i1","kind":"부정적","signal":"imitation","text":"음공 안쪽의 색과 바깥 표면의 노화 정도가 크게 다르다.","reveal":"겉면만 오래된 것처럼 가공한 복제품이었다."},
+		{"id":"ins_d1","kind":"부정적","signal":"defect","text":"특정 음에서 공명이 짧게 끊기고 잡음이 섞인다.","reveal":"보이지 않는 미세 균열이 공명을 방해하고 있었다."},
+		{"id":"ins_n1","kind":"애매한","signal":"neutral","text":"연주 뒤 손끝에 약한 진동이 오래 남는다.","reveal":"재질 특성에 따른 공명일 뿐 진위의 결정적 증거는 아니었다."}
+	],
+	"collectible": [
+		{"id":"col_g1","kind":"긍정적","signal":"genuine","text":"테두리 마모와 문양 홈 안쪽의 변색이 자연스럽게 이어진다.","reveal":"오랜 사용과 보관에서 생긴 실제 노화 흔적이었다."},
+		{"id":"col_i1","kind":"부정적","signal":"imitation","text":"문양의 깊이가 모든 부분에서 지나치게 일정하다.","reveal":"현대식 틀로 찍어낸 복제품의 특징이었다."},
+		{"id":"col_d1","kind":"부정적","signal":"defect","text":"가장자리 충격이 안쪽 층까지 이어져 미세하게 벌어져 있다.","reveal":"표면 흠집이 아니라 구조적 손상이었다."},
+		{"id":"col_n1","kind":"애매한","signal":"neutral","text":"보관 케이스만 본품보다 훨씬 새것이다.","reveal":"최근 교체된 케이스로 본품의 가치와 무관했다."}
+	],
+	"arcane_container": [
+		{"id":"arc_g1","kind":"긍정적","signal":"genuine","text":"봉인 안쪽까지 같은 마력 흔적이 이어져 있다.","reveal":"나중에 덧씌운 봉인이 아니라 원래 제조 과정의 흔적이었다."},
+		{"id":"arc_i1","kind":"부정적","signal":"imitation","text":"내용물의 색은 선명하지만 병 안쪽에 침전층이 전혀 없다.","reveal":"오래 보관된 정수를 흉내 낸 최근 혼합물이었다."},
+		{"id":"arc_d1","kind":"부정적","signal":"defect","text":"병목 가까이에서만 반응이 약해지고 작은 기포가 생긴다.","reveal":"봉인이 약해져 내용물의 효력이 일부 빠져나간 상태였다."},
+		{"id":"arc_n1","kind":"애매한","signal":"neutral","text":"유리 표면에 얇은 서리나 습기가 반복해서 맺힌다.","reveal":"내용물 특성에 따른 현상으로 진위와 직접 연결되지는 않았다."}
 	]
 }
 
