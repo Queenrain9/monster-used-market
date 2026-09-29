@@ -48,6 +48,9 @@ jobs:
       - name: Run core smoke test
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/core_smoke_test.gd
 
+      - name: Run release balance simulation
+        run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/release_balance_test.gd
+
       - name: Run home feed and portrait regression test
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/monster-smoke-data
