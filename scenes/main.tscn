@@ -1,0 +1,320 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.105, 0.082, 0.117, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.285, 0.18, 0.9)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.045, 0.035, 0.052, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="RootVBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Margin/RootVBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.956, 0.766, 0.368, 1)
+theme_override_font_sizes/font_size = 24
+text = "괴물 중고마켓"
+
+[node name="Spacer" type="Control" parent="Margin/RootVBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GoldLabel" type="Label" parent="Margin/RootVBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.48, 1)
+theme_override_font_sizes/font_size = 18
+text = "50,000 G"
+horizontal_alignment = 2
+
+[node name="Subtitle" type="Label" parent="Margin/RootVBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.62)
+theme_override_font_sizes/font_size = 13
+text = "싸게 사고 · 감정하고 · 더 비싸게 되팔기"
+
+[node name="StatusPanel" type="PanelContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="StatusLabel" type="Label" parent="Margin/RootVBox/StatusPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.86, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "상태 메시지"
+autowrap_mode = 2
+
+[node name="MarketPanel" type="PanelContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="MarketBox" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MarketTitle" type="Label" parent="Margin/RootVBox/MarketPanel/MarketBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.65, 1)
+theme_override_font_sizes/font_size = 20
+text = "오늘의 매물"
+
+[node name="MarketHelp" type="Label" parent="Margin/RootVBox/MarketPanel/MarketBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.62)
+theme_override_font_sizes/font_size = 13
+text = "겉모습과 판매자의 말만 보고 물건을 골라보세요."
+autowrap_mode = 2
+
+[node name="ItemButton1" type="Button" parent="Margin/RootVBox/MarketPanel/MarketBox"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "매물 1"
+alignment = 0
+autowrap_mode = 2
+
+[node name="ItemButton2" type="Button" parent="Margin/RootVBox/MarketPanel/MarketBox"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "매물 2"
+alignment = 0
+autowrap_mode = 2
+
+[node name="ItemButton3" type="Button" parent="Margin/RootVBox/MarketPanel/MarketBox"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "매물 3"
+alignment = 0
+autowrap_mode = 2
+
+[node name="RefreshButton" type="Button" parent="Margin/RootVBox/MarketPanel/MarketBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "매물 새로고침"
+
+[node name="ResetButton" type="Button" parent="Margin/RootVBox/MarketPanel/MarketBox"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.68)
+text = "테스트 데이터 초기화"
+
+[node name="DealPanel" type="PanelContainer" parent="Margin/RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="DealBox" type="VBoxContainer" parent="Margin/RootVBox/DealPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DealTitle" type="Label" parent="Margin/RootVBox/DealPanel/DealBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.65, 1)
+theme_override_font_sizes/font_size = 22
+text = "수상한 반지"
+
+[node name="SellerLabel" type="Label" parent="Margin/RootVBox/DealPanel/DealBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "판매자: 별빛 상인"
+
+[node name="DealInfo" type="Label" parent="Margin/RootVBox/DealPanel/DealBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.72)
+theme_override_font_sizes/font_size = 14
+text = "판매 희망가 12,000G"
+autowrap_mode = 2
+
+[node name="SellerSpeech" type="Label" parent="Margin/RootVBox/DealPanel/DealBox"]
+custom_minimum_size = Vector2(0, 74)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.83, 0.67, 1)
+theme_override_font_sizes/font_size = 15
+text = "“좋은 물건이야.”"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="BuyFullButton" type="Button" parent="Margin/RootVBox/DealPanel/DealBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "정가로 구매"
+
+[node name="Offer10Button" type="Button" parent="Margin/RootVBox/DealPanel/DealBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "10% 깎기"
+
+[node name="Offer25Button" type="Button" parent="Margin/RootVBox/DealPanel/DealBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "25% 깎기"
+
+[node name="BackMarketButton" type="Button" parent="Margin/RootVBox/DealPanel/DealBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.74)
+text = "다른 매물 보기"
+
+[node name="AppraisalPanel" type="PanelContainer" parent="Margin/RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="AppraisalBox" type="VBoxContainer" parent="Margin/RootVBox/AppraisalPanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="AppraisalTitle" type="Label" parent="Margin/RootVBox/AppraisalPanel/AppraisalBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.77, 0.63, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "감정하기"
+horizontal_alignment = 1
+
+[node name="MysteryLabel" type="Label" parent="Margin/RootVBox/AppraisalPanel/AppraisalBox"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "아직 진짜 가치는 알 수 없습니다."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="AppraiseButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/AppraisalBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "진짜 가치 확인하기"
+
+[node name="SalePanel" type="PanelContainer" parent="Margin/RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="SaleBox" type="VBoxContainer" parent="Margin/RootVBox/SalePanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="SaleTitle" type="Label" parent="Margin/RootVBox/SalePanel/SaleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.77, 0.63, 1, 1)
+theme_override_font_sizes/font_size = 21
+text = "감정 완료"
+
+[node name="AppraisalResult" type="Label" parent="Margin/RootVBox/SalePanel/SaleBox"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "감정 결과"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="BuyerOfferLabel" type="Label" parent="Margin/RootVBox/SalePanel/SaleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.83, 0.67, 1)
+theme_override_font_sizes/font_size = 16
+text = "구매자의 제안"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SellButton" type="Button" parent="Margin/RootVBox/SalePanel/SaleBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "이 가격에 판매하기"
+
+[node name="ResultPanel" type="PanelContainer" parent="Margin/RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="ResultBox" type="VBoxContainer" parent="Margin/RootVBox/ResultPanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="ResultTitle" type="Label" parent="Margin/RootVBox/ResultPanel/ResultBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.43, 1)
+theme_override_font_sizes/font_size = 23
+text = "판매 완료!"
+horizontal_alignment = 1
+
+[node name="ResultSummary" type="Label" parent="Margin/RootVBox/ResultPanel/ResultBox"]
+custom_minimum_size = Vector2(0, 230)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "거래 결과"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="NextButton" type="Button" parent="Margin/RootVBox/ResultPanel/ResultBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "다음 매물 보러가기"
+
+[node name="Footer" type="Label" parent="Margin/RootVBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.42)
+theme_override_font_sizes/font_size = 11
+text = "MVP v0.1 · 서버/로그인 없이 코어 루프 검증 중"
+horizontal_alignment = 1
