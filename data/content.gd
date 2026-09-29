@@ -38,19 +38,19 @@ const ITEMS := [
 
 const SELLER_TYPES := {
 	"urgent": {
-		"name":"급한 판매자","summary":"빨리 처분하려 해 큰 폭의 양보가 나올 수 있음","discount_receptiveness":0.90,"claim_honesty":0.82,"knowledge":0.52,"patience":2,"floor_ratio":0.66
+		"name":"급한 판매자","summary":"빨리 처분하려 해 큰 폭의 양보가 나올 수 있음","public_cues":["오늘 안에 정리하고 싶다는 말을 먼저 꺼냈다.","답장이 빠르고 거래를 오래 끌고 싶어 하지 않는 눈치다."],"discount_receptiveness":0.90,"claim_honesty":0.82,"knowledge":0.52,"patience":2,"floor_ratio":0.66
 	},
 	"greedy": {
-		"name":"욕심 많은 판매자","summary":"가치 있는 물건일수록 비싸게 부르고 잘 안 깎아줌","discount_receptiveness":0.26,"claim_honesty":0.76,"knowledge":0.73,"patience":3,"floor_ratio":0.86
+		"name":"욕심 많은 판매자","summary":"가치 있는 물건일수록 비싸게 부르고 잘 안 깎아줌","public_cues":["가격 이야기가 나오면 물건의 장점을 길게 늘어놓는다.","작은 흠집을 지적해도 가치와는 별개라고 선을 긋는다."],"discount_receptiveness":0.26,"claim_honesty":0.76,"knowledge":0.73,"patience":3,"floor_ratio":0.86
 	},
 	"bluffer": {
-		"name":"허풍쟁이","summary":"설명에 과장이 섞일 수 있어 말보다 실물 단서가 중요","discount_receptiveness":0.48,"claim_honesty":0.36,"knowledge":0.58,"patience":2,"floor_ratio":0.74
+		"name":"허풍쟁이","summary":"설명에 과장이 섞일 수 있어 말보다 실물 단서가 중요","public_cues":["희귀하다는 말을 여러 번 강조하지만 구체적인 근거는 잘 말하지 않는다.","질문을 바꾸면 설명의 세부 내용이 조금씩 달라진다."],"discount_receptiveness":0.48,"claim_honesty":0.36,"knowledge":0.58,"patience":2,"floor_ratio":0.74
 	},
 	"naive": {
-		"name":"순진한 판매자","summary":"물건 값을 잘 몰라 대박과 함정이 모두 생길 수 있음","discount_receptiveness":0.72,"claim_honesty":0.84,"knowledge":0.22,"patience":2,"floor_ratio":0.68
+		"name":"순진한 판매자","summary":"물건 값을 잘 몰라 대박과 함정이 모두 생길 수 있음","public_cues":["시세를 묻자 확신 없이 예전에 들은 가격부터 이야기한다.","가격 근거보다 이 물건을 어떻게 얻게 됐는지 사연을 더 많이 말한다."],"discount_receptiveness":0.72,"claim_honesty":0.84,"knowledge":0.22,"patience":2,"floor_ratio":0.68
 	},
 	"expert": {
-		"name":"전문가","summary":"시세를 잘 알고 있어 큰 차익을 만들기 어렵지만 설명은 정확한 편","discount_receptiveness":0.33,"claim_honesty":0.94,"knowledge":0.95,"patience":3,"floor_ratio":0.90
+		"name":"전문가","summary":"시세를 잘 알고 있어 큰 차익을 만들기 어렵지만 설명은 정확한 편","public_cues":["질문에 짧고 구체적으로 답하며 가격 근거를 바로 제시한다.","상태와 출처를 구분해서 설명하고 애매한 부분은 단정하지 않는다."],"discount_receptiveness":0.33,"claim_honesty":0.94,"knowledge":0.95,"patience":3,"floor_ratio":0.90
 	}
 }
 
