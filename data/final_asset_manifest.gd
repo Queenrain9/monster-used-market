@@ -24,6 +24,12 @@ const REQUIRED_UI_KEYS := [
 	"district_tower",
 	"district_dock",
 	"district_grave",
+	"skin_panel",
+	"skin_button_normal",
+	"skin_button_hover",
+	"skin_button_pressed",
+	"skin_button_disabled",
+	"skin_input",
 	"fallback"
 ]
 
