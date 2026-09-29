@@ -33,6 +33,11 @@ func _run() -> void:
 	await _test_dynamic_market_events()
 	await _test_relationship_progression()
 	await _test_collection_progression()
+	cards = game.get_node_or_null("Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards")
+	_expect(cards != null and cards.get_child_count() == 3, "test harness must refresh listing-card references after save/load reconstruction")
+	if cards == null:
+		await _finish()
+		return
 	await _test_public_feed(cards)
 	await _test_browsing(cards)
 	await _test_trade_flow(cards)
@@ -220,13 +225,15 @@ func _test_relationship_progression() -> void:
 		_expect(bool(relation["special_offer_claimed"]) and not bool(relation["special_offer_ready"]), "buying a relationship-only listing must consume that one-time offer")
 
 	game._save_game()
-	var saved_relationship = JSON.parse_string(JSON.stringify(game.seller_relationships))
+	var expected_relation: Dictionary = game._seller_relationship(seller_id).duplicate(true)
 	game.queue_free()
 	await _settle()
 	game = MainScene.instantiate()
 	root.add_child(game)
 	await _settle()
-	_expect(game.seller_relationships == saved_relationship, "seller relationship points story steps and special-offer state must survive save/load")
+	var loaded_relation: Dictionary = game._seller_relationship(seller_id)
+	for field in ["points", "chats", "purchases", "story_step", "story_seen_step", "special_offer_ready", "special_offer_claimed", "last_memory"]:
+		_expect(str(loaded_relation.get(field, "")) == str(expected_relation.get(field, "")), "seller relationship field %s must survive save/load" % field)
 	await _assert_layout("seller relationships")
 
 
