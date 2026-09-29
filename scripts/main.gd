@@ -65,6 +65,9 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var market_price_label = $Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox/MarketPriceLabel
 @onready var detail_budget = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailBudget
 @onready var detail_clues = $Margin/RootVBox/DetailPanel/Scroll/Box/ClueList
+@onready var inquiry_panel = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel
+@onready var inquiry_title = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box/InquiryTitle
+@onready var inquiry_text = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box/InquiryText
 @onready var inspect_buttons = [
 	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton1,
 	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton2,
@@ -438,30 +441,33 @@ func _render_detail() -> void:
 	detail_tags.text = public_data["tags_text"]
 	detail_seller.text = "%s · %s · %s" % [Art.seller_name(seller), feed.public_location_text(listing), feed.public_age_text(listing)]
 	detail_description.text = feed.listing_post_text(listing)
-	detail_info.text = "확인 상태   단서 %d개 확인 · 미감정\n카테고리   %s\n올린 시각   %s\n동네        %s\n직거래 장소 %s\n거래 방식   직거래 · 가격 제안 가능" % [
-		listing.get("discovered_clues", []).size(),
-		listing.get("category", "기타"),
-		feed.public_age_text(listing),
-		feed.public_location_text(listing),
-		feed.public_meetup_text(listing)
+	detail_info.text = "📍 %s에서 직거래\n🕐 %s에 올림\n💬 가격 제안 가능" % [
+		feed.public_meetup_text(listing),
+		feed.public_age_text(listing)
 	]
 	seller_portrait.texture = Art.texture_for("sellers", str(seller.get("id", "")))
-	seller_card_text.text = "%s · %s\n%s\n\n대화에서 느껴진 점\n%s" % [
+	seller_card_text.text = "%s · %s\n%s\n%s\n%s" % [
 		Art.seller_name(seller),
 		feed.public_location_text(listing),
+		feed.seller_activity_text(listing),
 		feed.seller_profile_text(listing),
-		feed.seller_behavior_text(listing)
+		feed.seller_message_text(listing)
 	]
-	detail_budget.text = "더 자세히 확인할 수 있는 정보: %d회" % investigation_remaining
-	detail_clues.text = "지금까지 확인한 정보\n%s" % _format_discovered_clues(listing)
+	detail_budget.text = "더 물어보거나 확인할 수 있음: %d번" % investigation_remaining
+	var inquiry: Dictionary = listing.get("last_inquiry", {})
+	inquiry_panel.visible = not inquiry.is_empty()
+	if not inquiry.is_empty():
+		inquiry_title.text = str(inquiry.get("title", "추가로 확인함"))
+		inquiry_text.text = str(inquiry.get("text", ""))
+	detail_clues.text = _format_discovered_clues(listing)
 	market_price_label.text = _market_price_reference_text(listing)
 
 	var options = engine.investigation_options(listing)
 	var used: Array = listing.get("inspected_actions", [])
 	for i in range(inspect_buttons.size()):
 		var option: Dictionary = options[i]
-		var short_label = str(option.get("short_label", option.get("label", "확인")))
-		inspect_buttons[i].text = "%s%s" % [short_label, " ✓" if used.has(option["id"]) else ""]
+		var action_text = feed.investigation_button_text(option)
+		inspect_buttons[i].text = "%s%s" % [action_text, " ✓" if used.has(option["id"]) else ""]
 		inspect_buttons[i].tooltip_text = str(option["label"])
 		inspect_buttons[i].disabled = investigation_remaining <= 0 or used.has(option["id"])
 
@@ -541,12 +547,19 @@ func _investigate(option_index: int) -> void:
 	if listing.is_empty() or investigation_remaining <= 0:
 		return
 	var options = engine.investigation_options(listing)
-	var result: Dictionary = engine.investigate(listing, str(options[option_index]["id"]))
+	var option: Dictionary = options[option_index]
+	var result: Dictionary = engine.investigate(listing, str(option["id"]))
 	if bool(result["consumed"]):
 		investigation_remaining -= 1
-		_sync_market_listing(result["listing"])
+		var updated: Dictionary = result["listing"]
+		updated["last_inquiry"] = feed.investigation_interaction(
+			listing,
+			option,
+			str(result["message"])
+		)
+		_sync_market_listing(updated)
 		_render_detail()
-		_set_status("%s → %s" % [str(result.get("action_label", "확인")), str(result["message"])])
+		_set_status(str(updated["last_inquiry"].get("title", "추가로 확인했습니다.")))
 		_save_game()
 
 
