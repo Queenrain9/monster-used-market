@@ -62,7 +62,7 @@ const ENTRIES = {
       "texture": "res://assets/art/items/frost_vial.png",
       "name": "유령이 든 병",
       "legacy_name": "빙결 정수 병"
-    }
+    },
     "echo_compass": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/echo_compass.png","name":"메아리 나침반","legacy_name":"메아리 나침반"},
     "bottled_shadow": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/bottled_shadow.png","name":"병에 든 그림자","legacy_name":"병에 든 그림자"},
     "watching_brooch": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/watching_brooch.png","name":"눈알 브로치","legacy_name":"눈알 브로치"},
