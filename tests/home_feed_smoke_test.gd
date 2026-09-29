@@ -412,7 +412,7 @@ func _finish() -> void:
 	game.queue_free()
 	await _settle()
 	if errors.is_empty():
-		print("HOME FEED SMOKE OK v0.2.6: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
+		print("HOME FEED SMOKE OK v0.2.7: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
 		quit(0)
 	else:
 		for message in errors:
