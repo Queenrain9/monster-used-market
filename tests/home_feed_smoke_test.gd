@@ -229,6 +229,10 @@ func _test_trade_flow(cards) -> void:
 	await _assert_layout("appraisal")
 	game._open_sale()
 	await _assert_layout("resale initial")
+	var sale_card_1 = game.get_node("Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1")
+	var sale_card_2 = game.get_node("Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2")
+	_expect(sale_card_1.size.y <= 120 and sale_card_2.size.y <= 120, "resale specialist cards must stay compact")
+	_expect(sale_card_2.get_global_rect().end.y <= 844.5, "at least two specialist cards must be fully visible before scrolling")
 	var initial_offers: Array = game.owned_items[0]["buyer_offers"]
 	var resale_text_before = _visible_text(game.get_node("Margin/RootVBox/SalePanel"))
 	_expect(not resale_text_before.contains("%sG" % _money(int(initial_offers[0]["price"]))), "unrequested specialist quote 1 must stay hidden in resale UI")
@@ -428,7 +432,7 @@ func _finish() -> void:
 	game.queue_free()
 	await _settle()
 	if errors.is_empty():
-		print("HOME FEED SMOKE OK v0.2.8: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
+		print("HOME FEED SMOKE OK v0.2.9: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
 		quit(0)
 	else:
 		for message in errors:
