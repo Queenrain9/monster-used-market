@@ -3,8 +3,8 @@ config_version=5
 
 [application]
 
-config/name="괴물 중고마켓 MVP v0.2.12"
-config/version="0.2.12"
+config/name="괴물 중고마켓 MVP v0.2.13"
+config/version="0.2.13"
 run/main_scene="res://scenes/main.tscn"
 
 [display]
