@@ -13,13 +13,17 @@ func _init(seed_value: int = -1) -> void:
 
 
 func content_summary() -> Dictionary:
+	var profile_clue_count = 0
+	for pool in Content.PROFILE_CLUES.values():
+		profile_clue_count += pool.size()
 	return {
 		"items": Content.ITEMS.size(),
 		"seller_types": Content.SELLER_TYPES.size(),
 		"sellers": Content.SELLERS.size(),
 		"buyers": Content.BUYERS.size(),
 		"clues": Content.CLUES.size(),
-		"investigation_profiles": Content.ITEM_INVESTIGATION_PROFILES.size()
+		"profile_clues": profile_clue_count,
+		"investigation_profiles": Content.INVESTIGATION_PROFILES.size()
 	}
 
 
@@ -35,28 +39,42 @@ func validate_content() -> Array:
 	if int(summary["buyers"]) < 5:
 		errors.append("구매자 유형이 5종보다 적습니다.")
 	if int(summary["clues"]) < 25:
-		errors.append("단서가 25개보다 적습니다.")
-	if int(summary["investigation_profiles"]) < Content.ITEMS.size():
-		errors.append("아이템별 조사 프로필이 부족합니다.")
+		errors.append("공용 단서가 25개보다 적습니다.")
+	if int(summary["investigation_profiles"]) < 4:
+		errors.append("재사용 가능한 조사 프로필이 부족합니다.")
+
+	var required_ids = ["exterior", "mark", "function", "origin", "market"]
+	for profile_id in Content.INVESTIGATION_PROFILES.keys():
+		var profile: Array = Content.INVESTIGATION_PROFILES[profile_id]
+		if profile.size() != 5:
+			errors.append("%s 조사 프로필은 5개 행동이어야 합니다." % profile_id)
+			continue
+		var ids = []
+		for action in profile:
+			ids.append(str(action.get("id", "")))
+			if str(action.get("short_label", "")).is_empty() or str(action.get("label", "")).is_empty():
+				errors.append("%s 조사 프로필에 빈 라벨이 있습니다." % profile_id)
+		if ids != required_ids:
+			errors.append("%s 조사 프로필의 안정 ID 순서가 잘못됐습니다." % profile_id)
+
 	for item in Content.ITEMS:
 		var item_id = str(item["id"])
-		if not Content.ITEM_INVESTIGATION_PROFILES.has(item_id):
-			errors.append("%s 조사 프로필이 없습니다." % item_id)
+		var profile_id = str(item.get("investigation_profile", ""))
+		if profile_id.is_empty() or not Content.INVESTIGATION_PROFILES.has(profile_id):
+			errors.append("%s의 investigation_profile이 유효하지 않습니다." % item_id)
 			continue
-		var profile: Array = Content.ITEM_INVESTIGATION_PROFILES[item_id]
-		if profile.size() != 5:
-			errors.append("%s 조사 행동은 5개여야 합니다." % item_id)
-			continue
-		var ids = {}
-		for action in profile:
-			var action_id = str(action.get("id", ""))
-			if action_id.is_empty() or ids.has(action_id):
-				errors.append("%s 조사 행동 ID가 비어 있거나 중복됩니다." % item_id)
-			ids[action_id] = true
-			if str(action.get("short_label", "")).is_empty() or str(action.get("label", "")).is_empty():
-				errors.append("%s 조사 행동 라벨이 비어 있습니다." % item_id)
-	return errors
+		var overrides: Dictionary = item.get("investigation_overrides", {})
+		for action_id in overrides.keys():
+			if not required_ids.has(str(action_id)):
+				errors.append("%s에 알 수 없는 조사 override %s가 있습니다." % [item_id, action_id])
+		for clue in item.get("unique_clues", []):
+			if str(clue.get("id", "")).is_empty() or str(clue.get("signal", "")).is_empty() or str(clue.get("text", "")).is_empty():
+				errors.append("%s의 unique clue가 불완전합니다." % item_id)
 
+	for profile_id in Content.PROFILE_CLUES.keys():
+		if not Content.INVESTIGATION_PROFILES.has(profile_id):
+			errors.append("단서 풀 %s에 대응하는 조사 프로필이 없습니다." % profile_id)
+	return errors
 
 func generate_market(count: int = 3) -> Array:
 	var pool = Content.ITEMS.duplicate(true)
@@ -86,7 +104,7 @@ func generate_listing(item: Dictionary) -> Dictionary:
 
 	var archetype = _choose_archetype()
 	var asking = _calculate_asking(actual_value, archetype, seller)
-	var clue_pack = _generate_clues(state, condition, seller)
+	var clue_pack = _generate_clues(state, condition, seller, item)
 
 	var public_clues: Array = clue_pack["public"]
 	var hidden_clues: Array = clue_pack["hidden"]
@@ -101,9 +119,9 @@ func generate_listing(item: Dictionary) -> Dictionary:
 	]
 
 	var post_clues = [
-		_pick_clue(_truth_signal(state), true),
-		_pick_clue("defect" if condition in ["사용감", "손상"] else "quality", true),
-		_pick_clue("neutral", true)
+		_pick_clue_for_item(item, _truth_signal(state), true),
+		_pick_clue_for_item(item, "defect" if condition in ["사용감", "손상"] else "quality", true),
+		_pick_clue_for_item(item, "neutral", true)
 	]
 
 	return {
@@ -112,6 +130,7 @@ func generate_listing(item: Dictionary) -> Dictionary:
 		"name": item["name"],
 		"category": item["category"],
 		"tags": item["tags"].duplicate(),
+		"investigation_profile": str(item.get("investigation_profile", "")),
 		"base_value": item["base_value"],
 		"state": state,
 		"condition": condition,
@@ -134,9 +153,19 @@ func generate_listing(item: Dictionary) -> Dictionary:
 
 
 func investigation_options(listing: Dictionary) -> Array:
-	var item_id = str(listing.get("item_id", ""))
-	if Content.ITEM_INVESTIGATION_PROFILES.has(item_id):
-		return Content.ITEM_INVESTIGATION_PROFILES[item_id].duplicate(true)
+	var item = _item_definition(str(listing.get("item_id", "")))
+	if not item.is_empty():
+		var profile_id = str(item.get("investigation_profile", ""))
+		if Content.INVESTIGATION_PROFILES.has(profile_id):
+			var options: Array = Content.INVESTIGATION_PROFILES[profile_id].duplicate(true)
+			var overrides: Dictionary = item.get("investigation_overrides", {})
+			for i in range(options.size()):
+				var action_id = str(options[i]["id"])
+				if overrides.has(action_id):
+					var patch: Dictionary = overrides[action_id]
+					for key in patch.keys():
+						options[i][key] = patch[key]
+			return options
 
 	var fallback = Content.INVESTIGATION_ACTIONS.duplicate(true)
 	for option in fallback:
@@ -151,7 +180,6 @@ func investigation_options(listing: Dictionary) -> Array:
 				"origin":3
 			}.get(str(option["id"]), 0)
 	return fallback
-
 
 func investigate(listing: Dictionary, action_id: String) -> Dictionary:
 	var updated = listing.duplicate(true)
@@ -629,7 +657,7 @@ func best_offer_price(offers: Array) -> int:
 	return best
 
 
-func _generate_clues(state: String, condition: String, seller: Dictionary) -> Dictionary:
+func _generate_clues(state: String, condition: String, seller: Dictionary, item: Dictionary) -> Dictionary:
 	var public = []
 	var hidden = []
 
@@ -642,24 +670,23 @@ func _generate_clues(state: String, condition: String, seller: Dictionary) -> Di
 			first_signal = "defect" if rng.randf() < 0.5 else "neutral"
 		else:
 			first_signal = "genuine"
-	public.append(_pick_clue(first_signal, first_aligned))
+	public.append(_pick_clue_for_item(item, first_signal, first_aligned))
 
 	var condition_signal = "neutral"
 	if condition in ["최상", "양호"]:
 		condition_signal = "quality"
 	elif condition == "손상":
 		condition_signal = "defect"
-	public.append(_pick_clue(condition_signal, true))
-	public.append(_pick_clue("neutral", true))
+	public.append(_pick_clue_for_item(item, condition_signal, true))
+	public.append(_pick_clue_for_item(item, "neutral", true))
 	public.append(_make_seller_claim(state, seller))
 
-	hidden.append(_pick_clue(truth_signal, true))
+	hidden.append(_pick_clue_for_item(item, truth_signal, true))
 	if condition in ["최상", "양호"]:
-		hidden.append(_pick_clue("quality", true))
+		hidden.append(_pick_clue_for_item(item, "quality", true))
 	else:
-		hidden.append(_pick_clue("defect", true))
+		hidden.append(_pick_clue_for_item(item, "defect", true))
 	return {"public":public, "hidden":hidden}
-
 
 func _make_seller_claim(state: String, seller: Dictionary) -> Dictionary:
 	var personality: Dictionary = seller["personality"]
@@ -811,20 +838,59 @@ func _truth_signal(state: String) -> String:
 	return "genuine"
 
 
-func _pick_clue(clue_signal: String, aligned: bool) -> Dictionary:
-	var candidates = []
-	for clue in Content.CLUES:
-		if clue["signal"] == clue_signal:
-			candidates.append(clue)
-	if candidates.is_empty():
-		for clue in Content.CLUES:
-			if clue["signal"] == "neutral":
-				candidates.append(clue)
+func _item_definition(item_id: String) -> Dictionary:
+	for item in Content.ITEMS:
+		if str(item.get("id", "")) == item_id:
+			return item
+	return {}
 
+
+func _clue_candidates(pool: Array, clue_signal: String) -> Array:
+	var candidates = []
+	for clue in pool:
+		if str(clue.get("signal", "")) == clue_signal:
+			candidates.append(clue)
+	return candidates
+
+
+func _pick_from_candidates(candidates: Array, aligned: bool) -> Dictionary:
 	var chosen: Dictionary = candidates[rng.randi_range(0, candidates.size() - 1)].duplicate(true)
 	chosen["aligned"] = aligned
 	return chosen
 
+
+func _pick_clue_for_item(item: Dictionary, clue_signal: String, aligned: bool) -> Dictionary:
+	var unique_candidates = _clue_candidates(item.get("unique_clues", []), clue_signal)
+	var profile_id = str(item.get("investigation_profile", ""))
+	var profile_candidates = []
+	if Content.PROFILE_CLUES.has(profile_id):
+		profile_candidates = _clue_candidates(Content.PROFILE_CLUES[profile_id], clue_signal)
+	var common_candidates = _clue_candidates(Content.CLUES, clue_signal)
+
+	# Unique clues stay special; profile clues are the normal flavor layer.
+	# Random selection keeps repeated items from exposing identical facts every run.
+	if not unique_candidates.is_empty() and rng.randf() < 0.32:
+		return _pick_from_candidates(unique_candidates, aligned)
+	if not profile_candidates.is_empty() and (common_candidates.is_empty() or rng.randf() < 0.78):
+		return _pick_from_candidates(profile_candidates, aligned)
+	if not common_candidates.is_empty():
+		return _pick_from_candidates(common_candidates, aligned)
+
+	# Signals such as quality may intentionally have no profile-specific entries.
+	var neutral_profile = []
+	if Content.PROFILE_CLUES.has(profile_id):
+		neutral_profile = _clue_candidates(Content.PROFILE_CLUES[profile_id], "neutral")
+	if not neutral_profile.is_empty():
+		return _pick_from_candidates(neutral_profile, aligned)
+	var neutral_common = _clue_candidates(Content.CLUES, "neutral")
+	return _pick_from_candidates(neutral_common, aligned)
+
+
+func _pick_clue(clue_signal: String, aligned: bool) -> Dictionary:
+	var candidates = _clue_candidates(Content.CLUES, clue_signal)
+	if candidates.is_empty():
+		candidates = _clue_candidates(Content.CLUES, "neutral")
+	return _pick_from_candidates(candidates, aligned)
 
 func _value_band_contains(value_band: String, value: int) -> bool:
 	if value_band == "0~5,000G":
