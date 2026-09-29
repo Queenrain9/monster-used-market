@@ -28,5 +28,8 @@ jobs:
       - name: Check main syntax
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/main.gd
 
+      - name: Boot main scene
+        run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . --quit-after 2
+
       - name: Run core smoke test
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/core_smoke_test.gd

@@ -113,3 +113,24 @@ const ARCHETYPES := {
 	"jackpot":{"name":"대박 후보","min":0.34,"max":0.66},
 	"trap":{"name":"함정형","min":1.38,"max":1.95}
 }
+
+
+# v0.2.1 Core Interaction Rewrite
+const MARKET_INVESTIGATION_BUDGET = 4
+const POST_INSPECTION_BUDGET = 2
+const QUOTE_REQUEST_BUDGET = 2
+const PROFESSIONAL_APPRAISAL_COST = 300
+
+const INVESTIGATION_ACTIONS = [
+	{"id":"exterior","label":"외형 자세히 보기"},
+	{"id":"mark","label":"각인 / 제작자 표시 확인"},
+	{"id":"function","label":"작동 / 반응 상태 확인"},
+	{"id":"origin","label":"판매자에게 출처 묻기"},
+	{"id":"market","label":"동종품 시세 조사"}
+]
+
+const POST_INSPECTIONS = [
+	{"id":"material","label":"재질 검사","cost":120},
+	{"id":"magic","label":"마력 / 반응 검사","cost":160},
+	{"id":"internal","label":"내부 구조 확인","cost":200}
+]

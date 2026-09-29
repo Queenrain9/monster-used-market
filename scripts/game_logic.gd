@@ -68,6 +68,24 @@ func generate_listing(item: Dictionary) -> Dictionary:
 	var asking = _calculate_asking(actual_value, archetype, seller)
 	var clue_pack = _generate_clues(state, condition, seller)
 
+	var public_clues: Array = clue_pack["public"]
+	var hidden_clues: Array = clue_pack["hidden"]
+	var initial_clue: Dictionary = public_clues[0].duplicate(true)
+	var seller_claim: Dictionary = public_clues[3].duplicate(true)
+
+	var investigation_clues = [
+		public_clues[1].duplicate(true),
+		hidden_clues[0].duplicate(true),
+		hidden_clues[1].duplicate(true),
+		public_clues[2].duplicate(true)
+	]
+
+	var post_clues = [
+		_pick_clue(_truth_signal(state), true),
+		_pick_clue("defect" if condition in ["사용감", "손상"] else "quality", true),
+		_pick_clue("neutral", true)
+	]
+
 	return {
 		"listing_id": "%s_%d_%d" % [item["id"], int(Time.get_unix_time_from_system()), rng.randi_range(1000, 9999)],
 		"item_id": item["id"],
@@ -81,10 +99,130 @@ func generate_listing(item: Dictionary) -> Dictionary:
 		"actual_value": actual_value,
 		"asking": asking,
 		"seller": seller,
-		"public_clues": clue_pack["public"],
-		"hidden_clues": clue_pack["hidden"],
-		"archetype": archetype
+		"archetype": archetype,
+		"listing_status": "미확인",
+		"initial_clue": initial_clue,
+		"seller_claim": seller_claim,
+		"discovered_clues": [initial_clue.duplicate(true), seller_claim.duplicate(true)],
+		"investigation_clues": investigation_clues,
+		"post_clues": post_clues,
+		"inspected_actions": [],
+		"post_inspected_actions": [],
+		"hypothesis": {}
 	}
+
+
+func investigation_options(listing: Dictionary) -> Array:
+	var options = Content.INVESTIGATION_ACTIONS.duplicate(true)
+	for option in options:
+		if option["id"] == "function":
+			if listing["tags"].has("마법") or listing["tags"].has("영혼"):
+				option["label"] = "마력 반응 확인"
+			elif listing["tags"].has("기계"):
+				option["label"] = "작동 상태 확인"
+			elif listing["category"] in ["재료", "연금재료", "보석"]:
+				option["label"] = "재질 상태 확인"
+			else:
+				option["label"] = "기능 / 구조 상태 확인"
+	return options
+
+
+func investigate(listing: Dictionary, action_id: String) -> Dictionary:
+	var updated = listing.duplicate(true)
+	var inspected: Array = updated.get("inspected_actions", [])
+	if inspected.has(action_id):
+		return {"listing": updated, "consumed": false, "message": "이미 확인한 항목입니다."}
+
+	var options = investigation_options(updated)
+	var known_action = false
+	for option in options:
+		if option["id"] == action_id:
+			known_action = true
+			break
+	if not known_action:
+		return {"listing": updated, "consumed": false, "message": "사용할 수 없는 조사입니다."}
+
+	inspected.append(action_id)
+	updated["inspected_actions"] = inspected
+	updated["listing_status"] = "조사 중"
+
+	if action_id == "market":
+		var low = max(500, int(round(float(updated["base_value"]) * 0.55)))
+		var high = int(round(float(updated["base_value"]) * 1.85))
+		var market_clue = {
+			"id":"market_estimate",
+			"kind":"시세",
+			"signal":"market",
+			"text":"동종품 거래 범위는 대략 %s~%sG. 진위·희귀도·상태에 따라 크게 달라진다." % [_money(low), _money(high)],
+			"reveal":"기본 종류의 시세 정보였으며 실제 개체 가치는 별도로 결정됐다.",
+			"aligned":true
+		}
+		_add_discovered_clue(updated, market_clue)
+		return {"listing": updated, "consumed": true, "message": market_clue["text"]}
+
+	var mapping = {
+		"exterior": 0,
+		"mark": 1,
+		"function": 2,
+		"origin": 3
+	}
+	var clue_index = int(mapping.get(action_id, 0))
+	var clues: Array = updated["investigation_clues"]
+	var clue: Dictionary = clues[clamp(clue_index, 0, clues.size() - 1)].duplicate(true)
+	_add_discovered_clue(updated, clue)
+	return {
+		"listing": updated,
+		"consumed": true,
+		"message":"[%s] %s" % [clue["kind"], clue["text"]]
+	}
+
+
+func save_hypothesis(listing: Dictionary, authenticity: String, condition_guess: String, value_band: String) -> Dictionary:
+	var updated = listing.duplicate(true)
+	updated["hypothesis"] = {
+		"authenticity": authenticity,
+		"condition": condition_guess,
+		"value_band": value_band
+	}
+	if updated["listing_status"] == "미확인":
+		updated["listing_status"] = "조사 중"
+	return updated
+
+
+func hypothesis_complete(listing: Dictionary) -> bool:
+	var hypothesis: Dictionary = listing.get("hypothesis", {})
+	return (
+		not str(hypothesis.get("authenticity", "")).is_empty()
+		and not str(hypothesis.get("condition", "")).is_empty()
+		and not str(hypothesis.get("value_band", "")).is_empty()
+	)
+
+
+func evaluate_hypothesis(listing: Dictionary) -> Array:
+	var feedback = []
+	var hypothesis: Dictionary = listing.get("hypothesis", {})
+	if hypothesis.is_empty():
+		return ["△ 구매 전 판단 기록 없음"]
+
+	var auth_guess = str(hypothesis.get("authenticity", ""))
+	if auth_guess == "애매함":
+		feedback.append("△ 진위 판단은 보류함")
+	elif auth_guess == "진품 같음":
+		feedback.append("✓ 진품 판단 적중" if listing["state"] == "진품" else "✕ 진품으로 봤지만 실제는 %s" % listing["state"])
+	elif auth_guess == "가짜 같음":
+		feedback.append("✓ 모조품 의심 적중" if listing["state"] == "모조품" else "✕ 가짜로 봤지만 실제는 %s" % listing["state"])
+
+	var condition_guess = str(hypothesis.get("condition", ""))
+	var actual_problem = listing["state"] == "결함품" or listing["condition"] in ["사용감", "손상"]
+	if condition_guess == "결함 의심":
+		feedback.append("✓ 결함/상태 문제 의심 적중" if actual_problem else "✕ 결함을 의심했지만 상태는 양호한 편")
+	elif condition_guess == "정상":
+		feedback.append("✓ 정상 상태 판단 적중" if not actual_problem else "✕ 정상으로 봤지만 실제 상태 문제 존재")
+
+	var value_band = str(hypothesis.get("value_band", ""))
+	var value_hit = _value_band_contains(value_band, int(listing["actual_value"]))
+	feedback.append("✓ 예상 가치 범위 적중" if value_hit else "✕ 예상 가치 범위를 벗어남")
+	return feedback
 
 
 func start_negotiation(listing: Dictionary) -> Dictionary:
@@ -95,93 +233,156 @@ func start_negotiation(listing: Dictionary) -> Dictionary:
 		"max_rounds": 3,
 		"patience": int(personality["patience"]),
 		"mood": 0,
-		"closed": false
+		"closed": false,
+		"evidence_used": [],
+		"last_offer": 0
 	}
 
 
-func negotiate(listing: Dictionary, state: Dictionary, action: String) -> Dictionary:
+func negotiation_evidence_options(listing: Dictionary) -> Array:
+	var result = []
+	var clues: Array = listing.get("discovered_clues", [])
+	for i in range(clues.size()):
+		var clue: Dictionary = clues[i]
+		if clue["kind"] == "판매자 주장":
+			continue
+		result.append({
+			"clue_index": i,
+			"label":"[%s] %s" % [clue["kind"], clue["text"]]
+		})
+	return result
+
+
+func negotiate_offer(listing: Dictionary, state: Dictionary, offer_price: int, evidence_clue_index: int) -> Dictionary:
 	var updated = state.duplicate(true)
 	if bool(updated.get("closed", false)):
 		return {
 			"state": updated,
+			"accepted": false,
 			"accepted_price": 0,
-			"speech": "“흥정은 끝났어. 현재 가격에 살지 말지만 정해.”",
-			"status": "더 이상 흥정할 수 없습니다."
+			"speech":"“흥정은 끝났어. 현재 가격에 살지 말지만 정해.”",
+			"status":"더 이상 새 가격을 제안할 수 없습니다."
 		}
 
-	var personality: Dictionary = listing["seller"]["personality"]
 	var current_price = int(updated["current_price"])
-	var floor_price = int(round(float(listing["asking"]) * float(personality["floor_ratio"])))
+	var min_offer = max(1, int(round(float(current_price) * 0.50)))
+	offer_price = clamp(offer_price, min_offer, current_price)
+
+	var personality: Dictionary = listing["seller"]["personality"]
+	var seller_type = str(listing["seller"]["type"])
+	var evidence_strength = 0.0
+	var evidence_text = "근거 없음"
+
+	var clues: Array = listing.get("discovered_clues", [])
+	if evidence_clue_index >= 0 and evidence_clue_index < clues.size():
+		var clue: Dictionary = clues[evidence_clue_index]
+		evidence_strength = _evidence_strength(clue)
+		evidence_text = str(clue["text"])
+		var used: Array = updated.get("evidence_used", [])
+		if used.has(evidence_text):
+			evidence_strength *= 0.20
+		else:
+			used.append(evidence_text)
+			updated["evidence_used"] = used
+
+	var floor_ratio = float(personality["floor_ratio"])
 	var receptiveness = float(personality["discount_receptiveness"])
+	var base_floor = float(listing["asking"]) * floor_ratio
+	var evidence_discount = float(listing["asking"]) * max(0.0, evidence_strength) * 0.085
+	var personality_adjust = 0.0
+	if seller_type == "urgent":
+		personality_adjust = -float(listing["asking"]) * 0.055
+	elif seller_type == "greedy":
+		personality_adjust = float(listing["asking"]) * 0.035
+	elif seller_type == "naive":
+		personality_adjust = -float(listing["asking"]) * 0.025
+	elif seller_type == "expert" and evidence_strength <= 0.0:
+		personality_adjust = float(listing["asking"]) * 0.025
+
+	var acceptable_floor = max(1.0, base_floor - evidence_discount + personality_adjust)
 	var mood = int(updated["mood"])
+	acceptable_floor *= 1.0 - clamp(float(mood) * 0.012, -0.04, 0.04)
+
+	updated["rounds"] = int(updated["rounds"]) + 1
+	updated["last_offer"] = offer_price
+
+	var accepted = false
 	var accepted_price = 0
 	var speech = ""
 	var status = ""
-	var patience_cost = 0
-	updated["rounds"] = int(updated["rounds"]) + 1
 
-	if action == "quick":
-		var target = max(floor_price, int(round(float(current_price) * 0.86)))
-		var chance = 0.34 + receptiveness * 0.50 + float(mood) * 0.04
-		if target <= floor_price:
-			chance -= 0.10
-		if rng.randf() <= clamp(chance, 0.08, 0.94):
-			accepted_price = target
-			speech = "“지금 바로 산다면… 좋아. %sG에 넘기지.”" % _money(target)
-			status = "빠른 거래 제안이 먹혔습니다."
-			updated["current_price"] = target
-			updated["closed"] = true
-		else:
-			patience_cost = 1
-			updated["mood"] = mood - 1
-			speech = "“그건 너무 세게 깎았어. 그렇게는 못 팔아.”"
-			status = "공격적인 제안이 거절됐습니다."
-
-	elif action == "condition":
-		var evidence = _count_negative_clues(listing)
-		var chance = 0.30 + receptiveness * 0.34 + min(evidence, 2) * 0.18 + float(mood) * 0.03
-		var reduction = 0.045 + min(evidence, 2) * 0.035
-		if rng.randf() <= clamp(chance, 0.08, 0.92):
-			var new_price = max(floor_price, int(round(float(current_price) * (1.0 - reduction))))
-			updated["current_price"] = new_price
-			updated["mood"] = mood + 1
-			speech = "“그 부분을 봤군… 그럼 %sG까지는 낮추지.”" % _money(new_price)
-			status = "관찰한 단서를 근거로 가격을 낮췄습니다."
-		else:
-			patience_cost = 1
-			updated["mood"] = mood - 1
-			speech = "“그 정도 흠집으로 값을 깎을 순 없어.”"
-			status = "단서 지적이 설득력을 얻지 못했습니다."
-
-	elif action == "soft":
-		var chance = 0.50 + receptiveness * 0.42 + float(mood) * 0.04
-		if rng.randf() <= clamp(chance, 0.10, 0.95):
-			var reduction = rng.randf_range(0.04, 0.075)
-			var new_price = max(floor_price, int(round(float(current_price) * (1.0 - reduction))))
-			updated["current_price"] = new_price
-			updated["mood"] = mood + 1
-			speech = "“조금만이다. %sG이면 어때?”" % _money(new_price)
-			status = "작은 양보를 받아냈습니다."
-		else:
-			patience_cost = 1
-			speech = "“이미 충분히 맞춰준 가격이야.”"
-			status = "추가 할인이 거절됐습니다."
-
-	updated["patience"] = max(0, int(updated["patience"]) - patience_cost)
-	if accepted_price <= 0 and (int(updated["patience"]) <= 0 or int(updated["rounds"]) >= int(updated["max_rounds"])):
+	var acceptance_margin = lerp(1.035, 0.985, receptiveness)
+	if float(offer_price) >= acceptable_floor * acceptance_margin:
+		accepted = true
+		accepted_price = offer_price
+		updated["current_price"] = offer_price
 		updated["closed"] = true
-		if int(updated["patience"]) <= 0:
-			speech += "\n“흥정은 여기까지야.”"
-			status += " 판매자의 인내도가 바닥났습니다."
-		else:
-			speech += "\n“세 번이나 얘기했잖아. 이제 결정해.”"
-			status += " 흥정 기회를 모두 사용했습니다."
+		speech = _accept_speech(seller_type, offer_price, evidence_strength)
+		status = "제안이 받아들여졌습니다."
+	elif float(offer_price) >= acceptable_floor * 0.84:
+		var counter = int(round(max(acceptable_floor, (float(offer_price) + float(current_price)) * 0.5)))
+		counter = min(counter, current_price - 1)
+		counter = max(counter, offer_price + 1)
+		updated["current_price"] = counter
+		updated["mood"] = mood + (1 if evidence_strength > 0.55 else 0)
+		speech = _counter_speech(seller_type, counter, evidence_strength)
+		status = "판매자가 카운터 가격을 제시했습니다."
+	else:
+		updated["patience"] = max(0, int(updated["patience"]) - 1)
+		updated["mood"] = mood - 1
+		speech = _reject_speech(seller_type, evidence_strength)
+		status = "제안이 너무 낮아 거절됐습니다."
+
+	if not accepted and (int(updated["rounds"]) >= int(updated["max_rounds"]) or int(updated["patience"]) <= 0):
+		updated["closed"] = true
+		speech += "\n“이제 더 흥정하지 않을게. 현재 가격으로 결정해.”"
+		status += " 흥정 기회를 모두 사용했습니다."
 
 	return {
 		"state": updated,
+		"accepted": accepted,
 		"accepted_price": accepted_price,
 		"speech": speech,
-		"status": status
+		"status": status,
+		"evidence_text": evidence_text,
+		"evidence_strength": evidence_strength
+	}
+
+
+func post_inspection_options(listing: Dictionary) -> Array:
+	return Content.POST_INSPECTIONS.duplicate(true)
+
+
+func run_post_inspection(listing: Dictionary, action_id: String) -> Dictionary:
+	var updated = listing.duplicate(true)
+	var used: Array = updated.get("post_inspected_actions", [])
+	if used.has(action_id):
+		return {"listing":updated, "consumed":false, "cost":0, "message":"이미 진행한 검사입니다."}
+
+	var options: Array = Content.POST_INSPECTIONS
+	var found = false
+	var option_cost = 0
+	for option in options:
+		if option["id"] == action_id:
+			found = true
+			option_cost = int(option["cost"])
+			break
+	if not found:
+		return {"listing":updated, "consumed":false, "cost":0, "message":"사용할 수 없는 검사입니다."}
+
+	var mapping = {"material":0, "magic":1, "internal":2}
+	var clue_index = int(mapping.get(action_id, 0))
+	var clues: Array = updated["post_clues"]
+	var clue: Dictionary = clues[clamp(clue_index, 0, clues.size() - 1)].duplicate(true)
+	_add_discovered_clue(updated, clue)
+	used.append(action_id)
+	updated["post_inspected_actions"] = used
+
+	return {
+		"listing": updated,
+		"consumed": true,
+		"cost": option_cost,
+		"message":"[%s] %s" % [clue["kind"], clue["text"]]
 	}
 
 
@@ -211,8 +412,11 @@ func appraise(listing: Dictionary) -> Dictionary:
 		features.append("희소성 프리미엄은 크지 않음")
 
 	var feedback = []
-	for clue in listing["public_clues"]:
-		if bool(clue.get("aligned", true)):
+	var clues: Array = listing.get("discovered_clues", [])
+	for clue in clues:
+		if clue["kind"] == "시세":
+			feedback.append("%s → %s" % [clue["text"], clue["reveal"]])
+		elif bool(clue.get("aligned", true)):
 			feedback.append("%s → %s" % [clue["text"], clue["reveal"]])
 		else:
 			feedback.append("%s → 실제로는 결정적 근거가 아닌 예외적 흔적이었다." % clue["text"])
@@ -286,55 +490,32 @@ func make_buyer_offers(listing: Dictionary) -> Array:
 			"name": buyer["name"],
 			"summary": buyer["summary"],
 			"price": price,
-			"reason": reason
+			"reason": reason,
+			"revealed": buyer["id"] == "scrap"
 		})
 	return offers
 
 
-func _choose_condition(state: String) -> String:
-	if state == "결함품":
-		return _weighted_choice({"양호":0.08,"사용감":0.37,"손상":0.55})
-	return _weighted_choice({"최상":0.16,"양호":0.46,"사용감":0.30,"손상":0.08})
+func reveal_quote(offers: Array, index: int) -> Array:
+	var updated = offers.duplicate(true)
+	if index < 0 or index >= updated.size():
+		return updated
+	updated[index]["revealed"] = true
+	return updated
 
 
-func _choose_archetype() -> String:
-	return _weighted_choice({"stable":0.28,"ambiguous":0.27,"risky":0.18,"jackpot":0.12,"trap":0.15})
-
-
-func _calculate_asking(actual_value: int, archetype: String, seller: Dictionary) -> int:
-	var band: Dictionary = Content.ARCHETYPES[archetype]
-	var ratio = rng.randf_range(float(band["min"]), float(band["max"]))
-	var personality: Dictionary = seller["personality"]
-	var type_id = str(seller["type"])
-
-	if type_id == "urgent":
-		ratio -= 0.10
-	elif type_id == "greedy":
-		ratio += 0.16
-	elif type_id == "bluffer":
-		ratio += 0.08
-	elif type_id == "naive":
-		ratio += rng.randf_range(-0.20, 0.20)
-
-	var knowledge = float(personality["knowledge"])
-	if type_id == "expert":
-		ratio = lerp(ratio, 1.02, 0.64 * knowledge)
-	elif knowledge > 0.70:
-		ratio = lerp(ratio, 1.0, 0.20 * knowledge)
-
-	return max(1200, int(round(float(actual_value) * max(0.22, ratio))))
+func best_offer_price(offers: Array) -> int:
+	var best = 0
+	for offer in offers:
+		best = max(best, int(offer["price"]))
+	return best
 
 
 func _generate_clues(state: String, condition: String, seller: Dictionary) -> Dictionary:
 	var public = []
 	var hidden = []
 
-	var truth_signal = "genuine"
-	if state == "모조품":
-		truth_signal = "imitation"
-	elif state == "결함품":
-		truth_signal = "defect"
-
+	var truth_signal = _truth_signal(state)
 	var first_signal = truth_signal
 	var first_aligned = true
 	if rng.randf() < 0.18:
@@ -350,8 +531,6 @@ func _generate_clues(state: String, condition: String, seller: Dictionary) -> Di
 		condition_signal = "quality"
 	elif condition == "손상":
 		condition_signal = "defect"
-	elif condition == "사용감":
-		condition_signal = "neutral"
 	public.append(_pick_clue(condition_signal, true))
 	public.append(_pick_clue("neutral", true))
 	public.append(_make_seller_claim(state, seller))
@@ -361,8 +540,7 @@ func _generate_clues(state: String, condition: String, seller: Dictionary) -> Di
 		hidden.append(_pick_clue("quality", true))
 	else:
 		hidden.append(_pick_clue("defect", true))
-
-	return {"public": public, "hidden": hidden}
+	return {"public":public, "hidden":hidden}
 
 
 func _make_seller_claim(state: String, seller: Dictionary) -> Dictionary:
@@ -400,6 +578,113 @@ func _make_seller_claim(state: String, seller: Dictionary) -> Dictionary:
 	}
 
 
+func _add_discovered_clue(listing: Dictionary, clue: Dictionary) -> void:
+	var discovered: Array = listing.get("discovered_clues", [])
+	for known in discovered:
+		if str(known.get("id", "")) == str(clue.get("id", "")) and str(known.get("text", "")) == str(clue.get("text", "")):
+			return
+	discovered.append(clue.duplicate(true))
+	listing["discovered_clues"] = discovered
+
+
+func _evidence_strength(clue: Dictionary) -> float:
+	if clue["kind"] == "부정적":
+		return 1.0 if bool(clue.get("aligned", true)) else 0.22
+	if clue["kind"] == "시세":
+		return 0.34
+	if clue["kind"] == "긍정적":
+		return -0.10
+	if clue["kind"] == "애매한":
+		return -0.16
+	return 0.0
+
+
+func _accept_speech(seller_type: String, price: int, evidence_strength: float) -> String:
+	if seller_type == "urgent":
+		return "“좋아. 오늘 안에 끝내고 싶었어. %sG에 가져가.”" % _money(price)
+	if seller_type == "greedy":
+		return "“마음에 안 들지만… %sG면 거래하지.”" % _money(price)
+	if seller_type == "bluffer":
+		return "“네가 그렇게까지 보았다니 어쩔 수 없군. %sG.”" % _money(price)
+	if seller_type == "naive":
+		return "“음… 그 정도면 괜찮은 건가? 좋아, %sG.”" % _money(price)
+	if seller_type == "expert":
+		return "“근거는 인정하지. %sG면 합리적이야.”" % _money(price)
+	return "“좋아. %sG에 넘기지.”" % _money(price)
+
+
+func _counter_speech(seller_type: String, price: int, evidence_strength: float) -> String:
+	if seller_type == "urgent":
+		return "“그 가격은 너무 낮아. 대신 오늘 바로 사면 %sG까지.”" % _money(price)
+	if seller_type == "greedy":
+		return "“그걸로는 안 돼. %sG 아래는 생각 없어.”" % _money(price)
+	if seller_type == "bluffer":
+		return "“그 흠집이 대수라고. 그래도 %sG까진 봐주지.”" % _money(price)
+	if seller_type == "naive":
+		return "“음… 네 말도 맞는 것 같네. %sG면 어때?”" % _money(price)
+	if seller_type == "expert":
+		if evidence_strength > 0.55:
+			return "“그 지적은 맞아. 반영해서 %sG.”" % _money(price)
+		return "“그 근거로는 부족해. 시세상 %sG가 한계야.”" % _money(price)
+	return "“%sG면 생각해보지.”" % _money(price)
+
+
+func _reject_speech(seller_type: String, evidence_strength: float) -> String:
+	if seller_type == "urgent":
+		return "“급하긴 해도 그 가격은 무리야.”"
+	if seller_type == "greedy":
+		return "“말도 안 되는 가격이야. 더 부를 생각 없으면 끝내.”"
+	if seller_type == "bluffer":
+		return "“그 정도 흔적으로 값을 깎겠다고? 이건 귀한 물건이야.”"
+	if seller_type == "naive":
+		return "“그렇게까지 싸게 팔아도 되는 건지 모르겠네… 그건 싫어.”"
+	if seller_type == "expert":
+		return "“근거가 약해. 그 가격은 시장가와 맞지 않아.”"
+	return "“그 가격은 받을 수 없어.”"
+
+
+func _choose_condition(state: String) -> String:
+	if state == "결함품":
+		return _weighted_choice({"양호":0.08,"사용감":0.37,"손상":0.55})
+	return _weighted_choice({"최상":0.16,"양호":0.46,"사용감":0.30,"손상":0.08})
+
+
+func _choose_archetype() -> String:
+	return _weighted_choice({"stable":0.28,"ambiguous":0.27,"risky":0.18,"jackpot":0.12,"trap":0.15})
+
+
+func _calculate_asking(actual_value: int, archetype: String, seller: Dictionary) -> int:
+	var band: Dictionary = Content.ARCHETYPES[archetype]
+	var ratio = rng.randf_range(float(band["min"]), float(band["max"]))
+	var personality: Dictionary = seller["personality"]
+	var type_id = str(seller["type"])
+
+	if type_id == "urgent":
+		ratio -= 0.10
+	elif type_id == "greedy":
+		ratio += 0.16
+	elif type_id == "bluffer":
+		ratio += 0.08
+	elif type_id == "naive":
+		ratio += rng.randf_range(-0.20, 0.20)
+
+	var knowledge = float(personality["knowledge"])
+	if type_id == "expert":
+		ratio = lerp(ratio, 1.02, 0.64 * knowledge)
+	elif knowledge > 0.70:
+		ratio = lerp(ratio, 1.0, 0.20 * knowledge)
+
+	return max(1200, int(round(float(actual_value) * max(0.22, ratio))))
+
+
+func _truth_signal(state: String) -> String:
+	if state == "모조품":
+		return "imitation"
+	if state == "결함품":
+		return "defect"
+	return "genuine"
+
+
 func _pick_clue(clue_signal: String, aligned: bool) -> Dictionary:
 	var candidates = []
 	for clue in Content.CLUES:
@@ -415,12 +700,16 @@ func _pick_clue(clue_signal: String, aligned: bool) -> Dictionary:
 	return chosen
 
 
-func _count_negative_clues(listing: Dictionary) -> int:
-	var count = 0
-	for clue in listing["public_clues"]:
-		if clue["kind"] == "부정적":
-			count += 1
-	return count
+func _value_band_contains(value_band: String, value: int) -> bool:
+	if value_band == "0~5,000G":
+		return value < 5000
+	if value_band == "5,000~15,000G":
+		return value >= 5000 and value < 15000
+	if value_band == "15,000~30,000G":
+		return value >= 15000 and value < 30000
+	if value_band == "30,000G 이상":
+		return value >= 30000
+	return false
 
 
 func _weighted_choice(weights: Dictionary) -> String:
