@@ -341,6 +341,7 @@ func _ready() -> void:
 
 
 func _connect_buttons() -> void:
+	town_nav_button.pressed.connect(_go_town)
 	market_nav_button.pressed.connect(_go_market)
 	inventory_nav_button.pressed.connect(_go_inventory)
 	records_nav_button.pressed.connect(_go_records)
@@ -356,6 +357,9 @@ func _connect_buttons() -> void:
 	for button in category_buttons:
 		button.pressed.connect(_set_home_category.bind(button.text))
 
+	for i in range(district_enter_buttons.size()):
+		district_enter_buttons[i].pressed.connect(_enter_district.bind(i))
+	end_day_button.pressed.connect(_end_day)
 	for i in range(market_cards.size()):
 		market_cards[i].opened.connect(_open_listing.bind(i))
 	for i in range(inspect_buttons.size()):
@@ -435,7 +439,7 @@ func _new_game_from_title() -> void:
 	_reset_core_progress()
 	game_started = true
 	onboarding_complete = false
-	_create_new_market(true, false)
+	_create_new_market(true, false, true)
 	_show_onboarding_page(0)
 	_save_game()
 
@@ -502,6 +506,12 @@ func _reset_core_progress() -> void:
 	daily_goal_claimed = false
 	last_progress_message = ""
 
+	current_district_id = "night_market"
+	market_visits_remaining = Content.DAY_MARKET_VISITS
+	day_start_gold = STARTING_GOLD
+	last_day_summary = {}
+	day_event_id = ""
+
 
 func _merchant_rank() -> String:
 	if merchant_reputation >= 600:
@@ -545,18 +555,148 @@ func _apply_trade_progress(profit: int, listing: Dictionary) -> Dictionary:
 	}
 
 
+func _district_definition(district_id: String) -> Dictionary:
+	for district in Content.DISTRICTS:
+		if str(district.get("id", "")) == district_id:
+			return district
+	return {}
+
+
+func _district_unlocked(district: Dictionary) -> bool:
+	return merchant_reputation >= int(district.get("unlock_reputation", 0))
+
+
+func _day_event() -> Dictionary:
+	if Content.DAY_EVENTS.is_empty():
+		return {}
+	if day_event_id.is_empty():
+		day_event_id = str(Content.DAY_EVENTS[(merchant_day - 1) % Content.DAY_EVENTS.size()].get("id", ""))
+	for event in Content.DAY_EVENTS:
+		if str(event.get("id", "")) == day_event_id:
+			return event
+	return Content.DAY_EVENTS[(merchant_day - 1) % Content.DAY_EVENTS.size()]
+
+
+func _render_town() -> void:
+	_update_header()
+	town_visits_label.text = "장터 방문 %d회 남음" % market_visits_remaining
+
+	var event = _day_event()
+	town_event_text.text = "오늘의 소문 · %s\n%s" % [
+		str(event.get("title", "조용한 하루")),
+		str(event.get("description", "특별한 소문은 없습니다."))
+	]
+
+	last_day_panel.visible = not last_day_summary.is_empty()
+	if last_day_panel.visible:
+		last_day_text.text = "DAY %d 마감 · 거래 %d건 · 자산 변화 %s" % [
+			int(last_day_summary.get("day", max(1, merchant_day - 1))),
+			int(last_day_summary.get("deals", 0)),
+			_signed_money(int(last_day_summary.get("asset_delta", 0)))
+		]
+
+	for i in range(district_cards.size()):
+		if i >= Content.DISTRICTS.size():
+			district_cards[i].hide()
+			continue
+		district_cards[i].show()
+		var district: Dictionary = Content.DISTRICTS[i]
+		var unlocked = _district_unlocked(district)
+		var district_id = str(district.get("id", ""))
+		district_arts[i].texture = Art.texture_for("ui", str(district.get("art_key", "market")))
+		district_name_labels[i].text = str(district.get("name", "상권"))
+		district_neighborhood_labels[i].text = str(district.get("neighborhoods", ""))
+		district_description_labels[i].text = str(district.get("description", ""))
+		district_enter_buttons[i].disabled = not unlocked or (market_visits_remaining <= 0 and not (current_district_id == district_id and market_items.size() == 3))
+		if not unlocked:
+			district_enter_buttons[i].text = "평판 %d 필요" % int(district.get("unlock_reputation", 0))
+		elif current_district_id == district_id and market_items.size() == 3:
+			district_enter_buttons[i].text = "현재 장터로 돌아가기"
+		elif market_visits_remaining <= 0:
+			district_enter_buttons[i].text = "오늘 방문 기회 없음"
+		else:
+			district_enter_buttons[i].text = "이 동네 장터 보기"
+
+	end_day_button.text = "DAY %d 장사 마감" % merchant_day
+
+
+func _go_town() -> void:
+	_remember_home_position()
+	current_stage = "town"
+	_render_town()
+	_show_panel(town_panel)
+	_set_status("오늘 갈 상권을 고르거나, 장사를 마감하고 다음 날로 넘어가세요.")
+	_save_game()
+
+
+func _enter_district(index: int) -> void:
+	if index < 0 or index >= Content.DISTRICTS.size():
+		return
+	var district: Dictionary = Content.DISTRICTS[index]
+	if not _district_unlocked(district):
+		_set_status("평판 %d이 되면 %s에 들어갈 수 있습니다." % [
+			int(district.get("unlock_reputation", 0)),
+			str(district.get("name", "이 상권"))
+		])
+		return
+	var district_id = str(district.get("id", ""))
+	if current_district_id == district_id and market_items.size() == 3:
+		_go_market()
+		return
+	if market_visits_remaining <= 0:
+		_set_status("오늘 장터 방문 기회를 모두 사용했습니다. 하루를 마감하세요.")
+		return
+	current_district_id = district_id
+	_create_new_market(true, true, true)
+
+
+func _end_day() -> void:
+	last_day_summary = {
+		"day":merchant_day,
+		"deals":today_deals,
+		"asset_delta":gold - day_start_gold
+	}
+	merchant_day += 1
+	today_deals = 0
+	today_date = Time.get_date_string_from_system()
+	daily_goal_progress = 0
+	daily_goal_claimed = false
+	market_visits_remaining = Content.DAY_MARKET_VISITS
+	day_start_gold = gold
+	day_event_id = ""
+	market_items = []
+	selected_market_index = -1
+	current_district_id = ""
+	current_stage = "town"
+	_update_header()
+	_render_town()
+	_show_panel(town_panel)
+	_set_status("DAY %d이 시작됐습니다. 새로운 상권과 매물을 확인하세요." % merchant_day)
+	_save_game()
+
+
 func _setup_options() -> void:
 	resale_option.clear()
 	for label in ["예상 재판매가 선택", "0~5,000G", "5,000~15,000G", "15,000~30,000G", "30,000G 이상"]:
 		resale_option.add_item(label)
 
 
-func _create_new_market(force: bool = false, save_after: bool = true) -> void:
+func _create_new_market(force: bool = false, save_after: bool = true, consume_visit: bool = false) -> void:
 	if not force and market_items.size() == 3 and not _can_rotate_market():
 		_set_status("새 매물로 넘기려면 조사 기회를 모두 쓰거나, 이 장터에서 실제 구매를 한 번 진행해야 합니다.")
 		return
+	if consume_visit and market_visits_remaining <= 0:
+		_set_status("오늘 장터 방문 기회를 모두 사용했습니다. 동네 화면에서 하루를 마감하세요.")
+		return
 
-	market_items = engine.generate_market(3)
+	var district = _district_definition(current_district_id)
+	if district.is_empty():
+		current_district_id = "night_market"
+		district = _district_definition(current_district_id)
+
+	market_items = engine.generate_market_for_district(current_district_id, 3)
+	if consume_visit:
+		market_visits_remaining = max(0, market_visits_remaining - 1)
 	home_scroll_offset = 0
 	home_query = ""
 	home_tab = "recommended"
@@ -569,13 +709,20 @@ func _create_new_market(force: bool = false, save_after: bool = true) -> void:
 	current_stage = "market"
 	_render_market()
 	_show_panel(market_panel)
-	_set_status("매물들을 둘러보고, 자세히 확인할 정보 4회를 어디에 쓸지 정하세요.")
+	_set_status("%s의 매물을 둘러보세요. 오늘 새 장터 방문은 %d회 남았습니다." % [
+		str(district.get("name", "어둠마을")),
+		market_visits_remaining
+	])
 	if save_after:
 		_save_game()
 
 
 func _request_next_market() -> void:
-	_create_new_market(false, true)
+	if market_visits_remaining <= 0:
+		_set_status("오늘 장터 방문 기회를 모두 사용했습니다. 동네 화면에서 하루를 마감하세요.")
+		_render_market()
+		return
+	_create_new_market(false, true, true)
 
 
 func _can_rotate_market() -> bool:
