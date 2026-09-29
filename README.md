@@ -1,4 +1,4 @@
-# 괴물 중고마켓 v0.8.0 — Dynamic Market & Events
+# 괴물 중고마켓 v0.9.0 — Commercial UX & Presentation
 
 이번 버전은 기능 추가가 아니라 **구조 목업과 실제 Godot 홈 화면의 비율/밀도/정보 위계를 맞추는 패스**입니다.
 
@@ -1122,3 +1122,90 @@ buyer_demand_multiplier가 전문 판매처와 고물상 견적 계산에 실제
 하루 마감 summary에 그날의 event title을 저장한다.
 
 따라서 DAY가 넘어가도 이전 장사를 어떤 시장 상황에서 했는지 복기할 수 있다.
+
+
+# v0.9.0 — P7 Commercial UX & Presentation Hooks
+
+최종 아트/사운드가 없어도 제품의 피드백 구조가 완성되어 있도록 presentation layer를 추가했다.
+
+## Stable Presentation Manifest
+
+`data/presentation_manifest.gd`
+
+BGM slots:
+- title
+- town
+- market
+- chat
+- deal
+- appraisal
+- sale
+- result
+
+SFX slots:
+- tap
+- open_listing
+- message_send
+- clue_reveal
+- offer_submit
+- purchase
+- appraisal_reveal
+- sale_complete
+- goal_complete
+- achievement
+- upgrade
+- day_end
+- warning
+
+최종 파일이 아직 존재하지 않아도 runtime은 안전하게 동작한다.
+P8에서는 manifest 경로에 파일만 넣으면 된다.
+
+## Screen Feedback
+
+- 화면 state별 BGM state 전환
+- 0.14s lightweight fade-in
+- Reduced Motion이면 fade 생략
+- 중요 행동에 SFX/haptic hook
+- 구매/판매/업그레이드/DAY 시작/감정/장기 목표 toast
+
+## Context Tutorial
+
+첫 방문 한 번만:
+- market
+- chat
+- deal
+- appraisal
+- sale
+- workshop
+- collection
+
+dismiss 상태는 save에 저장한다.
+
+## Settings
+
+타이틀 화면과 어둠마을에서 접근:
+- BGM volume
+- SFX volume
+- haptics
+- reduced motion
+- slightly larger text
+
+설정은 별도 `user://monster_used_market_settings.json`에 저장되어
+새 게임을 시작해도 유지된다.
+
+## Save Recovery
+
+플레이 저장:
+1. 기존 primary → backup
+2. 새 payload → temp
+3. temp → primary 교체
+
+primary JSON이 손상되면:
+- backup 자동 로드
+- primary 자동 복구
+- 사용자에게 복구 알림
+
+## Asset-only Finish
+
+P7 이후 최종 BGM/SFX는 코드 수정 없이 manifest 경로에 넣을 수 있다.
+화면 전환/타이밍/피드백 조건은 이미 구현돼 있다.
