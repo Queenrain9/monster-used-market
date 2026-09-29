@@ -39,6 +39,7 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 
 @onready var town_panel = $Margin/RootVBox/TownPanel
 @onready var workshop_panel = $Margin/RootVBox/WorkshopPanel
+@onready var relationships_panel = $Margin/RootVBox/RelationshipsPanel
 @onready var market_panel = $Margin/RootVBox/MarketPanel
 @onready var detail_panel = $Margin/RootVBox/DetailPanel
 @onready var seller_chat_panel = $Margin/RootVBox/SellerChatPanel
@@ -143,6 +144,17 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4/Box/BuyButton,
 	$Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5/Box/BuyButton
 ]
+
+@onready var relationship_list = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/SellerList
+@onready var relationship_portrait = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/Hero/Portrait
+@onready var relationship_name = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/Hero/Info/Name
+@onready var relationship_neighborhood = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/Hero/Info/Neighborhood
+@onready var relationship_stage_label = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/Hero/Info/Stage
+@onready var relationship_stats = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/Stats
+@onready var relationship_memory = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/MemoryText
+@onready var relationship_story = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/StoryText
+@onready var relationship_special = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/SpecialText
+@onready var relationship_visit_button = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/VisitButton
 
 @onready var market_scroll = $Margin/RootVBox/MarketPanel/Scroll
 @onready var search_input = $Margin/RootVBox/MarketPanel/Scroll/Box/SearchInput
@@ -371,6 +383,9 @@ var upgrade_levels: Dictionary = {
 	"routes":0
 }
 
+var seller_relationships: Dictionary = {}
+var selected_relationship_seller_index = 0
+
 
 func _ready() -> void:
 	theme = MarketTheme.build()
@@ -383,6 +398,7 @@ func _ready() -> void:
 	_configure_mobile_ui()
 	_connect_buttons()
 	_setup_options()
+	_ensure_seller_relationships()
 	_load_game()
 	_restore_home_controls()
 	_roll_daily_counter_if_needed()
@@ -423,7 +439,11 @@ func _connect_buttons() -> void:
 		district_enter_buttons[i].pressed.connect(_enter_district.bind(i))
 	end_day_button.pressed.connect(_end_day)
 	$Margin/RootVBox/TownPanel/Scroll/Box/WorkshopButton.pressed.connect(_go_workshop)
+	$Margin/RootVBox/TownPanel/Scroll/Box/RelationshipsButton.pressed.connect(_go_relationships)
 	$Margin/RootVBox/WorkshopPanel/Scroll/Box/TopRow/BackButton.pressed.connect(_go_town)
+	$Margin/RootVBox/RelationshipsPanel/Scroll/Box/TopRow/BackButton.pressed.connect(_go_town)
+	relationship_list.item_selected.connect(_relationship_seller_selected)
+	relationship_visit_button.pressed.connect(_visit_relationship_seller)
 	for i in range(upgrade_buy_buttons.size()):
 		upgrade_buy_buttons[i].pressed.connect(_buy_upgrade.bind(i))
 	for i in range(market_cards.size()):
