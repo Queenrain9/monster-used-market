@@ -723,9 +723,9 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
-[node name="Row" type="HBoxContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box/NegotiationStatus"]
+[node name="Row" type="VBoxContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box/NegotiationStatus"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 2
 
 [node name="RoundLabel" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/NegotiationStatus/Row"]
 layout_mode = 2
@@ -734,16 +734,14 @@ theme_override_font_sizes/font_size = 11
 text = "협상 0 / 3"
 
 [node name="PatienceLabel" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/NegotiationStatus/Row"]
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 text = "인내 ●●○"
-horizontal_alignment = 2
+horizontal_alignment = 0
 vertical_alignment = 1
 autowrap_mode = 0
-clip_text = true
-text_overrun_behavior = 3
 
 [node name="EvidenceTitle" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
