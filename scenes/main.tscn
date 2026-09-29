@@ -150,7 +150,7 @@ text = "추천 매물"
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
-text = "흥정 가능"
+text = "가격 제안"
 
 [node name="ViewedTabButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/TabRow"]
 layout_mode = 2
@@ -251,7 +251,7 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "어둠마을 야시장"
+text = "어둠마을 중고장터"
 vertical_alignment = 1
 
 [node name="MarketIntro" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState"]
@@ -273,7 +273,7 @@ autowrap_mode = 3
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.26, 0.29, 0.33, 1)
-text = "오늘 올라온 물건"
+text = "근처 새 매물"
 
 [node name="FeedCards" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
 layout_mode = 2
@@ -829,7 +829,7 @@ theme_override_constants/separation = 4
 [node name="ResponseTitle" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/SellerResponsePanel/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "판매자 반응"
+text = "판매자 답장"
 
 [node name="LastAction" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/SellerResponsePanel/Box"]
 layout_mode = 2
