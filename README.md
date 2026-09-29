@@ -1,4 +1,4 @@
-# 괴물 중고마켓 MVP v0.2.12 — Item-Specific Investigation
+# 괴물 중고마켓 MVP v0.2.13 — Content Scalability Pass
 
 이번 버전은 기능 추가가 아니라 **구조 목업과 실제 Godot 홈 화면의 비율/밀도/정보 위계를 맞추는 패스**입니다.
 
@@ -140,3 +140,60 @@
 - 조사 결과에는 어떤 행동을 했는지와 발견한 사실을 함께 표시
 
 목표는 플레이어가 더 이상 “안 누른 공통 버튼이 뭐지?”가 아니라 **“이 물건은 어디를 봐야 하지?”**라고 생각하게 만드는 것이다.
+
+
+## v0.2.13 — Content Scalability Pass
+
+아이템을 늘릴 때마다 전용 조사 5개를 통째로 복사하던 구조를 제거했다.
+
+새 콘텐츠 구조:
+
+```
+Item
+├─ 기본 경제 데이터
+├─ investigation_profile
+├─ investigation_overrides (선택)
+└─ unique_clues (선택)
+
+Investigation Profile
+├─ 조사 행동 5개
+└─ profile clue pool
+
+Common Clues
+└─ 어떤 프로필에서도 fallback 가능
+```
+
+### 현재 재사용 조사 프로필
+
+- ornament_magic
+- organic_material
+- enchanted_relic
+- mechanical
+- crafted_magic
+- organic_instrument
+- collectible
+- arcane_container
+
+여러 아이템이 같은 프로필을 공유한다. 예를 들어 `고블린 회중시계`와 `미믹의 황동열쇠`는 둘 다 `mechanical`을 상속하지만, 필요한 조사 행동만 개별 override한다.
+
+### 단서 계층
+
+1. 공용 `CLUES`
+2. 프로필 전용 `PROFILE_CLUES`
+3. 아이템 선택적 `unique_clues`
+
+프로필 전용 단서가 일반적인 분위기를 만들고, 고유 단서는 특별한 아이템에서만 간헐적으로 등장한다.
+
+### 확장성 검증
+
+자동 테스트에서 `Content.ITEMS`에 등록되지 않은 가상의 새 기계 아이템을 생성하고:
+
+- profile만으로 조사 5개 상속
+- 조사 실행
+- profile clue 사용
+- 한 행동만 override
+- 나머지 행동 자동 상속
+
+까지 확인한다.
+
+기존 세이브의 `exterior / mark / function / origin / market` 안정 ID는 그대로 유지한다.
