@@ -312,6 +312,46 @@ const DAY_EVENTS := [
 		"demand_multiplier":1.20,
 		"effect_text":"저주·영혼·음악 물건 등록가 +8% · 재판매 수요 +20%",
 		"volatile_special":true
+	},
+	{
+		"id":"collector_night",
+		"title":"수집가의 밤",
+		"description":"외지 수집가들이 어둠마을에 들어와 오래된 장식품과 별 관련 물건을 찾고 있다.",
+		"affected_tags":["수집","별"],
+		"asking_multiplier":1.05,
+		"demand_multiplier":1.18,
+		"effect_text":"수집·별 물건 등록가 +5% · 재판매 수요 +18%",
+		"volatile_special":true
+	},
+	{
+		"id":"alchemy_exam",
+		"title":"연금사 자격시험 주간",
+		"description":"시험 재료를 구하려는 견습 연금사들이 몰리며 재료와 연금 도구 값이 들썩인다.",
+		"affected_tags":["연금","재료"],
+		"asking_multiplier":1.08,
+		"demand_multiplier":1.16,
+		"effect_text":"연금·재료 등록가 +8% · 재판매 수요 +16%",
+		"volatile_special":true
+	},
+	{
+		"id":"clockwork_shortage",
+		"title":"태엽 부품 품귀",
+		"description":"부두 수리공들이 작은 기계 부품을 싹쓸이하면서 오래된 기계품도 덩달아 귀해졌다.",
+		"affected_tags":["기계","공예"],
+		"asking_multiplier":1.12,
+		"demand_multiplier":1.15,
+		"effect_text":"기계·공예 등록가 +12% · 재판매 수요 +15%",
+		"volatile_special":true
+	},
+	{
+		"id":"spirit_curfew",
+		"title":"유령 통행금지 전날",
+		"description":"묘지길 야간 통제가 예고되어 영혼·저주 물건을 급히 정리하는 판매자가 늘었다.",
+		"affected_tags":["영혼","저주"],
+		"asking_multiplier":0.86,
+		"demand_multiplier":1.10,
+		"effect_text":"영혼·저주 급매 증가 · 등록가 약 -14% · 재판매 수요 +10%",
+		"volatile_special":true
 	}
 ]
 
@@ -339,15 +379,40 @@ const COLLECTION_SETS := [
 		"name":"기묘한 생물의 흔적",
 		"description":"괴물과 환상 생물에게서 유래한 재료와 유품.",
 		"item_ids":["dragon_tooth","phoenix_feather","bone_flute"]
+	},
+	{
+		"id":"wandering_tools",
+		"name":"길을 잃는 도구들",
+		"description":"스스로 방향과 움직임을 가진 기묘한 도구 세트.",
+		"item_ids":["echo_compass","clockwork_beetle","rune_glove"]
+	},
+	{
+		"id":"sealed_night",
+		"name":"봉인된 밤",
+		"description":"어둠과 영혼을 가두거나 불러들이는 물건들.",
+		"item_ids":["bottled_shadow","grave_candle","drowned_bell"]
+	},
+	{
+		"id":"monster_remains",
+		"name":"괴물의 흔적 II",
+		"description":"희귀 생물과 마법 생태계에서 나온 수집품.",
+		"item_ids":["watching_brooch","moon_moth_case","basilisk_scale"]
+	},
+	{
+		"id":"lost_crafts",
+		"name":"사라진 공방과 항해",
+		"description":"탑·바다·연금 공방의 기록이 남은 생활 유물.",
+		"item_ids":["star_map_fragment","sea_witch_comb","alchemist_spoon"]
 	}
 ]
 
 const ACHIEVEMENTS := [
 	{"id":"first_truth","name":"첫 정체 확인","description":"전문 감정이나 거래 복기로 물건의 실제 정체를 처음 확인한다."},
 	{"id":"three_states","name":"진짜도 가짜도","description":"진품·모조품·결함품 세 상태를 모두 한 번 이상 발견한다."},
-	{"id":"six_items","name":"반쯤 채운 장부","description":"서로 다른 아이템 6종의 정체를 기록한다."},
+	{"id":"six_items","name":"장부의 시작","description":"서로 다른 아이템 6종의 정체를 기록한다."},
+	{"id":"twelve_items","name":"절반의 도감","description":"서로 다른 아이템 12종의 정체를 기록한다."},
 	{"id":"one_set","name":"한 묶음 완성","description":"테마 컬렉션 세트 하나를 완성한다."},
-	{"id":"all_items","name":"어둠마을 수집가","description":"아이템 12종을 모두 도감에 기록한다."},
+	{"id":"all_items","name":"어둠마을 수집가","description":"아이템 24종을 모두 도감에 기록한다."},
 	{"id":"trusted_seller","name":"믿고 먼저 보여주는 사이","description":"판매자 한 명과 신뢰 단계 이상이 된다."},
 	{"id":"profit_10000","name":"보는 눈이 돈이 된다","description":"도감에 기록된 거래 누적 순이익 10,000G를 넘긴다."}
 ]
@@ -372,6 +437,15 @@ const LONG_TERM_GOALS := [
 		"reward_reputation":10
 	},
 	{
+		"id":"catalog_12",
+		"name":"도감 절반",
+		"description":"서로 다른 아이템 12종의 정체를 기록한다.",
+		"kind":"items",
+		"target":12,
+		"reward_gold":4000,
+		"reward_reputation":20
+	},
+	{
 		"id":"set_1",
 		"name":"첫 테마 컬렉션",
 		"description":"테마 컬렉션 세트 하나를 완성한다.",
@@ -383,11 +457,11 @@ const LONG_TERM_GOALS := [
 	{
 		"id":"catalog_all",
 		"name":"어둠마을 도감 완성",
-		"description":"아이템 12종을 모두 기록한다.",
+		"description":"아이템 24종을 모두 기록한다.",
 		"kind":"items",
-		"target":12,
-		"reward_gold":6000,
-		"reward_reputation":30
+		"target":24,
+		"reward_gold":12000,
+		"reward_reputation":50
 	}
 ]
 
