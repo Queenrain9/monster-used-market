@@ -267,6 +267,82 @@ const DAY_EVENTS := [
 	{"id":"grave_festival","title":"묘지 축제 준비","description":"묘지 쪽 공연과 제례 준비로 기묘한 수집품 거래가 늘었다."}
 ]
 
+const COLLECTION_SETS := [
+	{
+		"id":"moonlit_curios",
+		"name":"달빛과 별의 물건",
+		"description":"밤빛과 하늘에 얽힌 수집품을 모은 세트.",
+		"item_ids":["moon_ring","meteor_coin","mermaid_pearl"]
+	},
+	{
+		"id":"cursed_corner",
+		"name":"수상한 저주품",
+		"description":"저주와 영혼, 정체불명의 힘이 남은 물건들.",
+		"item_ids":["cursed_mirror","soul_lantern","mimic_key"]
+	},
+	{
+		"id":"workshop_relics",
+		"name":"괴물 공방 도구",
+		"description":"기계와 공예, 연금에 쓰였던 오래된 도구들.",
+		"item_ids":["goblin_watch","witch_thimble","frost_vial"]
+	},
+	{
+		"id":"wild_remains",
+		"name":"기묘한 생물의 흔적",
+		"description":"괴물과 환상 생물에게서 유래한 재료와 유품.",
+		"item_ids":["dragon_tooth","phoenix_feather","bone_flute"]
+	}
+]
+
+const ACHIEVEMENTS := [
+	{"id":"first_truth","name":"첫 정체 확인","description":"전문 감정이나 거래 복기로 물건의 실제 정체를 처음 확인한다."},
+	{"id":"three_states","name":"진짜도 가짜도","description":"진품·모조품·결함품 세 상태를 모두 한 번 이상 발견한다."},
+	{"id":"six_items","name":"반쯤 채운 장부","description":"서로 다른 아이템 6종의 정체를 기록한다."},
+	{"id":"one_set","name":"한 묶음 완성","description":"테마 컬렉션 세트 하나를 완성한다."},
+	{"id":"all_items","name":"어둠마을 수집가","description":"아이템 12종을 모두 도감에 기록한다."},
+	{"id":"trusted_seller","name":"믿고 먼저 보여주는 사이","description":"판매자 한 명과 신뢰 단계 이상이 된다."},
+	{"id":"profit_10000","name":"보는 눈이 돈이 된다","description":"도감에 기록된 거래 누적 순이익 10,000G를 넘긴다."}
+]
+
+const LONG_TERM_GOALS := [
+	{
+		"id":"catalog_3",
+		"name":"첫 수집 장부",
+		"description":"서로 다른 아이템 3종의 정체를 기록한다.",
+		"kind":"items",
+		"target":3,
+		"reward_gold":1000,
+		"reward_reputation":5
+	},
+	{
+		"id":"catalog_6",
+		"name":"반쪽 도감",
+		"description":"서로 다른 아이템 6종의 정체를 기록한다.",
+		"kind":"items",
+		"target":6,
+		"reward_gold":2000,
+		"reward_reputation":10
+	},
+	{
+		"id":"set_1",
+		"name":"첫 테마 컬렉션",
+		"description":"테마 컬렉션 세트 하나를 완성한다.",
+		"kind":"sets",
+		"target":1,
+		"reward_gold":2500,
+		"reward_reputation":15
+	},
+	{
+		"id":"catalog_all",
+		"name":"어둠마을 도감 완성",
+		"description":"아이템 12종을 모두 기록한다.",
+		"kind":"items",
+		"target":12,
+		"reward_gold":6000,
+		"reward_reputation":30
+	}
+]
+
 const BUYERS := [
 	{"id":"collector","name":"기묘한 수집가","summary":"희귀하고 수집 가치가 높은 물건에 웃돈을 얹음","preferred_tags":["수집","고대"],"base_multiplier":0.86},
 	{"id":"mage","name":"탑의 마법사","summary":"마법·영혼 속성이 뚜렷한 물건을 비싸게 삼","preferred_tags":["마법","영혼"],"base_multiplier":0.84},
