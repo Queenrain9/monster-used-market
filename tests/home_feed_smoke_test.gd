@@ -84,6 +84,7 @@ func _test_public_feed(cards) -> void:
 	_expect(str(public_data["tags_text"]).contains("가격 제안"), "public feed should communicate local price-offer trading without revealing seller archetype")
 	_expect(not str(public_data).contains("급한 판매자"), "public feed must not reveal the hidden urgent seller archetype")
 	_expect(public_data["clue_text"] == "서랍 정리하다 나온 물건이라 올려요.", "home card must read like the seller's post rather than a system clue")
+	_expect(str(public_data["meta_text"]).contains(str(card["seller"]["name"])) and str(public_data["meta_text"]).contains(presenter.public_location_text(card)), "home card must visibly identify the monster seller and neighborhood")
 	var hidden_changed = card.duplicate(true)
 	hidden_changed["state"] = "모조품"
 	hidden_changed["condition"] = "손상"
@@ -152,9 +153,11 @@ func _test_browsing(cards) -> void:
 	_expect(game.seller_portrait.texture == load("res://scripts/art_catalog.gd").texture_for("sellers", str(listing["seller"]["id"])), "detail must show the seller portrait")
 	var item_options = game.engine.investigation_options(game.market_items[0])
 	for i in range(game.inspect_buttons.size()):
-		_expect(game.inspect_buttons[i].text.begins_with(str(item_options[i]["short_label"])), "detail investigation buttons must use the current item's investigation profile")
+		_expect(game.inspect_buttons[i].text.begins_with(game.feed.investigation_button_text(item_options[i])), "detail investigation buttons must read like marketplace questions/checks")
 	game.inspect_buttons[0].pressed.emit()
 	_expect(game.investigation_remaining == 3, "A investigation must consume one shared opportunity")
+	_expect(game.inquiry_panel.visible and not game.inquiry_text.text.is_empty(), "an investigation must leave a visible conversation/inspection transcript")
+	_expect(game.inquiry_text.text.contains("사진") or game.inquiry_text.text.contains("확인"), "first investigation should read as a concrete seller-photo or inspection action")
 	var a_clues = game.market_items[0]["discovered_clues"].duplicate(true)
 	game.get_node("Margin/RootVBox/DetailPanel/Scroll/Box/BackMarketButton").pressed.emit()
 	await _settle()
@@ -185,6 +188,7 @@ func _test_browsing(cards) -> void:
 	_expect(not game.get_node("Margin/RootVBox/Header").visible and not game.get_node("Margin/RootVBox/NavRow").visible, "negotiation must use its dedicated focus screen")
 	_expect(game.deal_seller_price.text.contains("판매자가 올린 가격") and game.deal_max_buy.text.contains("내 최대 매입가") and game.deal_expected_resale.text.contains("예상 재판매가"), "price-offer screen must show seller listing price, purchase ceiling and resale estimate together")
 	_expect(game.deal_personality.text.contains(game.feed.public_meetup_text(game.market_items[0])), "price-offer screen must keep the local direct-trade context visible")
+	_expect(game.deal_personality.text.contains(game.feed.seller_activity_text(game.market_items[0])) and game.deal_personality.text.contains(game.feed.seller_message_text(game.market_items[0])), "price-offer screen must show observable seller activity and an actual message instead of an analysis label")
 	_expect(game.seller_speech.text.contains("아직 있어요"), "first price-offer state must feel like a seller reply instead of a system prompt")
 	game.offer_slider.value = game.offer_slider.max_value
 	await _settle()
@@ -210,6 +214,7 @@ func _test_browsing(cards) -> void:
 	_expect(int(game.market_items[0]["negotiation_state"]["rounds"]) == 1, "home browsing must not restore negotiation rounds")
 	game._investigate(2)
 	game._investigate(3)
+	_expect(game.inquiry_title.text.contains("판매자에게") and game.inquiry_text.text.contains("나:"), "origin investigation must be presented as a short buyer-seller conversation")
 	game._go_market()
 	await _settle()
 	_expect(game.investigation_remaining == 0 and not game.next_market_button.disabled, "exhausting investigation must unlock the next market")
