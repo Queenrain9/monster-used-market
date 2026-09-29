@@ -156,6 +156,18 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var relationship_special = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/SpecialText
 @onready var relationship_visit_button = $Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel/Box/VisitButton
 
+@onready var collection_panel = $Margin/RootVBox/CollectionPanel
+@onready var collection_completion_label = $Margin/RootVBox/CollectionPanel/Scroll/Box/TopRow/CompletionLabel
+@onready var collection_summary_text = $Margin/RootVBox/CollectionPanel/Scroll/Box/SummaryPanel/SummaryText
+@onready var collection_item_list = $Margin/RootVBox/CollectionPanel/Scroll/Box/ItemList
+@onready var collection_item_art = $Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box/Hero/Art
+@onready var collection_item_name = $Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box/Hero/Info/Name
+@onready var collection_item_status = $Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box/Hero/Info/Status
+@onready var collection_detail_text = $Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box/DetailText
+@onready var collection_sets_text = $Margin/RootVBox/CollectionPanel/Scroll/Box/SetsText
+@onready var collection_goals_text = $Margin/RootVBox/CollectionPanel/Scroll/Box/GoalsText
+@onready var collection_achievements_text = $Margin/RootVBox/CollectionPanel/Scroll/Box/AchievementsText
+
 @onready var market_scroll = $Margin/RootVBox/MarketPanel/Scroll
 @onready var search_input = $Margin/RootVBox/MarketPanel/Scroll/Box/SearchInput
 @onready var recommend_tab_button = $Margin/RootVBox/MarketPanel/Scroll/Box/TabRow/RecommendTabButton
@@ -386,6 +398,12 @@ var upgrade_levels: Dictionary = {
 var seller_relationships: Dictionary = {}
 var selected_relationship_seller_index = 0
 
+var collection_records: Dictionary = {}
+var collection_goal_claimed: Dictionary = {}
+var achievement_unlocks: Dictionary = {}
+var selected_collection_index = 0
+var last_collection_reward = ""
+
 
 func _ready() -> void:
 	theme = MarketTheme.build()
@@ -440,8 +458,11 @@ func _connect_buttons() -> void:
 	end_day_button.pressed.connect(_end_day)
 	$Margin/RootVBox/TownPanel/Scroll/Box/WorkshopButton.pressed.connect(_go_workshop)
 	$Margin/RootVBox/TownPanel/Scroll/Box/RelationshipsButton.pressed.connect(_go_relationships)
+	$Margin/RootVBox/TownPanel/Scroll/Box/CollectionButton.pressed.connect(_go_collection)
 	$Margin/RootVBox/WorkshopPanel/Scroll/Box/TopRow/BackButton.pressed.connect(_go_town)
 	$Margin/RootVBox/RelationshipsPanel/Scroll/Box/TopRow/BackButton.pressed.connect(_go_town)
+	$Margin/RootVBox/CollectionPanel/Scroll/Box/TopRow/BackButton.pressed.connect(_go_town)
+	collection_item_list.item_selected.connect(_collection_item_selected)
 	relationship_list.item_selected.connect(_relationship_seller_selected)
 	relationship_visit_button.pressed.connect(_visit_relationship_seller)
 	for i in range(upgrade_buy_buttons.size()):
@@ -607,6 +628,11 @@ func _reset_core_progress() -> void:
 	seller_relationships = {}
 	selected_relationship_seller_index = 0
 	_ensure_seller_relationships()
+	collection_records = {}
+	collection_goal_claimed = {}
+	achievement_unlocks = {}
+	selected_collection_index = 0
+	last_collection_reward = ""
 
 
 func _merchant_rank() -> String:
@@ -2592,7 +2618,7 @@ func _select_option_by_text(option_button: OptionButton, text_value: String) -> 
 
 
 func _show_panel(target) -> void:
-	for panel in [town_panel, workshop_panel, market_panel, detail_panel, seller_chat_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
+	for panel in [town_panel, workshop_panel, relationships_panel, collection_panel, market_panel, detail_panel, seller_chat_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
 
 	var focus_mode = target == detail_panel or target == seller_chat_panel or target == deal_panel or target == appraisal_panel or target == sale_panel
@@ -2601,7 +2627,7 @@ func _show_panel(target) -> void:
 	status_panel.visible = target != market_panel and not focus_mode
 	nav_row.visible = not focus_mode
 
-	town_nav_button.set_pressed_no_signal(current_stage in ["town", "workshop"])
+	town_nav_button.set_pressed_no_signal(current_stage in ["town", "workshop", "relationships", "collection"])
 	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "chat", "deal"])
 	inventory_nav_button.set_pressed_no_signal(current_stage in ["inventory", "appraisal", "sale"])
 	records_nav_button.set_pressed_no_signal(current_stage == "result")
@@ -2689,6 +2715,12 @@ func _restore_stage() -> void:
 		"workshop":
 			_render_workshop()
 			_show_panel(workshop_panel)
+		"relationships":
+			_render_relationships()
+			_show_panel(relationships_panel)
+		"collection":
+			_render_collection()
+			_show_panel(collection_panel)
 		"detail":
 			if selected_market_index >= 0 and selected_market_index < market_items.size():
 				_render_detail()
@@ -2780,7 +2812,11 @@ func _save_game() -> void:
 		"day_event_id": day_event_id,
 		"upgrade_levels": upgrade_levels,
 		"seller_relationships": seller_relationships,
-		"selected_relationship_seller_index": selected_relationship_seller_index
+		"selected_relationship_seller_index": selected_relationship_seller_index,
+		"collection_records": collection_records,
+		"collection_goal_claimed": collection_goal_claimed,
+		"achievement_unlocks": achievement_unlocks,
+		"selected_collection_index": selected_collection_index
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file != null:
@@ -2854,6 +2890,19 @@ func _load_game() -> void:
 		max(0, Content.SELLERS.size() - 1)
 	)
 	_ensure_seller_relationships()
+
+	var loaded_collection = parsed.get("collection_records", {})
+	collection_records = loaded_collection if typeof(loaded_collection) == TYPE_DICTIONARY else {}
+	var loaded_goals = parsed.get("collection_goal_claimed", {})
+	collection_goal_claimed = loaded_goals if typeof(loaded_goals) == TYPE_DICTIONARY else {}
+	var loaded_achievements = parsed.get("achievement_unlocks", {})
+	achievement_unlocks = loaded_achievements if typeof(loaded_achievements) == TYPE_DICTIONARY else {}
+	selected_collection_index = clamp(
+		int(parsed.get("selected_collection_index", 0)),
+		0,
+		max(0, Content.ITEMS.size() - 1)
+	)
+	_migrate_legacy_collection_without_rewards()
 
 
 func _number_from_record_line(line: String) -> int:
