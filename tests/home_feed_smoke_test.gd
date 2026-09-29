@@ -363,6 +363,10 @@ func _test_trade_flow(cards) -> void:
 	_expect(game.record_hero.visible and game.record_money_panel.visible and game.record_truth_panel.visible, "completed trade must render structured record cards")
 	_expect(game.record_item_name.text == str(game.last_result_record["item_name"]), "record hero must show the actual traded item")
 	_expect(game.record_profit_label.text.contains(game._signed_money(int(game.last_result_record["profit"]))), "record hero must foreground net profit")
+	var money_grid = game.get_node("Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid")
+	for child in money_grid.get_children():
+		_expect(child.size.x >= 95.0 and child.size.y >= 20.0, "trade money summary columns must remain readable and never collapse vertically")
+		_expect(child.autowrap_mode == TextServer.AUTOWRAP_OFF, "trade money summary labels must stay on one line")
 	_expect(not game.legacy_result_summary.visible, "new structured transactions must not fall back to the old text dump")
 	game.market_nav_button.pressed.emit()
 	await _settle()
