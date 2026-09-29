@@ -28,11 +28,30 @@ func _run() -> void:
 	if cards == null:
 		await _finish()
 		return
+	await _test_commercial_shell()
 	await _test_public_feed(cards)
 	await _test_browsing(cards)
 	await _test_trade_flow(cards)
 	await _test_save_compatibility()
 	await _finish()
+
+
+func _test_commercial_shell() -> void:
+	game._show_title_screen()
+	_expect(game.commercial_shell.visible and game.title_view.visible, "commercial build must have a real title screen")
+	_expect(game.continue_button.disabled, "fresh install must not offer a fake continue action")
+	game._new_game_from_title()
+	_expect(game.game_started and game.onboarding_view.visible and not game.onboarding_complete, "new game must enter first-session onboarding")
+	_expect(game.onboarding_step_label.text == "1 / 3", "onboarding must start at step 1 of 3")
+	game._advance_onboarding()
+	_expect(game.onboarding_step_label.text == "2 / 3", "onboarding must advance to role explanation")
+	game._advance_onboarding()
+	_expect(game.onboarding_step_label.text == "3 / 3" and game.onboarding_next_button.text == "장터 열기", "onboarding final step must explain the first objective")
+	game._advance_onboarding()
+	_expect(game.onboarding_complete and not game.commercial_shell.visible and game.current_stage == "market", "finishing onboarding must enter the playable market")
+	_expect(game.day_label.text.contains("DAY 1") and game.rank_label.text == "견습 물건상" and game.reputation_label.text.contains("평판 0"), "commercial HUD must expose day, rank and reputation")
+	_expect(game.goal_label.text.contains("첫 거래 완료") and game.goal_label.text.contains("0/1"), "first session must expose a concrete daily objective")
+	await _assert_layout("commercial first session")
 
 
 func _test_public_feed(cards) -> void:
@@ -43,6 +62,10 @@ func _test_public_feed(cards) -> void:
 	game.investigation_remaining = 4
 	game.owned_items = []
 	game.gold = 50000
+	game.merchant_day = 1
+	game.merchant_reputation = 0
+	game.daily_goal_progress = 0
+	game.daily_goal_claimed = false
 	game.last_result_text = ""
 	game._update_header()
 	game._go_market()
@@ -274,8 +297,12 @@ func _test_browsing(cards) -> void:
 func _test_trade_flow(cards) -> void:
 	game.gold = 500000
 	game.total_deals = 0
+	game.today_deals = 0
 	game.best_profit = 0
 	game.worst_loss = 0
+	game.merchant_reputation = 0
+	game.daily_goal_progress = 0
+	game.daily_goal_claimed = false
 	cards.get_child(0).get_node("OpenButton").pressed.emit()
 	game.resale_option.select(2)
 	game._start_deal()
@@ -354,7 +381,10 @@ func _test_trade_flow(cards) -> void:
 	game.sell_button.pressed.emit()
 	await _settle()
 	_expect(game.owned_items.is_empty() and game.total_deals == 1, "sale must remove exactly one owned item and record the deal")
-	_expect(game.gold == 500000 - asking - inspection_cost - appraisal_cost + sale_price, "net assets must include the actual dynamic information costs and sale")
+	_expect(game.gold == 500000 - asking - inspection_cost - appraisal_cost + sale_price + 500, "first completed trade must include the 500G first-session objective reward exactly once")
+	_expect(game.daily_goal_claimed and game.daily_goal_progress == 1, "first completed trade must complete the first-session objective")
+	_expect(game.merchant_reputation > 0 and game.rank_label.text == game._merchant_rank(), "completed trade must award persistent merchant reputation")
+	_expect(int(game.last_result_record.get("goal_gold", 0)) == 500 and int(game.last_result_record.get("reputation_gain", 0)) > 0, "trade record must preserve progression rewards")
 	var record = game.last_result_text
 	_expect(record.contains("실제 물건") and record.contains("거래 계획 복기"), "legacy completed record text must preserve judgment and hidden-state review")
 	_expect(record.contains("판매자 복기") and record.contains("실제 성향:"), "legacy record text must reveal the seller archetype only in post-trade review")
@@ -415,6 +445,8 @@ func _test_save_compatibility() -> void:
 	legacy["version"] = 22
 	legacy.erase("home_scroll_offset")
 	legacy.erase("last_result_record")
+	for field in ["game_started", "onboarding_complete", "merchant_day", "merchant_reputation", "daily_goal_progress", "daily_goal_claimed"]:
+		legacy.erase(field)
 	for listing in legacy["market_items"]:
 		listing.erase("viewed")
 	var legacy_path = OS.get_user_data_dir().get_base_dir().path_join("괴물 중고마켓 MVP v0.2.2").path_join(game.SAVE_PATH.get_file())
@@ -431,6 +463,8 @@ func _test_save_compatibility() -> void:
 	_expect(_listing_ids() == ids and game.investigation_remaining == 3, "v0.2.2 migration must preserve listings and spent investigations")
 	_expect(game.market_items[2]["discovered_clues"] == clues, "v0.2.2 migration must preserve discoveries")
 	_expect(game.total_deals == 2 and not game.last_result_text.is_empty(), "v0.2.2 migration must preserve completed records")
+	_expect(game.game_started and game.onboarding_complete, "old v0.2.x saves must migrate as already-started games instead of forcing onboarding")
+	_expect(game.merchant_day == 1 and game.merchant_reputation >= game.total_deals * 15, "old saves must receive safe commercial progression defaults")
 	game._go_market()
 	game.records_nav_button.pressed.emit()
 	_expect(not game.last_result_record.is_empty(), "legacy saves without structured record data must be migrated from the old text record")
