@@ -970,6 +970,119 @@ func _go_workshop() -> void:
 	_save_game()
 
 
+func _go_relationships() -> void:
+	current_stage = "relationships"
+	_render_relationships()
+	_show_panel(relationships_panel)
+	_set_status("괴물들과 쌓인 관계, 최근 기억, 개인 이야기 진행을 확인하세요.")
+	_save_game()
+
+
+func _render_relationships() -> void:
+	_ensure_seller_relationships()
+	relationship_list.clear()
+	for seller in Content.SELLERS:
+		var seller_id = str(seller.get("id", ""))
+		var state = _seller_relationship(seller_id)
+		var points = int(state.get("points", 0))
+		var label = "%s · %s · 관계 %d" % [
+			Art.seller_name(seller),
+			_relationship_stage_name(points),
+			points
+		]
+		if int(state.get("story_step", 0)) > int(state.get("story_seen_step", 0)):
+			label += " · 새 이야기"
+		if bool(state.get("special_offer_ready", false)) and not bool(state.get("special_offer_claimed", false)):
+			label += " · 전용 매물"
+		relationship_list.add_item(label, Art.texture_for("sellers", seller_id), true)
+	if Content.SELLERS.is_empty():
+		return
+	selected_relationship_seller_index = clamp(selected_relationship_seller_index, 0, Content.SELLERS.size() - 1)
+	relationship_list.select(selected_relationship_seller_index)
+	_render_relationship_detail()
+
+
+func _relationship_seller_selected(index: int) -> void:
+	selected_relationship_seller_index = clamp(index, 0, max(0, Content.SELLERS.size() - 1))
+	_render_relationship_detail()
+	_save_game()
+
+
+func _render_relationship_detail() -> void:
+	if Content.SELLERS.is_empty():
+		return
+	var seller: Dictionary = Content.SELLERS[selected_relationship_seller_index]
+	var seller_id = str(seller.get("id", ""))
+	var state = _seller_relationship(seller_id)
+	var points = int(state.get("points", 0))
+	var story: Dictionary = Content.SELLER_STORIES.get(seller_id, {})
+	var beats: Array = story.get("beats", [])
+	var story_step = int(state.get("story_step", 0))
+
+	relationship_portrait.texture = Art.texture_for("sellers", seller_id)
+	relationship_name.text = Art.seller_name(seller)
+	relationship_neighborhood.text = "%s · %s" % [
+		str(seller.get("neighborhood", "어둠마을")),
+		str(seller.get("profile", ""))
+	]
+	relationship_stage_label.text = "%s · 관계 %d" % [_relationship_stage_name(points), points]
+	relationship_stats.text = "대화 %d회 · 구매 %d회 · 마지막 만남 %s" % [
+		int(state.get("chats", 0)),
+		int(state.get("purchases", 0)),
+		("DAY %d" % int(state.get("last_day", 0))) if int(state.get("last_day", 0)) > 0 else "없음"
+	]
+	var memory = str(state.get("last_memory", "")).strip_edges()
+	relationship_memory.text = memory if not memory.is_empty() else "아직 함께한 거래가 없습니다."
+
+	var story_lines = ["%s · %d / 3" % [str(story.get("title", "개인 이야기")), story_step]]
+	if story_step > 0 and story_step - 1 < beats.size():
+		story_lines.append("현재 · %s" % str(beats[story_step - 1].get("title", "")))
+	if story_step < beats.size():
+		var next_beat: Dictionary = beats[story_step]
+		story_lines.append("다음 이야기 · 관계 %d에서 해금" % int(next_beat.get("threshold", 0)))
+	else:
+		story_lines.append("모든 이야기를 들었습니다.")
+	relationship_story.text = "\n".join(story_lines)
+
+	var signature_item = _item_definition(str(story.get("signature_item", "")))
+	var signature_name = str(signature_item.get("name", "특별한 물건"))
+	if bool(state.get("special_offer_claimed", false)):
+		relationship_special.text = "단골 전용 매물 · 거래 완료 · %s" % signature_name
+	elif bool(state.get("special_offer_ready", false)):
+		relationship_special.text = "단골 전용 매물 준비됨 · %s\n이 판매자의 동네 장터를 방문하면 먼저 볼 수 있습니다." % signature_name
+	else:
+		relationship_special.text = "단골 전용 매물 · 개인 이야기 3 / 3에서 해금"
+
+	var district_index = _district_index_for_seller(seller_id)
+	relationship_visit_button.disabled = district_index < 0
+	if district_index >= 0:
+		var district: Dictionary = Content.DISTRICTS[district_index]
+		if not _district_unlocked(district):
+			relationship_visit_button.disabled = true
+			relationship_visit_button.text = "평판 %d 필요 · %s" % [
+				int(district.get("unlock_reputation", 0)),
+				str(district.get("name", "상권"))
+			]
+		elif current_district_id == str(district.get("id", "")) and market_items.size() == 3:
+			relationship_visit_button.disabled = false
+			relationship_visit_button.text = "현재 %s 장터 보기" % str(district.get("name", "상권"))
+		elif market_visits_remaining <= 0:
+			relationship_visit_button.disabled = true
+			relationship_visit_button.text = "오늘 장터 방문 기회 없음"
+		else:
+			relationship_visit_button.disabled = false
+			relationship_visit_button.text = "%s 장터 보기" % str(district.get("name", "상권"))
+
+
+func _visit_relationship_seller() -> void:
+	if Content.SELLERS.is_empty():
+		return
+	var seller_id = str(Content.SELLERS[selected_relationship_seller_index].get("id", ""))
+	var district_index = _district_index_for_seller(seller_id)
+	if district_index >= 0:
+		_enter_district(district_index)
+
+
 func _buy_upgrade(index: int) -> void:
 	if index < 0 or index >= Content.UPGRADES.size():
 		return
