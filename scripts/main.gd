@@ -26,7 +26,22 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var result_panel = $Margin/RootVBox/ResultPanel
 
 @onready var market_scroll = $Margin/RootVBox/MarketPanel/Scroll
+@onready var search_input = $Margin/RootVBox/MarketPanel/Scroll/Box/SearchInput
+@onready var recommend_tab_button = $Margin/RootVBox/MarketPanel/Scroll/Box/TabRow/RecommendTabButton
+@onready var negotiable_tab_button = $Margin/RootVBox/MarketPanel/Scroll/Box/TabRow/NegotiableTabButton
+@onready var viewed_tab_button = $Margin/RootVBox/MarketPanel/Scroll/Box/TabRow/ViewedTabButton
+@onready var category_tab_button = $Margin/RootVBox/MarketPanel/Scroll/Box/TabRow/CategoryTabButton
+@onready var category_buttons = [
+	$Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid/AllCategoryButton,
+	$Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid/AccessoryCategoryButton,
+	$Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid/MaterialCategoryButton,
+	$Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid/RelicCategoryButton,
+	$Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid/MagicToolCategoryButton,
+	$Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid/MiscCategoryButton,
+	$Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid/OtherCategoryButton
+]
 @onready var market_info_label = $Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState/MarketInfo
+@onready var market_empty_state = $Margin/RootVBox/MarketPanel/Scroll/Box/EmptyState
 @onready var market_cards = [
 	$Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards/ListingCard1,
 	$Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards/ListingCard2,
@@ -36,15 +51,20 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var next_market_hint = $Margin/RootVBox/MarketPanel/Scroll/Box/NextMarketHint
 
 @onready var detail_title = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailTitle
+@onready var detail_tags = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailTags
 @onready var detail_seller = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerInfo
+@onready var detail_description = $Margin/RootVBox/DetailPanel/Scroll/Box/DescriptionPanel/ItemDescription
+@onready var detail_info = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailInfo
+@onready var seller_card_text = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerCardText
+@onready var market_price_label = $Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox/MarketPriceLabel
 @onready var detail_budget = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailBudget
 @onready var detail_clues = $Margin/RootVBox/DetailPanel/Scroll/Box/ClueList
 @onready var inspect_buttons = [
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InspectButton1,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InspectButton2,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InspectButton3,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InspectButton4,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InspectButton5
+	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton1,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton2,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton3,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ActionRow/InspectButton4,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox/InspectButton5
 ]
 @onready var resale_option = $Margin/RootVBox/DetailPanel/Scroll/Box/ResaleOption
 @onready var max_buy_slider = $Margin/RootVBox/DetailPanel/Scroll/Box/MaxBuySlider
@@ -66,16 +86,22 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var inventory_appraise_button = $Margin/RootVBox/InventoryPanel/Scroll/Box/AppraisePlaceButton
 @onready var inventory_sell_button = $Margin/RootVBox/InventoryPanel/Scroll/Box/SalePlaceButton
 
-@onready var appraisal_title = $Margin/RootVBox/AppraisalPanel/Scroll/Box/AppraisalTitle
-@onready var appraisal_info = $Margin/RootVBox/AppraisalPanel/Scroll/Box/AppraisalInfo
-@onready var appraisal_clues = $Margin/RootVBox/AppraisalPanel/Scroll/Box/AppraisalClues
-@onready var appraisal_state = $Margin/RootVBox/AppraisalPanel/Scroll/Box/AppraisalState
+@onready var appraisal_pre_view = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView
+@onready var appraisal_result_view = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView
+@onready var appraisal_title = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalTitle
+@onready var appraisal_info = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalInfo
+@onready var appraisal_clues = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalClues
+@onready var appraisal_state = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalState
 @onready var post_buttons = [
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PostInspectButton1,
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PostInspectButton2,
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PostInspectButton3
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/PostInspectButton1,
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/PostInspectButton2,
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/PostInspectButton3
 ]
-@onready var professional_appraise_button = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ProfessionalAppraiseButton
+@onready var professional_appraise_button = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ProfessionalAppraiseButton
+@onready var appraisal_result_hero = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultHero
+@onready var appraisal_result_summary = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultItemSummary
+@onready var appraisal_result_metrics = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultMetrics
+@onready var appraisal_comment = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/AppraiserComment
 
 @onready var sale_title = $Margin/RootVBox/SalePanel/Scroll/Box/SaleTitle
 @onready var sale_info = $Margin/RootVBox/SalePanel/Scroll/Box/SaleInfo
@@ -94,6 +120,9 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 var engine = MarketEngine.new()
 var feed = HomeFeed.new()
 var home_scroll_offset = 0
+var home_query = ""
+var home_tab = "recommended"
+var home_category = "전체"
 var evidence_map = []
 var suspect_map = []
 
@@ -119,11 +148,12 @@ func _ready() -> void:
 	$Backdrop.texture = Art.texture_for("ui", "market")
 	$Margin/RootVBox/Header/Brand.texture = Art.texture_for("ui", "brand")
 	$Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Art.texture = Art.texture_for("ui", "market")
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/AppraiserArt.texture = Art.texture_for("ui", "appraiser")
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraiserArt.texture = Art.texture_for("ui", "appraiser")
 	_configure_mobile_ui()
 	_connect_buttons()
 	_setup_options()
 	_load_game()
+	_restore_home_controls()
 	_roll_daily_counter_if_needed()
 
 	if market_items.size() != 3:
@@ -138,6 +168,14 @@ func _connect_buttons() -> void:
 	market_nav_button.pressed.connect(_go_market)
 	inventory_nav_button.pressed.connect(_go_inventory)
 	records_nav_button.pressed.connect(_go_records)
+
+	search_input.text_changed.connect(_on_home_search_changed)
+	recommend_tab_button.pressed.connect(_set_home_tab.bind("recommended"))
+	negotiable_tab_button.pressed.connect(_set_home_tab.bind("negotiable"))
+	viewed_tab_button.pressed.connect(_set_home_tab.bind("viewed"))
+	category_tab_button.pressed.connect(_set_home_tab.bind("category"))
+	for button in category_buttons:
+		button.pressed.connect(_set_home_category.bind(button.text))
 
 	for i in range(market_cards.size()):
 		market_cards[i].opened.connect(_open_listing.bind(i))
@@ -155,6 +193,11 @@ func _connect_buttons() -> void:
 	max_buy_slider.value_changed.connect(_max_buy_changed)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/StartDealButton.pressed.connect(_start_deal)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/BackMarketButton.pressed.connect(_go_market)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/TopBar/BackTopButton.pressed.connect(_go_market)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ImageExpandButton.pressed.connect(_open_image_preview)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.pressed.connect(_open_image_preview)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ActionRow/NegotiationJumpButton.pressed.connect(_jump_to_trade_plan)
+	$ImagePreview/Box/CloseButton.pressed.connect(func(): $ImagePreview.hide())
 
 	offer_slider.value_changed.connect(_offer_slider_changed)
 	$Margin/RootVBox/DealPanel/Scroll/Box/PresetRow/Preset5Button.pressed.connect(_set_offer_discount.bind(0.05))
@@ -171,8 +214,11 @@ func _connect_buttons() -> void:
 	$Margin/RootVBox/InventoryPanel/Scroll/Box/InventoryMarketButton.pressed.connect(_go_market)
 
 	professional_appraise_button.pressed.connect(_professional_appraise)
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/AppraisalInventoryButton.pressed.connect(_go_inventory)
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/AppraisalSaleButton.pressed.connect(_open_sale)
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalInventoryButton.pressed.connect(_go_inventory)
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalSaleButton.pressed.connect(_open_sale)
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultActions/StoreResultButton.pressed.connect(_go_inventory)
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultActions/PrepareResaleButton.pressed.connect(_confirm_prepare_resale)
+	$ResaleConfirmation.confirmed.connect(_open_sale)
 
 	quote_button.pressed.connect(_request_quote)
 	sell_button.pressed.connect(_sell_selected_buyer)
@@ -195,6 +241,11 @@ func _create_new_market(force: bool = false, save_after: bool = true) -> void:
 
 	market_items = engine.generate_market(3)
 	home_scroll_offset = 0
+	home_query = ""
+	home_tab = "recommended"
+	home_category = "전체"
+	if is_instance_valid(search_input):
+		search_input.text = ""
 	market_scroll.scroll_vertical = 0
 	investigation_remaining = Content.MARKET_INVESTIGATION_BUDGET
 	selected_market_index = -1
@@ -222,20 +273,27 @@ func _can_rotate_market() -> bool:
 func _render_market() -> void:
 	var available_count = 0
 	var new_count = 0
+	var visible_count = 0
 	var featured_index = feed.choose_featured_index(market_items)
 	for i in range(market_cards.size()):
-		market_cards[i].visible = i < market_items.size()
+		market_cards[i].visible = false
 		if i >= market_items.size():
 			continue
 		var listing: Dictionary = market_items[i]
 		var data = feed.describe_listing(listing, i == featured_index)
-		market_cards[i].render(data)
 		if bool(data["available"]):
 			available_count += 1
 			if not bool(listing.get("viewed", false)) and listing.get("inspected_actions", []).is_empty():
 				new_count += 1
+		if not feed.matches_filter(listing, home_query, home_tab, home_category):
+			continue
+		market_cards[i].visible = true
+		market_cards[i].render(data)
+		visible_count += 1
 
-	market_info_label.text = "새 매물 %d · 거래 가능 %d\n더 자세히 확인 가능 %d회" % [new_count, available_count, investigation_remaining]
+	market_empty_state.visible = visible_count == 0
+	market_info_label.text = "새 매물 %d · 거래 가능 %d · 더 자세히 확인 %d회" % [new_count, available_count, investigation_remaining]
+	_update_home_filter_controls()
 	next_market_button.disabled = not _can_rotate_market()
 	next_market_button.text = "다음 장터 보기"
 	if not _can_rotate_market():
@@ -244,6 +302,41 @@ func _render_market() -> void:
 		next_market_hint.text = "확인 기회를 모두 썼어요. 다음 장터의 새 매물을 둘러볼 수 있습니다."
 	else:
 		next_market_hint.text = "이 장터에서 물건을 구매했어요. 다음 장터도 둘러볼 수 있습니다."
+
+
+func _on_home_search_changed(value: String) -> void:
+	home_query = value
+	_render_market()
+
+
+func _set_home_tab(tab_id: String) -> void:
+	home_tab = tab_id
+	_render_market()
+	_save_game()
+
+
+func _set_home_category(category_id: String) -> void:
+	home_category = category_id
+	home_tab = "category"
+	_render_market()
+	_save_game()
+
+
+func _restore_home_controls() -> void:
+	if is_instance_valid(search_input):
+		search_input.text = home_query
+	_update_home_filter_controls()
+
+
+func _update_home_filter_controls() -> void:
+	recommend_tab_button.set_pressed_no_signal(home_tab == "recommended")
+	negotiable_tab_button.set_pressed_no_signal(home_tab == "negotiable")
+	viewed_tab_button.set_pressed_no_signal(home_tab == "viewed")
+	category_tab_button.set_pressed_no_signal(home_tab == "category")
+	for button in category_buttons:
+		button.set_pressed_no_signal(home_tab == "category" and button.text == home_category)
+
+
 
 
 func _remember_home_position() -> void:
@@ -283,13 +376,25 @@ func _render_detail() -> void:
 
 	var seller: Dictionary = listing["seller"]
 	var personality: Dictionary = seller["personality"]
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ItemArt.texture = Art.texture_for("items", str(listing.get("item_id", "")))
-	detail_title.text = "%s\n희망가 %sG" % [Art.item_name(listing), _money(int(listing["asking"]))]
-	detail_seller.text = "판매자 %s · %s\n%s\n판매자 주장: %s" % [
-		Art.seller_name(seller), personality["name"], personality["summary"], listing["seller_claim"]["text"]
+	var item_texture = Art.texture_for("items", str(listing.get("item_id", "")))
+	var public_data = feed.describe_listing(listing, false)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ItemArt.texture = item_texture
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.icon = item_texture
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.expand_icon = true
+	detail_title.text = "%s · %sG" % [Art.item_name(listing), _money(int(listing["asking"]))]
+	detail_tags.text = public_data["tags_text"]
+	detail_seller.text = "%s · %s · %s" % [Art.seller_name(seller), feed.public_location_text(listing), feed.public_age_text(listing)]
+	detail_description.text = "%s\n\n%s" % [str(listing["seller_claim"]["text"]), str(listing["initial_clue"]["text"])]
+	detail_info.text = "현재 확인 상태  ·  단서 %d개 확인 / 미감정\n카테고리  ·  %s\n등록 시점  ·  %s\n거래 위치  ·  %s\n거래 방식  ·  직거래 · 가격 협상 가능" % [
+		listing.get("discovered_clues", []).size(),
+		listing.get("category", "기타"),
+		feed.public_age_text(listing),
+		feed.public_location_text(listing)
 	]
+	seller_card_text.text = "%s\n%s\n%s" % [Art.seller_name(seller), personality["name"], personality["summary"]]
 	detail_budget.text = "더 자세히 확인할 수 있는 정보: %d회" % investigation_remaining
 	detail_clues.text = "지금까지 확인한 정보\n%s" % _format_discovered_clues(listing)
+	market_price_label.text = _market_price_reference_text(listing)
 
 	var options = engine.investigation_options(listing)
 	var used: Array = listing.get("inspected_actions", [])
@@ -300,6 +405,29 @@ func _render_detail() -> void:
 
 	_populate_suspect_options(listing)
 	_restore_trade_plan(listing)
+
+
+func _market_price_reference_text(listing: Dictionary) -> String:
+	for clue in listing.get("discovered_clues", []):
+		if str(clue.get("kind", "")) == "시세" or str(clue.get("id", "")) == "market_estimate":
+			return str(clue.get("text", "시세 정보를 확인했습니다."))
+	return "아직 동종품 시세를 확인하지 않았습니다. 확인하면 거래 계획의 참고 자료로 사용할 수 있습니다."
+
+
+func _open_image_preview() -> void:
+	var listing = _current_market_listing()
+	if listing.is_empty():
+		return
+	$ImagePreview/Box/PreviewImage.texture = Art.texture_for("items", str(listing.get("item_id", "")))
+	$ImagePreview.popup_centered(Vector2i(min(350, int(get_viewport_rect().size.x) - 24), 500))
+
+
+func _jump_to_trade_plan() -> void:
+	resale_option.grab_focus()
+	$Margin/RootVBox/DetailPanel/Scroll.ensure_control_visible(resale_option)
+	_set_status("예상 재판매가와 최대 매입가를 정하면 실제 가격 협상으로 이어집니다.")
+
+
 
 
 func _populate_suspect_options(listing: Dictionary) -> void:
@@ -651,6 +779,23 @@ func _render_appraisal() -> void:
 		return
 	var listing: Dictionary = owned["listing"]
 	var appraisal_data: Dictionary = owned.get("appraisal_data", {})
+	var has_result = not appraisal_data.is_empty()
+	appraisal_pre_view.visible = not has_result
+	appraisal_result_view.visible = has_result
+
+	if has_result:
+		appraisal_result_hero.texture = Art.texture_for("items", str(listing.get("item_id", "")))
+		appraisal_result_summary.text = "%s\n구매가 %sG · 판매자 %s" % [Art.item_name(listing), _money(int(owned["purchase_price"])), Art.seller_name(listing["seller"])]
+		appraisal_result_metrics.text = "진품 여부  ·  %s\n마력 잔량  ·  %s\n저주 강도  ·  %s\n희귀도  ·  %s\n예상 시세  ·  %s~%sG" % [
+			_appraisal_auth_text(str(appraisal_data["state"])),
+			appraisal_data.get("magic_grade", "C"),
+			appraisal_data.get("curse_grade", "없음"),
+			appraisal_data["rarity"],
+			_money(int(appraisal_data.get("value_low", appraisal_data["value"]))),
+			_money(int(appraisal_data.get("value_high", appraisal_data["value"])))
+		]
+		appraisal_comment.text = str(appraisal_data.get("comment", "감정 결과를 확인했습니다."))
+		return
 
 	appraisal_title.text = "감정소 · %s" % Art.item_name(listing)
 	appraisal_info.text = "매입가 %sG · 검사비 누적 %sG · 전문 감정비 %sG" % [
@@ -660,22 +805,30 @@ func _render_appraisal() -> void:
 	]
 	appraisal_clues.text = "현재까지 아는 정보\n%s" % _format_discovered_clues(listing)
 	appraisal_state.text = "추가 검사 %d회 남음" % int(owned["inspection_remaining"])
-	if not appraisal_data.is_empty():
-		appraisal_state.text += "\n\n전문 감정 결과: %s · %s · %s · 추정 가치 %sG" % [
-			appraisal_data["state"], appraisal_data["rarity"], appraisal_data["condition"], _money(int(appraisal_data["value"]))
-		]
 
 	var options = engine.post_inspection_options(listing)
 	var used: Array = listing.get("post_inspected_actions", [])
 	for i in range(post_buttons.size()):
 		var option: Dictionary = options[i]
-		post_buttons[i].text = "%s · %sG%s" % [
-			option["label"], _money(int(option["cost"])), " · 완료" if used.has(option["id"]) else ""
-		]
+		post_buttons[i].text = "%s · %sG%s" % [option["label"], _money(int(option["cost"])), " · 완료" if used.has(option["id"]) else ""]
 		post_buttons[i].disabled = int(owned["inspection_remaining"]) <= 0 or used.has(option["id"]) or gold < int(option["cost"])
 
 	professional_appraise_button.text = "전문 감정 · %sG" % _money(Content.PROFESSIONAL_APPRAISAL_COST)
-	professional_appraise_button.disabled = not appraisal_data.is_empty() or gold < Content.PROFESSIONAL_APPRAISAL_COST
+	professional_appraise_button.disabled = gold < Content.PROFESSIONAL_APPRAISAL_COST
+
+
+func _appraisal_auth_text(state: String) -> String:
+	if state == "진품":
+		return "진품 확인"
+	if state == "모조품":
+		return "모조품"
+	return "원본 계열 · 결함 확인"
+
+
+func _confirm_prepare_resale() -> void:
+	$ResaleConfirmation.popup_centered(Vector2i(min(320, int(get_viewport_rect().size.x) - 24), 190))
+
+
 
 
 func _post_inspect(option_index: int) -> void:
@@ -1030,6 +1183,9 @@ func _reset_save() -> void:
 	selected_owned_index = -1
 	current_stage = "market"
 	last_result_text = ""
+	home_query = ""
+	home_tab = "recommended"
+	home_category = "전체"
 	_create_new_market(true, false)
 	_update_header()
 	_save_game()
@@ -1038,8 +1194,11 @@ func _reset_save() -> void:
 
 func _save_game() -> void:
 	var payload = {
-		"version": 23,
+		"version": 24,
 		"home_scroll_offset": home_scroll_offset,
+		"home_query": home_query,
+		"home_tab": home_tab,
+		"home_category": home_category,
 		"gold": gold,
 		"total_deals": total_deals,
 		"today_deals": today_deals,
@@ -1076,6 +1235,9 @@ func _load_game() -> void:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return
 	home_scroll_offset = max(0, int(parsed.get("home_scroll_offset", 0)))
+	home_query = str(parsed.get("home_query", ""))
+	home_tab = str(parsed.get("home_tab", "recommended"))
+	home_category = str(parsed.get("home_category", "전체"))
 	gold = int(parsed.get("gold", STARTING_GOLD))
 	total_deals = int(parsed.get("total_deals", 0))
 	today_deals = int(parsed.get("today_deals", 0))
