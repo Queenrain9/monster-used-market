@@ -46,7 +46,7 @@
 
 # Production Stages
 
-## P1 — Commercial Game Shell & First Session
+## P1 — Commercial Game Shell & First Session ✅ IMPLEMENTED v0.3.0
 
 목표:
 게임 실행 순간부터 개발용 프로토타입이 아니라 제품처럼 느껴지게 한다.
@@ -68,7 +68,7 @@ Gate:
 - 기존 유저는 이어하기로 기존 플레이를 잃지 않는다.
 - 신규 유저는 60초 안에 첫 매물까지 진입한다.
 
-## P2 — World & Session Structure
+## P2 — World & Session Structure ✅ IMPLEMENTED v0.4.0
 
 - 어둠마을 구역
 - 구역별 판매자/매물 특성
