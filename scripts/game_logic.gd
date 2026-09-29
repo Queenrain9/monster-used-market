@@ -162,6 +162,16 @@ func validate_content() -> Array:
 		if not found_upgrades.has(upgrade_id):
 			errors.append("필수 업그레이드 %s가 없습니다." % upgrade_id)
 
+	for event in Content.DAY_EVENTS:
+		if str(event.get("id", "")).is_empty() or str(event.get("title", "")).is_empty():
+			errors.append("DAY event id/title이 비어 있습니다.")
+		if event.get("affected_tags", []).is_empty():
+			errors.append("%s DAY event에 영향 태그가 없습니다." % event.get("id", "unknown"))
+		if float(event.get("asking_multiplier", 0.0)) <= 0.0 or float(event.get("demand_multiplier", 0.0)) <= 0.0:
+			errors.append("%s DAY event 시장 배수가 유효하지 않습니다." % event.get("id", "unknown"))
+		if str(event.get("effect_text", "")).is_empty():
+			errors.append("%s DAY event에 공개 효과 설명이 없습니다." % event.get("id", "unknown"))
+
 	var covered_collection_items: Array = []
 	for set_data in Content.COLLECTION_SETS:
 		var set_id = str(set_data.get("id", ""))
@@ -227,7 +237,7 @@ func generate_market(count: int = 3) -> Array:
 	return result
 
 
-func generate_market_for_district(district_id: String, count: int = 3) -> Array:
+func generate_market_for_district(district_id: String, count: int = 3, event_tags: Array = []) -> Array:
 	var district = district_definition(district_id)
 	if district.is_empty():
 		return generate_market(count)
@@ -237,7 +247,7 @@ func generate_market_for_district(district_id: String, count: int = 3) -> Array:
 	var preferred_tags: Array = district.get("preferred_tags", [])
 	var seller_ids: Array = district.get("seller_ids", [])
 	while result.size() < count and not pool.is_empty():
-		var index = _weighted_district_item_index(pool, preferred_tags)
+		var index = _weighted_district_item_index(pool, preferred_tags, event_tags)
 		var item: Dictionary = pool[index]
 		pool.remove_at(index)
 		var listing = generate_listing(item, seller_ids)
@@ -247,7 +257,7 @@ func generate_market_for_district(district_id: String, count: int = 3) -> Array:
 	return result
 
 
-func _weighted_district_item_index(pool: Array, preferred_tags: Array) -> int:
+func _weighted_district_item_index(pool: Array, preferred_tags: Array, event_tags: Array = []) -> int:
 	if pool.size() <= 1:
 		return 0
 	var weights = []
@@ -257,6 +267,8 @@ func _weighted_district_item_index(pool: Array, preferred_tags: Array) -> int:
 		for tag in item.get("tags", []):
 			if preferred_tags.has(tag):
 				score += 1.4
+			if event_tags.has(tag):
+				score += 2.0
 		weights.append(score)
 		total += score
 	var roll = rng.randf() * total
@@ -345,6 +357,48 @@ func generate_listing(item: Dictionary, seller_ids: Array = []) -> Dictionary:
 		"hypothesis": {},
 		"trade_plan": {}
 	}
+
+
+func apply_day_event_to_listing(listing: Dictionary, event: Dictionary, featured: bool = false) -> Dictionary:
+	var updated = listing.duplicate(true)
+	if event.is_empty():
+		return updated
+
+	updated["market_event_id"] = str(event.get("id", ""))
+	updated["market_event_title"] = str(event.get("title", ""))
+	updated["market_event_effect"] = str(event.get("effect_text", ""))
+	updated["event_affected"] = false
+	updated["event_special"] = false
+	updated["buyer_demand_multiplier"] = 1.0
+
+	var affected_tags: Array = event.get("affected_tags", [])
+	var matched_tags: Array = []
+	for tag_value in updated.get("tags", []):
+		var tag = str(tag_value)
+		if affected_tags.has(tag):
+			matched_tags.append(tag)
+	if matched_tags.is_empty():
+		return updated
+
+	updated["event_affected"] = true
+	updated["event_matched_tags"] = matched_tags
+
+	if featured and bool(event.get("volatile_special", false)) and not bool(updated.get("relationship_special", false)):
+		var volatile_pool = ["risky", "jackpot", "trap"]
+		var chosen_archetype = str(volatile_pool[rng.randi_range(0, volatile_pool.size() - 1)])
+		updated["archetype"] = chosen_archetype
+		updated["asking"] = _calculate_asking(
+			int(updated.get("actual_value", 1)),
+			chosen_archetype,
+			updated.get("seller", {})
+		)
+		updated["event_special"] = true
+
+	var asking_multiplier = float(event.get("asking_multiplier", 1.0))
+	var adjusted_asking = max(50, int(round(float(updated.get("asking", 1)) * asking_multiplier / 50.0)) * 50)
+	updated["asking"] = adjusted_asking
+	updated["buyer_demand_multiplier"] = float(event.get("demand_multiplier", 1.0))
+	return updated
 
 
 func investigation_options(listing: Dictionary) -> Array:
@@ -883,6 +937,8 @@ func make_buyer_offers(listing: Dictionary) -> Array:
 		if listing["condition"] == "손상" and buyer["id"] != "scrap":
 			multiplier *= 0.90
 
+		var event_demand = float(listing.get("buyer_demand_multiplier", 1.0))
+		multiplier *= event_demand
 		multiplier *= rng.randf_range(0.96, 1.05)
 		var price = max(1, int(round(float(listing["actual_value"]) * multiplier)))
 		var reason = "기본 시세 기준"
@@ -890,6 +946,10 @@ func make_buyer_offers(listing: Dictionary) -> Array:
 			reason = "선호 속성 %d개 일치" % matches
 		elif buyer["id"] == "scrap":
 			reason = "즉시 매입 가능, 대신 낮은 가격"
+		var event_demand = float(listing.get("buyer_demand_multiplier", 1.0))
+		if abs(event_demand - 1.0) > 0.001:
+			var demand_percent = int(round((event_demand - 1.0) * 100.0))
+			reason += " · 오늘 수요 %s%d%%" % ["+" if demand_percent >= 0 else "", demand_percent]
 
 		offers.append({
 			"buyer_id": buyer["id"],
