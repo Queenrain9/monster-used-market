@@ -43,6 +43,7 @@ const SETTINGS_PATH = "user://monster_used_market_settings.json"
 
 @onready var music_player = $MusicPlayer
 @onready var sfx_player = $SfxPlayer
+@onready var event_vfx = $PresentationLayer/EventVfx
 @onready var toast_panel = $PresentationLayer/ToastPanel
 @onready var toast_label = $PresentationLayer/ToastPanel/Label
 @onready var context_tip = $ContextTip
@@ -440,6 +441,7 @@ var _skip_backup_on_next_save = false
 var _base_font_sizes: Dictionary = {}
 var _syncing_settings = false
 var _toast_serial = 0
+var _vfx_serial = 0
 
 
 func _ready() -> void:
@@ -743,8 +745,48 @@ func _emit_haptic(kind: String) -> void:
 
 func _presentation_event(event_id: String, haptic_kind: String = "") -> void:
 	_play_sfx(event_id)
+	_play_event_vfx(event_id)
 	if not haptic_kind.is_empty():
 		_emit_haptic(haptic_kind)
+
+
+func _play_event_vfx(event_id: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	var path = str(Presentation.VFX.get(event_id, ""))
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return
+	var texture = load(path) as Texture2D
+	if texture == null:
+		return
+
+	_vfx_serial += 1
+	var serial = _vfx_serial
+	event_vfx.texture = texture
+	event_vfx.modulate = Color(1, 1, 1, 1)
+	event_vfx.scale = Vector2.ONE
+	event_vfx.pivot_offset = event_vfx.size * 0.5
+	event_vfx.show()
+
+	if bool(presentation_settings.get("reduced_motion", false)):
+		get_tree().create_timer(0.42).timeout.connect(_hide_vfx_if_serial.bind(serial), CONNECT_ONE_SHOT)
+		return
+
+	event_vfx.scale = Vector2(0.82, 0.82)
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_BACK)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(event_vfx, "scale", Vector2(1.0, 1.0), 0.18)
+	tween.tween_interval(0.16)
+	tween.tween_property(event_vfx, "modulate", Color(1, 1, 1, 0), 0.16)
+	tween.finished.connect(_hide_vfx_if_serial.bind(serial), CONNECT_ONE_SHOT)
+
+
+func _hide_vfx_if_serial(serial: int) -> void:
+	if serial == _vfx_serial:
+		event_vfx.hide()
+		event_vfx.modulate = Color(1, 1, 1, 1)
+		event_vfx.scale = Vector2.ONE
 
 
 func _show_toast(text_value: String, event_id: String = "") -> void:
