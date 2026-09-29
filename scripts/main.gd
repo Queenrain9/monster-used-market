@@ -1112,6 +1112,334 @@ func _visit_relationship_seller() -> void:
 		_enter_district(district_index)
 
 
+func _default_collection_record() -> Dictionary:
+	return {
+		"discovered":false,
+		"appraisals":0,
+		"sales":0,
+		"states":[],
+		"highest_rarity":"",
+		"best_profit":0,
+		"total_profit":0,
+		"last_day":0
+	}
+
+
+func _collection_record(item_id: String) -> Dictionary:
+	var base = _default_collection_record()
+	var raw = collection_records.get(item_id, {})
+	if typeof(raw) == TYPE_DICTIONARY:
+		for key in base.keys():
+			if raw.has(key):
+				base[key] = raw[key]
+	base["appraisals"] = max(0, int(base["appraisals"]))
+	base["sales"] = max(0, int(base["sales"]))
+	base["best_profit"] = int(base["best_profit"])
+	base["total_profit"] = int(base["total_profit"])
+	base["last_day"] = max(0, int(base["last_day"]))
+	var normalized_states: Array = []
+	for state_value in base.get("states", []):
+		var state_text = str(state_value)
+		if state_text in ["진품", "모조품", "결함품"] and not normalized_states.has(state_text):
+			normalized_states.append(state_text)
+	base["states"] = normalized_states
+	return base
+
+
+func _rarity_rank(rarity: String) -> int:
+	var order = ["", "일반", "고급", "희귀", "영웅", "전설"]
+	return order.find(rarity)
+
+
+func _record_collection_discovery(listing: Dictionary, source: String, profit: int = 0, grant_rewards: bool = true) -> Dictionary:
+	var item_id = str(listing.get("item_id", ""))
+	if item_id.is_empty():
+		return {}
+	var record = _collection_record(item_id)
+	record["discovered"] = true
+	var actual_state = str(listing.get("state", ""))
+	if actual_state in ["진품", "모조품", "결함품"] and not record["states"].has(actual_state):
+		record["states"].append(actual_state)
+	var rarity = str(listing.get("rarity", ""))
+	if _rarity_rank(rarity) > _rarity_rank(str(record.get("highest_rarity", ""))):
+		record["highest_rarity"] = rarity
+	if source == "appraisal":
+		record["appraisals"] = int(record["appraisals"]) + 1
+	elif source == "sale":
+		record["sales"] = int(record["sales"]) + 1
+		record["total_profit"] = int(record["total_profit"]) + profit
+		record["best_profit"] = max(int(record["best_profit"]), profit)
+	record["last_day"] = merchant_day
+	collection_records[item_id] = record
+
+	_refresh_collection_achievements()
+	var reward = {"gold":0, "reputation":0, "goals":[]}
+	if grant_rewards:
+		reward = _claim_completed_collection_goals()
+		if int(reward["gold"]) > 0 or int(reward["reputation"]) > 0:
+			last_collection_reward = "수집 목표 보상 · +%sG · 평판 +%d" % [
+				_money(int(reward["gold"])),
+				int(reward["reputation"])
+			]
+		else:
+			last_collection_reward = ""
+		_update_header()
+	return reward
+
+
+func _collection_discovered_count() -> int:
+	var count = 0
+	for item in Content.ITEMS:
+		if bool(_collection_record(str(item.get("id", ""))).get("discovered", false)):
+			count += 1
+	return count
+
+
+func _collection_discovered_states() -> Array:
+	var result: Array = []
+	for item_id in collection_records.keys():
+		for state_value in _collection_record(str(item_id)).get("states", []):
+			var state_text = str(state_value)
+			if not result.has(state_text):
+				result.append(state_text)
+	return result
+
+
+func _collection_total_profit() -> int:
+	var total = 0
+	for item_id in collection_records.keys():
+		total += int(_collection_record(str(item_id)).get("total_profit", 0))
+	return total
+
+
+func _collection_set_progress(set_data: Dictionary) -> int:
+	var progress = 0
+	for item_id_value in set_data.get("item_ids", []):
+		if bool(_collection_record(str(item_id_value)).get("discovered", false)):
+			progress += 1
+	return progress
+
+
+func _completed_collection_sets() -> int:
+	var completed = 0
+	for set_data in Content.COLLECTION_SETS:
+		var ids: Array = set_data.get("item_ids", [])
+		if not ids.is_empty() and _collection_set_progress(set_data) >= ids.size():
+			completed += 1
+	return completed
+
+
+func _collection_goal_progress(goal: Dictionary) -> int:
+	match str(goal.get("kind", "")):
+		"items":
+			return _collection_discovered_count()
+		"sets":
+			return _completed_collection_sets()
+		_:
+			return 0
+
+
+func _claim_completed_collection_goals() -> Dictionary:
+	var reward_gold = 0
+	var reward_reputation = 0
+	var claimed: Array = []
+	for goal in Content.LONG_TERM_GOALS:
+		var goal_id = str(goal.get("id", ""))
+		if bool(collection_goal_claimed.get(goal_id, false)):
+			continue
+		if _collection_goal_progress(goal) < int(goal.get("target", 0)):
+			continue
+		collection_goal_claimed[goal_id] = true
+		var goal_gold = int(goal.get("reward_gold", 0))
+		var goal_rep = int(goal.get("reward_reputation", 0))
+		reward_gold += goal_gold
+		reward_reputation += goal_rep
+		claimed.append(goal_id)
+	gold += reward_gold
+	merchant_reputation += reward_reputation
+	return {"gold":reward_gold, "reputation":reward_reputation, "goals":claimed}
+
+
+func _achievement_condition(achievement_id: String) -> bool:
+	match achievement_id:
+		"first_truth":
+			return _collection_discovered_count() >= 1
+		"three_states":
+			return _collection_discovered_states().size() >= 3
+		"six_items":
+			return _collection_discovered_count() >= 6
+		"one_set":
+			return _completed_collection_sets() >= 1
+		"all_items":
+			return _collection_discovered_count() >= Content.ITEMS.size()
+		"trusted_seller":
+			for seller_id in seller_relationships.keys():
+				if int(_seller_relationship(str(seller_id)).get("points", 0)) >= 12:
+					return true
+			return false
+		"profit_10000":
+			return _collection_total_profit() >= 10000
+		_:
+			return false
+
+
+func _refresh_collection_achievements() -> void:
+	for achievement in Content.ACHIEVEMENTS:
+		var achievement_id = str(achievement.get("id", ""))
+		if achievement_unlocks.has(achievement_id):
+			continue
+		if _achievement_condition(achievement_id):
+			achievement_unlocks[achievement_id] = merchant_day
+
+
+func _migrate_legacy_collection_without_rewards() -> void:
+	if not collection_records.is_empty():
+		_refresh_collection_achievements()
+		return
+	var item_id = str(last_result_record.get("item_id", ""))
+	if not item_id.is_empty():
+		var listing = {
+			"item_id":item_id,
+			"state":str(last_result_record.get("state", "")),
+			"rarity":str(last_result_record.get("rarity", ""))
+		}
+		_record_collection_discovery(listing, "sale", int(last_result_record.get("profit", 0)), false)
+	for legacy_entry in rare_items:
+		var legacy_text = str(legacy_entry)
+		for item in Content.ITEMS:
+			var legacy_listing = {"item_id":str(item.get("id", "")), "name":str(item.get("name", ""))}
+			var display_name = Art.item_name(legacy_listing)
+			if legacy_text.begins_with(display_name):
+				var record = _collection_record(str(item.get("id", "")))
+				record["discovered"] = true
+				for rarity in ["전설", "영웅", "희귀", "고급", "일반"]:
+					if legacy_text.contains(rarity):
+						record["highest_rarity"] = rarity
+						break
+				collection_records[str(item.get("id", ""))] = record
+	_refresh_collection_achievements()
+
+
+func _go_collection() -> void:
+	current_stage = "collection"
+	_render_collection()
+	_show_panel(collection_panel)
+	_set_status("감정하거나 거래를 끝낸 물건의 정체와 장기 수집 목표를 확인하세요.")
+	_save_game()
+
+
+func _collection_item_selected(index: int) -> void:
+	selected_collection_index = clamp(index, 0, max(0, Content.ITEMS.size() - 1))
+	_render_collection_detail()
+	_save_game()
+
+
+func _render_collection() -> void:
+	_refresh_collection_achievements()
+	var discovered_count = _collection_discovered_count()
+	var total_items = Content.ITEMS.size()
+	collection_completion_label.text = "%d / %d" % [discovered_count, total_items]
+	var states = _collection_discovered_states()
+	collection_summary_text.text = "도감 %d/%d · 실제 상태 %d/3 · 완성 세트 %d/%d\n거래 누적 순이익 %s" % [
+		discovered_count,
+		total_items,
+		states.size(),
+		_completed_collection_sets(),
+		Content.COLLECTION_SETS.size(),
+		_signed_money(_collection_total_profit())
+	]
+
+	collection_item_list.clear()
+	for item in Content.ITEMS:
+		var item_id = str(item.get("id", ""))
+		var record = _collection_record(item_id)
+		var discovered = bool(record.get("discovered", false))
+		var listing = {"item_id":item_id, "name":str(item.get("name", ""))}
+		var label = "%s · %s" % [
+			Art.item_name(listing) if discovered else "???",
+			(str(record.get("highest_rarity", "기록됨")) if discovered else "미발견")
+		]
+		var icon = Art.texture_for("items", item_id) if discovered else Art.texture_for("ui", "fallback")
+		collection_item_list.add_item(label, icon, true)
+	selected_collection_index = clamp(selected_collection_index, 0, max(0, Content.ITEMS.size() - 1))
+	if collection_item_list.item_count > 0:
+		collection_item_list.select(selected_collection_index)
+	_render_collection_detail()
+
+	var set_lines: Array = []
+	for set_data in Content.COLLECTION_SETS:
+		var progress = _collection_set_progress(set_data)
+		var total = set_data.get("item_ids", []).size()
+		set_lines.append("%s %s %d/%d · %s" % [
+			"✓" if progress >= total else "•",
+			str(set_data.get("name", "세트")),
+			progress,
+			total,
+			str(set_data.get("description", ""))
+		])
+	collection_sets_text.text = "\n".join(set_lines)
+
+	var goal_lines: Array = []
+	for goal in Content.LONG_TERM_GOALS:
+		var progress = _collection_goal_progress(goal)
+		var target = int(goal.get("target", 0))
+		var claimed = bool(collection_goal_claimed.get(str(goal.get("id", "")), false))
+		goal_lines.append("%s %s · %d/%d · 보상 %sG + 평판 %d" % [
+			"✓" if claimed else "•",
+			str(goal.get("name", "장기 목표")),
+			min(progress, target),
+			target,
+			_money(int(goal.get("reward_gold", 0))),
+			int(goal.get("reward_reputation", 0))
+		])
+	collection_goals_text.text = "\n".join(goal_lines)
+
+	var achievement_lines: Array = []
+	for achievement in Content.ACHIEVEMENTS:
+		var achievement_id = str(achievement.get("id", ""))
+		var unlocked = achievement_unlocks.has(achievement_id)
+		var suffix = " · DAY %d" % int(achievement_unlocks[achievement_id]) if unlocked else ""
+		achievement_lines.append("%s %s%s\n  %s" % [
+			"✓" if unlocked else "□",
+			str(achievement.get("name", "업적")),
+			suffix,
+			str(achievement.get("description", ""))
+		])
+	collection_achievements_text.text = "\n".join(achievement_lines)
+
+
+func _render_collection_detail() -> void:
+	if Content.ITEMS.is_empty():
+		return
+	var item: Dictionary = Content.ITEMS[selected_collection_index]
+	var item_id = str(item.get("id", ""))
+	var record = _collection_record(item_id)
+	var discovered = bool(record.get("discovered", false))
+	if not discovered:
+		collection_item_art.texture = Art.texture_for("ui", "fallback")
+		collection_item_name.text = "???"
+		collection_item_status.text = "미발견"
+		collection_detail_text.text = "전문 감정을 받거나 거래를 끝내 실제 정체를 확인하면 이 물건이 수집 장부에 기록됩니다."
+		return
+
+	var listing = {"item_id":item_id, "name":str(item.get("name", ""))}
+	collection_item_art.texture = Art.texture_for("items", item_id)
+	collection_item_name.text = Art.item_name(listing)
+	var states: Array = record.get("states", [])
+	collection_item_status.text = "%s · %s" % [
+		str(item.get("category", "기타")),
+		str(record.get("highest_rarity", "희귀도 미기록"))
+	]
+	collection_detail_text.text = "발견한 실제 상태 · %s\n전문 감정 %d회 · 판매 완료 %d회\n최고 거래 수익 %s · 누적 %s\n마지막 기록 DAY %d" % [
+		(" · ".join(states) if not states.is_empty() else "아직 상태 기록 없음"),
+		int(record.get("appraisals", 0)),
+		int(record.get("sales", 0)),
+		_signed_money(int(record.get("best_profit", 0))),
+		_signed_money(int(record.get("total_profit", 0))),
+		int(record.get("last_day", 0))
+	]
+
+
 func _buy_upgrade(index: int) -> void:
 	if index < 0 or index >= Content.UPGRADES.size():
 		return
