@@ -15,6 +15,63 @@ func _init() -> void:
 	var trade_plan_checks = 0
 	var quote_checks = 0
 	var investigation_profile_signatures = {}
+	var profile_usage = {}
+
+	for item in Content.ITEMS:
+		var profile_id = str(item.get("investigation_profile", ""))
+		profile_usage[profile_id] = int(profile_usage.get(profile_id, 0)) + 1
+	var shared_profile_found = false
+	for count in profile_usage.values():
+		if int(count) >= 2:
+			shared_profile_found = true
+			break
+	if not shared_profile_found:
+		_fail("investigation profiles are still one-profile-per-item instead of reusable")
+		return
+
+	# A brand-new item that is not registered in Content.ITEMS must still work
+	# by declaring only a reusable profile and normal item economy fields.
+	var synthetic_item = {
+		"id":"test_clockwork_box",
+		"name":"테스트 태엽 상자",
+		"category":"잡화",
+		"tags":["기계","수집"],
+		"base_value":10000,
+		"rarity_weights":{"일반":1.0},
+		"state_weights":{"진품":1.0},
+		"investigation_profile":"mechanical"
+	}
+	var synthetic_listing = engine.generate_listing(synthetic_item)
+	var synthetic_options = engine.investigation_options(synthetic_listing)
+	if synthetic_options.size() != 5 or str(synthetic_options[2]["short_label"]) != "작동 상태":
+		_fail("new item could not inherit the mechanical investigation profile")
+		return
+	var synthetic_check = engine.investigate(synthetic_listing, "function")
+	if not bool(synthetic_check["consumed"]):
+		_fail("new profile-only item could not run its inherited investigation")
+		return
+
+	# Optional one-action override must not require copying the whole profile.
+	var overridden_item = synthetic_item.duplicate(true)
+	overridden_item["id"] = "test_music_box"
+	overridden_item["investigation_overrides"] = {
+		"function":{"short_label":"멜로디 역재생","label":"태엽을 감아 멜로디가 거꾸로 흐르는지 듣는다"}
+	}
+	var overridden_listing = engine.generate_listing(overridden_item)
+	var overridden_options = engine.investigation_options(overridden_listing)
+	if str(overridden_options[2]["short_label"]) != "멜로디 역재생" or str(overridden_options[0]["short_label"]) != "외장 마모":
+		_fail("single-action investigation override did not inherit the rest of the profile")
+		return
+
+	var saw_profile_clue = false
+	for i in range(20):
+		var sample_clue = engine._pick_clue_for_item(synthetic_item, "genuine", true)
+		if str(sample_clue.get("id", "")).begins_with("mec_"):
+			saw_profile_clue = true
+			break
+	if not saw_profile_clue:
+		_fail("profile-specific clue layer was never selected for a profile-only item")
+		return
 	for item in Content.ITEMS:
 		var probe = engine.generate_listing(item)
 		var options = engine.investigation_options(probe)
@@ -30,8 +87,8 @@ func _init() -> void:
 			_fail("%s investigation IDs changed and would break older saves" % item["id"])
 			return
 		investigation_profile_signatures["|".join(labels)] = true
-	if investigation_profile_signatures.size() < 10:
-		_fail("item investigation profiles are not distinct enough")
+	if investigation_profile_signatures.size() < 8:
+		_fail("item investigation overrides do not create enough visible variety")
 		return
 
 	for market_index in range(20):
@@ -140,7 +197,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.2.12: 12 item-specific investigation profiles, 20 markets / 60 listings, trade plans, clue-based negotiation and 3-of-4 resale discovery")
+	print("SMOKE OK v0.2.13: reusable content profiles, synthetic new-item inheritance, layered clues, 20 markets / 60 listings and full trade flow")
 	quit(0)
 
 
