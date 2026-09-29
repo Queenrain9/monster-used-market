@@ -82,7 +82,7 @@ Gate:
 Gate:
 거래 1건이 아니라 "하루를 운영했다"는 느낌.
 
-## P3 — Meta Progression
+## P3 — Meta Progression ✅ IMPLEMENTED v0.5.0
 
 - 평판 레벨
 - 상인 등급
