@@ -30,6 +30,7 @@ func _run() -> void:
 		return
 	await _test_commercial_shell()
 	await _test_world_session()
+	await _test_relationship_progression()
 	await _test_public_feed(cards)
 	await _test_browsing(cards)
 	await _test_trade_flow(cards)
@@ -106,6 +107,78 @@ func _test_world_session() -> void:
 	_expect(not game.last_day_summary.is_empty() and int(game.last_day_summary["deals"]) == 1, "day close must preserve a summary of the finished day")
 	_expect(game.town_event_text.text.contains("오늘의 소문"), "each day must expose an event/rumor slot")
 	await _assert_layout("world and day session")
+
+
+func _test_relationship_progression() -> void:
+	game._reset_core_progress()
+	game.game_started = true
+	game.onboarding_complete = true
+	game.gold = 500000
+	game.current_district_id = "night_market"
+	game.market_visits_remaining = Content.DAY_MARKET_VISITS
+	game._create_new_market(true, false, false)
+	await _settle()
+
+	game._open_listing(0)
+	var listing: Dictionary = game.market_items[0]
+	var seller_id = str(listing["seller"]["id"])
+	game._open_seller_chat()
+	for i in range(4):
+		game._investigate(i)
+	await _settle()
+
+	var relation: Dictionary = game._seller_relationship(seller_id)
+	_expect(int(relation["points"]) == 4 and int(relation["chats"]) == 4, "four real seller questions must create four relationship points and chat memories")
+	_expect(int(relation["story_step"]) >= 1 and int(relation["story_seen_step"]) >= 1, "relationship threshold 4 must unlock and deliver the first seller story beat")
+	var saw_story = false
+	for message in game.market_items[0].get("chat_history", []):
+		if bool(message.get("story", false)):
+			saw_story = true
+			break
+	_expect(saw_story, "unlocked seller story must appear inside the persistent seller chat")
+
+	game._back_to_detail()
+	var asking = int(game.market_items[0]["asking"])
+	game._complete_purchase(asking)
+	await _settle()
+	relation = game._seller_relationship(seller_id)
+	_expect(int(relation["points"]) == 8 and int(relation["purchases"]) == 1, "buying from a seller must add four relationship points and one purchase memory")
+	_expect(str(relation["last_memory"]).contains("직거래"), "seller relationship must remember the most recent purchase")
+
+	# Push the same real relationship to the final story threshold and verify
+	# the promised relationship-only listing enters that seller's district.
+	game._add_seller_relationship(seller_id, 16, 0, 0, "테스트용 관계 도달")
+	relation = game._seller_relationship(seller_id)
+	_expect(int(relation["story_step"]) == 3 and bool(relation["special_offer_ready"]), "relationship 24 must unlock the final story and a special listing")
+
+	var district_index = game._district_index_for_seller(seller_id)
+	_expect(district_index >= 0, "relationship seller must belong to a commercial district")
+	game.current_district_id = str(Content.DISTRICTS[district_index]["id"])
+	game._create_new_market(true, false, false)
+	await _settle()
+	var special_index = -1
+	for i in range(game.market_items.size()):
+		if bool(game.market_items[i].get("relationship_special", false)) and str(game.market_items[i].get("relationship_seller_id", "")) == seller_id:
+			special_index = i
+			break
+	_expect(special_index >= 0, "final relationship story must inject the seller's relationship-only listing into their district market")
+
+	if special_index >= 0:
+		game._open_listing(special_index)
+		game._complete_purchase(int(game.market_items[special_index]["asking"]))
+		await _settle()
+		relation = game._seller_relationship(seller_id)
+		_expect(bool(relation["special_offer_claimed"]) and not bool(relation["special_offer_ready"]), "buying a relationship-only listing must consume that one-time offer")
+
+	game._save_game()
+	var saved_relationship = JSON.parse_string(JSON.stringify(game.seller_relationships))
+	game.queue_free()
+	await _settle()
+	game = MainScene.instantiate()
+	root.add_child(game)
+	await _settle()
+	_expect(game.seller_relationships == saved_relationship, "seller relationship points story steps and special-offer state must survive save/load")
+	await _assert_layout("seller relationships")
 
 
 func _test_public_feed(cards) -> void:
