@@ -109,17 +109,44 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var appraisal_result_metrics = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/MetricsPanel/ResultMetrics
 @onready var appraisal_comment = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/CommentPanel/AppraiserComment
 
-@onready var sale_title = $Margin/RootVBox/SalePanel/Scroll/Box/SaleTitle
-@onready var sale_info = $Margin/RootVBox/SalePanel/Scroll/Box/SaleInfo
-@onready var quote_state = $Margin/RootVBox/SalePanel/Scroll/Box/QuoteState
+@onready var sale_gold_label = $Margin/RootVBox/SalePanel/Scroll/Box/TopBar/GoldLabel
+@onready var sale_item_art = $Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary/Row/ItemArt
+@onready var sale_title = $Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary/Row/Info/SaleTitle
+@onready var sale_info = $Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary/Row/Info/SaleInfo
+@onready var quote_state = $Margin/RootVBox/SalePanel/Scroll/Box/QuoteStatePanel/QuoteState
 @onready var buyer_buttons = [
-	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerButton1,
-	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerButton2,
-	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerButton3,
-	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerButton4
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body/SelectButton,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body/SelectButton,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body/SelectButton,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body/SelectButton
 ]
-@onready var quote_button = $Margin/RootVBox/SalePanel/Scroll/Box/QuoteButton
-@onready var sell_button = $Margin/RootVBox/SalePanel/Scroll/Box/SellButton
+@onready var buyer_name_labels = [
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body/NameRow/BuyerName,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body/NameRow/BuyerName,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body/NameRow/BuyerName,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body/NameRow/BuyerName
+]
+@onready var buyer_status_labels = [
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body/NameRow/Status,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body/NameRow/Status,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body/NameRow/Status,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body/NameRow/Status
+]
+@onready var buyer_summary_labels = [
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body/Summary,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body/Summary,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body/Summary,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body/Summary
+]
+@onready var buyer_reason_labels = [
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body/Reason,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body/Reason,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body/Reason,
+	$Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body/Reason
+]
+@onready var sale_selected_label = $Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box/SelectedLabel
+@onready var quote_button = $Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box/QuoteButton
+@onready var sell_button = $Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box/SellButton
 
 @onready var result_summary = $Margin/RootVBox/ResultPanel/Scroll/Box/ResultSummary
 
@@ -229,7 +256,8 @@ func _connect_buttons() -> void:
 
 	quote_button.pressed.connect(_request_quote)
 	sell_button.pressed.connect(_sell_selected_buyer)
-	$Margin/RootVBox/SalePanel/Scroll/Box/SaleInventoryButton.pressed.connect(_go_inventory)
+	$Margin/RootVBox/SalePanel/Scroll/Box/TopBar/BackButton.pressed.connect(_go_inventory)
+	$Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box/SaleInventoryButton.pressed.connect(_go_inventory)
 
 	$Margin/RootVBox/ResultPanel/Scroll/Box/ResultMarketButton.pressed.connect(_go_market)
 	$Margin/RootVBox/ResultPanel/Scroll/Box/ResultInventoryButton.pressed.connect(_go_inventory)
@@ -913,45 +941,81 @@ func _render_sale() -> void:
 	if owned.is_empty():
 		_go_inventory()
 		return
+
 	var listing: Dictionary = owned["listing"]
 	var appraisal_data: Dictionary = owned.get("appraisal_data", {})
 	var offers: Array = owned["buyer_offers"]
 	var selected_buyer_index = int(owned.get("selected_buyer_index", -1))
+	var quote_remaining = int(owned["quote_requests_remaining"])
 
-	sale_title.text = "재판매 · %s" % Art.item_name(listing)
+	sale_gold_label.text = "%s G" % _money(gold)
+	sale_item_art.texture = Art.texture_for("items", str(listing.get("item_id", "")))
+	sale_title.text = Art.item_name(listing)
+
 	if appraisal_data.is_empty():
-		sale_info.text = "전문 감정 없음 · 지금까지 모은 정보와 판매처 성향으로 판단하세요."
+		sale_info.text = "매입가 %sG · 미감정\n현재까지 모은 정보와 판매처 성향으로 판단합니다." % _money(int(owned["purchase_price"]))
 	else:
-		sale_info.text = "감정: %s · %s · %s · 추정 가치 %sG" % [
-			appraisal_data["state"], appraisal_data["rarity"], appraisal_data["condition"], _money(int(appraisal_data["value"]))
+		var low = int(appraisal_data.get("value_low", appraisal_data["value"]))
+		var high = int(appraisal_data.get("value_high", appraisal_data["value"]))
+		sale_info.text = "매입가 %sG · 감정 완료\n%s · %s · 예상 시세 %s~%sG" % [
+			_money(int(owned["purchase_price"])),
+			appraisal_data["rarity"],
+			appraisal_data["condition"],
+			_money(low),
+			_money(high)
 		]
-	quote_state.text = "전문 견적 요청 %d회 남음 · 전문 판매처 3곳 + 고물상 즉시가" % int(owned["quote_requests_remaining"])
+
+	quote_state.text = "전문 견적 요청 %d회 남음 · 전문 판매처 가격은 요청하기 전까지 비공개 · 고물상은 즉시가 공개" % quote_remaining
 
 	for i in range(buyer_buttons.size()):
 		var offer: Dictionary = offers[i]
-		var prefix = "▶ " if i == selected_buyer_index else ""
-		if bool(offer["revealed"]):
-			buyer_buttons[i].text = "%s%s · %sG\n%s\n%s" % [
-				prefix, offer["name"], _money(int(offer["price"])), offer["summary"], offer["reason"]
-			]
+		var is_selected = i == selected_buyer_index
+		buyer_name_labels[i].text = str(offer["name"])
+		buyer_summary_labels[i].text = str(offer["summary"])
+
+		if str(offer["buyer_id"]) == "scrap":
+			buyer_status_labels[i].text = "즉시 매입"
+			buyer_reason_labels[i].text = "%sG · %s" % [_money(int(offer["price"])), str(offer["reason"])]
+		elif bool(offer["revealed"]):
+			buyer_status_labels[i].text = "견적 확인 완료"
+			buyer_reason_labels[i].text = "%sG · %s" % [_money(int(offer["price"])), str(offer["reason"])]
 		else:
-			buyer_buttons[i].text = "%s%s · 견적 미확인\n%s" % [prefix, offer["name"], offer["summary"]]
+			buyer_status_labels[i].text = "견적 미확인"
+			buyer_reason_labels[i].text = "가격은 견적 요청 후 공개됩니다."
+
+		buyer_buttons[i].text = "선택됨" if is_selected else ("고물상 선택" if str(offer["buyer_id"]) == "scrap" else "이 판매처 선택")
+		buyer_buttons[i].disabled = is_selected
 
 	var can_quote = false
 	var can_sell = false
 	if selected_buyer_index >= 0 and selected_buyer_index < offers.size():
 		var selected: Dictionary = offers[selected_buyer_index]
-		can_quote = not bool(selected["revealed"]) and selected["buyer_id"] != "scrap" and int(owned["quote_requests_remaining"]) > 0
+		var selected_name = str(selected["name"])
+		can_quote = not bool(selected["revealed"]) and selected["buyer_id"] != "scrap" and quote_remaining > 0
 		can_sell = bool(selected["revealed"])
+
 		if can_sell:
-			sell_button.text = "%s에게 %sG에 판매" % [selected["name"], _money(int(selected["price"]))]
+			sale_selected_label.text = "%s 선택 · 확인된 제안 %sG" % [selected_name, _money(int(selected["price"]))]
+			sell_button.text = "%s에게 %sG에 판매" % [selected_name, _money(int(selected["price"]))]
 		else:
+			sale_selected_label.text = "%s 선택 · 아직 가격을 확인하지 않았습니다." % selected_name
 			sell_button.text = "견적 확인 후 판매 가능"
+
+		if can_quote:
+			quote_button.text = "%s에게 견적 요청 · 남은 %d회" % [selected_name, quote_remaining]
+		elif selected["buyer_id"] == "scrap":
+			quote_button.text = "고물상은 견적 요청 없이 즉시 판매 가능"
+		elif bool(selected["revealed"]):
+			quote_button.text = "이 판매처의 견적을 확인했습니다."
+		else:
+			quote_button.text = "전문 견적 요청 기회를 모두 사용했습니다."
 	else:
+		sale_selected_label.text = "판매처를 선택하세요. 성향을 보고 먼저 물어볼 두 곳을 정하는 것이 핵심입니다."
+		quote_button.text = "선택한 전문 판매처에 견적 요청"
 		sell_button.text = "판매처를 먼저 선택하세요"
+
 	quote_button.disabled = not can_quote
 	sell_button.disabled = not can_sell
-
 
 func _select_buyer(index: int) -> void:
 	var owned = _current_owned()
@@ -1085,7 +1149,7 @@ func _show_panel(target) -> void:
 	for panel in [market_panel, detail_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
 
-	var focus_mode = target == detail_panel or target == appraisal_panel
+	var focus_mode = target == detail_panel or target == appraisal_panel or target == sale_panel
 	global_header.visible = not focus_mode
 	status_panel.visible = target != market_panel and not focus_mode
 	nav_row.visible = not focus_mode
@@ -1099,6 +1163,7 @@ func _update_header() -> void:
 	gold_label.text = "%s G" % _money(gold)
 	detail_gold_label.text = "%s G" % _money(gold)
 	appraisal_gold_label.text = "%s G" % _money(gold)
+	sale_gold_label.text = "%s G" % _money(gold)
 	inventory_count_label.text = "보유품 %d" % owned_items.size()
 	stats_label.text = "완료 거래 %d회 · 오늘 %d회\n최고 순이익 %s · 최대 손실 %s" % [
 		total_deals, today_deals, _signed_money(best_profit), _signed_money(worst_loss)
