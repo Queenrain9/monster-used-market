@@ -596,7 +596,6 @@ func _test_trade_flow(cards) -> void:
 	game.daily_goal_progress = 0
 	game.daily_goal_claimed = false
 	cards.get_child(0).get_node("OpenButton").pressed.emit()
-	game.resale_option.select(2)
 	game._start_deal()
 	var purchase_listing: Dictionary = game.market_items[0]
 	var purchase_meetup = game.feed.public_meetup_text(purchase_listing)
@@ -714,7 +713,6 @@ func _test_trade_flow(cards) -> void:
 	_expect(_listing_ids() == saved_ids and game.investigation_remaining == 4, "save/load must not reroll the current market")
 	game._go_market()
 	game._open_listing(1)
-	game.resale_option.select(2)
 	game._start_deal()
 	game._buy_current_price()
 	game._open_sale()
