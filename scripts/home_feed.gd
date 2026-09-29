@@ -56,17 +56,53 @@ func investigation_button_text(option: Dictionary) -> String:
 	var subject = str(option.get("short_label", option.get("label", "확인")))
 	match action_id:
 		"exterior":
-			return "%s 사진 보기" % subject
+			return "사진 조금 더 볼게요"
 		"mark":
-			return "%s 사진 요청" % subject
+			return "%s도 찍어줄 수 있어요?" % subject
 		"function":
-			return "%s 확인" % subject
+			return "%s 확인해봐도 돼요?" % subject
 		"origin":
-			return "어디서 얻었는지 묻기"
+			return "이거 어디서 얻으셨어요?"
 		"market":
-			return "비슷한 매물 찾아보기"
+			return "비슷한 매물 직접 찾아보기"
 		_:
 			return subject
+
+
+func investigation_chat_messages(listing: Dictionary, option: Dictionary, result_message: String) -> Array:
+	var action_id = str(option.get("id", ""))
+	var seller: Dictionary = listing.get("seller", {})
+	var seller_name = Art.seller_name(seller)
+	var subject = str(option.get("short_label", option.get("label", "물건")))
+	var result: Array = []
+
+	match action_id:
+		"origin":
+			var claim = str(listing.get("seller_claim", {}).get("text", "")).strip_edges()
+			if claim.is_empty():
+				claim = "정확한 건 저도 잘 모르겠어요. 가지고 있던 경로는 말씀드릴게요."
+			result.append({"speaker":"buyer","text":"이거 어디서 얻으셨어요?"})
+			result.append({"speaker":"seller","text":claim.trim_prefix("“").trim_suffix("”")})
+			result.append({"speaker":"note","text":"대화 메모 · %s" % result_message})
+		"market":
+			result.append({"speaker":"note","text":"비슷한 매물을 직접 찾아봤다.\n%s" % result_message})
+		"exterior":
+			result.append({"speaker":"buyer","text":"사진 조금 더 볼게요. 다른 각도도 있나요?"})
+			result.append({"speaker":"seller","text":"네, 잠깐만요. 지금 있는 사진 하나 더 보내드릴게요."})
+			result.append({"speaker":"note","text":"사진 확인 · %s" % result_message})
+		"mark":
+			result.append({"speaker":"buyer","text":"%s 쪽도 가까이 찍어줄 수 있어요?" % subject})
+			result.append({"speaker":"seller","text":"네. 잘 보이게 가까이 찍어서 보낼게요."})
+			result.append({"speaker":"note","text":"추가 사진 · %s" % result_message})
+		"function":
+			result.append({"speaker":"buyer","text":"%s 직접 확인해봐도 돼요?" % subject})
+			result.append({"speaker":"seller","text":"네, 만나서 직접 확인하셔도 됩니다."})
+			result.append({"speaker":"note","text":"직접 확인 · %s" % result_message})
+		_:
+			result.append({"speaker":"buyer","text":"이 부분 조금 더 확인해볼게요."})
+			result.append({"speaker":"note","text":result_message})
+
+	return result
 
 
 func investigation_interaction(listing: Dictionary, option: Dictionary, result_message: String) -> Dictionary:
