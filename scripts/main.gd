@@ -756,16 +756,25 @@ func _render_market() -> void:
 		visible_count += 1
 
 	market_empty_state.visible = visible_count == 0
-	market_info_label.text = "새 매물 %d · 거래 가능 %d · 더 자세히 확인 %d회" % [new_count, available_count, investigation_remaining]
+	var district = _district_definition(current_district_id)
+	market_info_label.text = "%s · 새 매물 %d · 거래 가능 %d · 확인 %d회" % [
+		str(district.get("name", "어둠마을")),
+		new_count,
+		available_count,
+		investigation_remaining
+	]
 	_update_home_filter_controls()
-	next_market_button.disabled = not _can_rotate_market()
-	next_market_button.text = "다음 장터 보기"
-	if not _can_rotate_market():
+	var can_rotate = _can_rotate_market()
+	next_market_button.disabled = not can_rotate or market_visits_remaining <= 0
+	next_market_button.text = "다음 장터 보기 · 오늘 %d회 남음" % market_visits_remaining
+	if market_visits_remaining <= 0:
+		next_market_hint.text = "오늘 방문 기회를 모두 썼어요. 동네에서 하루를 마감하면 새 장터가 열립니다."
+	elif not can_rotate:
 		next_market_hint.text = "남은 확인 기회를 모두 쓰거나 구매하면 다음 장터가 열립니다."
 	elif investigation_remaining <= 0:
 		next_market_hint.text = "확인 기회를 모두 썼어요. 다음 장터의 새 매물을 둘러볼 수 있습니다."
 	else:
-		next_market_hint.text = "이 장터에서 물건을 구매했어요. 다음 장터도 둘러볼 수 있습니다."
+		next_market_hint.text = "이 장터에서 물건을 구매했어요. 남은 방문 기회로 다른 매물을 볼 수 있습니다."
 
 
 func _on_home_search_changed(value: String) -> void:
@@ -1409,6 +1418,10 @@ func _complete_purchase(price: int) -> void:
 func _go_market() -> void:
 	_remember_home_position()
 	selected_market_index = -1
+	if market_items.size() != 3:
+		_go_town()
+		_set_status("현재 열려 있는 장터가 없습니다. 오늘 갈 상권을 고르세요.")
+		return
 	current_stage = "market"
 	_render_market()
 	_show_panel(market_panel)
@@ -1964,7 +1977,7 @@ func _select_option_by_text(option_button: OptionButton, text_value: String) -> 
 
 
 func _show_panel(target) -> void:
-	for panel in [market_panel, detail_panel, seller_chat_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
+	for panel in [town_panel, market_panel, detail_panel, seller_chat_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
 
 	var focus_mode = target == detail_panel or target == seller_chat_panel or target == deal_panel or target == appraisal_panel or target == sale_panel
@@ -1973,6 +1986,7 @@ func _show_panel(target) -> void:
 	status_panel.visible = target != market_panel and not focus_mode
 	nav_row.visible = not focus_mode
 
+	town_nav_button.set_pressed_no_signal(current_stage == "town")
 	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "chat", "deal"])
 	inventory_nav_button.set_pressed_no_signal(current_stage in ["inventory", "appraisal", "sale"])
 	records_nav_button.set_pressed_no_signal(current_stage == "result")
@@ -1990,9 +2004,9 @@ func _update_header() -> void:
 	rank_label.text = _merchant_rank()
 	reputation_label.text = "평판 %d" % merchant_reputation
 	goal_label.text = (
-		"오늘 목표 · 첫 거래 완료 ✓ · 보상 수령"
+		"오늘 목표 · 첫 거래 완료 ✓ · 장터 방문 %d회 남음" % market_visits_remaining
 		if daily_goal_claimed
-		else "오늘 목표 · 첫 거래 완료 %d/1 · 보상 500G + 평판 10" % daily_goal_progress
+		else "오늘 목표 · 거래 %d/1 · 장터 방문 %d회 남음 · 보상 500G + 평판 10" % [daily_goal_progress, market_visits_remaining]
 	)
 	stats_label.text = "누적 %d회 · 오늘 %d회 · 최고 %s · 최저 %s" % [
 		total_deals, today_deals, _signed_money(best_profit), _signed_money(worst_loss)
@@ -2046,14 +2060,17 @@ func _set_status(text_value: String) -> void:
 
 
 func _roll_daily_counter_if_needed() -> void:
-	var now = Time.get_date_string_from_system()
-	if today_date != now:
-		today_date = now
-		today_deals = 0
+	# v0.4+ uses an in-game day lifecycle. Keep the real date only as metadata;
+	# changing the device date must not silently reset a virtual trading day.
+	if today_date.is_empty():
+		today_date = Time.get_date_string_from_system()
 
 
 func _restore_stage() -> void:
 	match current_stage:
+		"town":
+			_render_town()
+			_show_panel(town_panel)
 		"detail":
 			if selected_market_index >= 0 and selected_market_index < market_items.size():
 				_render_detail()
@@ -2137,7 +2154,12 @@ func _save_game() -> void:
 		"merchant_day": merchant_day,
 		"merchant_reputation": merchant_reputation,
 		"daily_goal_progress": daily_goal_progress,
-		"daily_goal_claimed": daily_goal_claimed
+		"daily_goal_claimed": daily_goal_claimed,
+		"current_district_id": current_district_id,
+		"market_visits_remaining": market_visits_remaining,
+		"day_start_gold": day_start_gold,
+		"last_day_summary": last_day_summary,
+		"day_event_id": day_event_id
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file != null:
@@ -2188,6 +2210,12 @@ func _load_game() -> void:
 	merchant_reputation = max(0, int(parsed.get("merchant_reputation", total_deals * 15)))
 	daily_goal_progress = clamp(int(parsed.get("daily_goal_progress", min(1, today_deals))), 0, 1)
 	daily_goal_claimed = bool(parsed.get("daily_goal_claimed", today_deals > 0))
+
+	current_district_id = str(parsed.get("current_district_id", "night_market"))
+	market_visits_remaining = clamp(int(parsed.get("market_visits_remaining", Content.DAY_MARKET_VISITS)), 0, Content.DAY_MARKET_VISITS)
+	day_start_gold = int(parsed.get("day_start_gold", gold))
+	last_day_summary = parsed.get("last_day_summary", {})
+	day_event_id = str(parsed.get("day_event_id", ""))
 
 
 func _number_from_record_line(line: String) -> int:
