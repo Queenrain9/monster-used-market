@@ -37,22 +37,27 @@ P8 이후 실제 배포 직전 확인용 체크리스트.
 
 CI가 다음을 모두 통과해야 RC 가능.
 
-- [ ] Content syntax
-- [ ] Game logic syntax
-- [ ] Main scene syntax
-- [ ] Main scene boot
-- [ ] Core gameplay smoke
-- [ ] 960+ listing long-run balance simulation
-- [ ] Full 390×844 transaction regression
-- [ ] 375×812 layout
-- [ ] 390×844 layout
-- [ ] 430×932 layout
-- [ ] v37 → v38 expanded-catalog migration
-- [ ] corrupted primary → backup recovery
-- [ ] final asset slot integrity
-- [ ] placeholder fallback / no hidden-truth art leak
+- [x] Content syntax
+- [x] Game logic syntax
+- [x] Main scene syntax
+- [x] Main scene boot
+- [x] Core gameplay smoke
+- [x] 960+ listing long-run balance simulation
+- [x] Full 390×844 transaction regression
+- [x] 375×812 layout
+- [x] 390×844 layout
+- [x] 430×932 layout
+- [x] v37 → v38 expanded-catalog migration
+- [x] corrupted primary → backup recovery
+- [x] final asset slot integrity
+- [x] placeholder fallback / no hidden-truth art leak
 
 RC 상태는 `RELEASE_CANDIDATE_STATUS.md`에 기록한다.
+
+Latest automated gate proof before RC promotion:
+- GitHub Actions run `36626554665`
+- source HEAD `596c8a28ed5a3217fc6b50a7ef9fb3051db5fd41`
+- all workflow steps green
 
 ---
 
