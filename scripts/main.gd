@@ -427,7 +427,6 @@ func _render_detail() -> void:
 		return
 
 	var seller: Dictionary = listing["seller"]
-	var personality: Dictionary = seller["personality"]
 	var item_texture = Art.texture_for("items", str(listing.get("item_id", "")))
 	var public_data = feed.describe_listing(listing, false)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/ImageColumn/ItemArt.texture = item_texture
