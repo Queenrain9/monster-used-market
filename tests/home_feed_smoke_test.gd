@@ -429,7 +429,9 @@ func _test_save_compatibility() -> void:
 	_expect(game.total_deals == 2 and not game.last_result_text.is_empty(), "v0.2.2 migration must preserve completed records")
 	game._go_market()
 	game.records_nav_button.pressed.emit()
-	_expect(game.last_result_record.is_empty() and game.legacy_result_summary.visible, "legacy saves without structured record data must use the readable text fallback")
+	_expect(not game.last_result_record.is_empty(), "legacy saves without structured record data must be migrated from the old text record")
+	_expect(game.record_hero.visible and not game.legacy_result_summary.visible, "migrated legacy records must use the new structured review UI")
+	_expect(int(game.last_result_record.get("purchase_price", 0)) > 0 and str(game.last_result_record.get("item_name", "")).length() > 0, "legacy record migration must recover core trade values and item identity")
 	await _assert_layout("migrated records")
 	game.last_result_text = ""
 	game.last_result_record = {}
