@@ -734,10 +734,14 @@ theme_override_font_sizes/font_size = 11
 text = "협상 0 / 3"
 
 [node name="PatienceLabel" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/NegotiationStatus/Row"]
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "인내도 ●●○"
 horizontal_alignment = 2
+vertical_alignment = 1
+autowrap_mode = 0
+text_overrun_behavior = 3
 
 [node name="EvidenceTitle" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
