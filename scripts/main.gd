@@ -12,7 +12,10 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var gold_label = $Margin/RootVBox/Header/GoldLabel
 @onready var inventory_count_label = $Margin/RootVBox/Header/InventoryCount
 @onready var stats_label = $Margin/RootVBox/ResultPanel/Scroll/Box/StatsLabel
+@onready var global_header = $Margin/RootVBox/Header
+@onready var status_panel = $Margin/RootVBox/StatusPanel
 @onready var status_label = $Margin/RootVBox/StatusPanel/StatusLabel
+@onready var nav_row = $Margin/RootVBox/NavRow
 @onready var market_nav_button = $Margin/RootVBox/NavRow/MarketNavButton
 @onready var inventory_nav_button = $Margin/RootVBox/NavRow/InventoryNavButton
 @onready var records_nav_button = $Margin/RootVBox/NavRow/RecordsNavButton
@@ -50,11 +53,13 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var next_market_button = $Margin/RootVBox/MarketPanel/Scroll/Box/NextMarketButton
 @onready var next_market_hint = $Margin/RootVBox/MarketPanel/Scroll/Box/NextMarketHint
 
-@onready var detail_title = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailTitle
-@onready var detail_tags = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailTags
-@onready var detail_seller = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerInfo
-@onready var detail_description = $Margin/RootVBox/DetailPanel/Scroll/Box/DescriptionPanel/ItemDescription
-@onready var detail_info = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailInfo
+@onready var detail_title = $Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn/DetailTitle
+@onready var detail_price = $Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn/DetailPrice
+@onready var detail_gold_label = $Margin/RootVBox/DetailPanel/Scroll/Box/TopBar/DetailGoldLabel
+@onready var detail_tags = $Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn/DetailTags
+@onready var detail_seller = $Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn/SellerInfo
+@onready var detail_description = $Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn/DescriptionPanel/ItemDescription
+@onready var detail_info = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailInfoPanel/DetailInfo
 @onready var seller_card_text = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerCardText
 @onready var market_price_label = $Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox/MarketPriceLabel
 @onready var detail_budget = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailBudget
@@ -378,14 +383,15 @@ func _render_detail() -> void:
 	var personality: Dictionary = seller["personality"]
 	var item_texture = Art.texture_for("items", str(listing.get("item_id", "")))
 	var public_data = feed.describe_listing(listing, false)
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ItemArt.texture = item_texture
+	$Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/ImageColumn/ItemArt.texture = item_texture
 	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.icon = item_texture
 	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.expand_icon = true
-	detail_title.text = "%s · %sG" % [Art.item_name(listing), _money(int(listing["asking"]))]
+	detail_title.text = Art.item_name(listing)
+	detail_price.text = "%sG" % _money(int(listing["asking"]))
 	detail_tags.text = public_data["tags_text"]
 	detail_seller.text = "%s · %s · %s" % [Art.seller_name(seller), feed.public_location_text(listing), feed.public_age_text(listing)]
-	detail_description.text = "%s\n\n%s" % [str(listing["seller_claim"]["text"]), str(listing["initial_clue"]["text"])]
-	detail_info.text = "현재 확인 상태  ·  단서 %d개 확인 / 미감정\n카테고리  ·  %s\n등록 시점  ·  %s\n거래 위치  ·  %s\n거래 방식  ·  직거래 · 가격 협상 가능" % [
+	detail_description.text = "%s\n\n첫 인상: %s" % [str(listing["seller_claim"]["text"]), str(listing["initial_clue"]["text"])]
+	detail_info.text = "확인 상태   단서 %d개 확인 · 미감정\n카테고리   %s\n등록 시점   %s\n거래 위치   %s\n거래 방식   직거래 · 가격 협상 가능" % [
 		listing.get("discovered_clues", []).size(),
 		listing.get("category", "기타"),
 		feed.public_age_text(listing),
@@ -1064,7 +1070,12 @@ func _select_option_by_text(option_button: OptionButton, text_value: String) -> 
 func _show_panel(target) -> void:
 	for panel in [market_panel, detail_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
-	$Margin/RootVBox/StatusPanel.visible = target != market_panel
+
+	var detail_mode = target == detail_panel
+	global_header.visible = not detail_mode
+	status_panel.visible = target != market_panel and not detail_mode
+	nav_row.visible = not detail_mode
+
 	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "deal"])
 	inventory_nav_button.set_pressed_no_signal(current_stage in ["inventory", "appraisal", "sale"])
 	records_nav_button.set_pressed_no_signal(current_stage == "result")
@@ -1072,6 +1083,7 @@ func _show_panel(target) -> void:
 
 func _update_header() -> void:
 	gold_label.text = "%s G" % _money(gold)
+	detail_gold_label.text = "%s G" % _money(gold)
 	inventory_count_label.text = "보유품 %d" % owned_items.size()
 	stats_label.text = "완료 거래 %d회 · 오늘 %d회\n최고 순이익 %s · 최대 손실 %s" % [
 		total_deals, today_deals, _signed_money(best_profit), _signed_money(worst_loss)
