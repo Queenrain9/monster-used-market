@@ -150,6 +150,249 @@ theme_override_font_sizes/font_size = 11
 text = "상태"
 autowrap_mode = 2
 
+[node name="TownPanel" type="PanelContainer" parent="Margin/RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/TownPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="TitleRow" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "어둠마을"
+
+[node name="VisitsLabel" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/TitleRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "장터 방문 3회"
+horizontal_alignment = 2
+
+[node name="EventPanel" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="EventText" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/EventPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "오늘의 소문"
+autowrap_mode = 2
+
+[node name="LastDayPanel" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="LastDayText" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/LastDayPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "지난 날 요약"
+autowrap_mode = 2
+
+[node name="DistrictTitle" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "오늘 어디를 둘러볼까?"
+
+[node name="DistrictList" type="VBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DistrictCard1" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Row" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Art" type="TextureRect" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Name" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "상권"
+
+[node name="Neighborhoods" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "생활권"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+text = "설명"
+autowrap_mode = 2
+
+[node name="EnterButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Info"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "장터 보기"
+
+[node name="DistrictCard2" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Row" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Art" type="TextureRect" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Name" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "상권"
+
+[node name="Neighborhoods" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "생활권"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+text = "설명"
+autowrap_mode = 2
+
+[node name="EnterButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Info"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "장터 보기"
+
+[node name="DistrictCard3" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Row" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Art" type="TextureRect" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Name" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "상권"
+
+[node name="Neighborhoods" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "생활권"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+text = "설명"
+autowrap_mode = 2
+
+[node name="EnterButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Info"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "장터 보기"
+
+[node name="DistrictCard4" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Row" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Art" type="TextureRect" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Name" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "상권"
+
+[node name="Neighborhoods" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "생활권"
+
+[node name="Description" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+text = "설명"
+autowrap_mode = 2
+
+[node name="EnterButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "장터 보기"
+
+[node name="EndDayButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "오늘 장사 마감"
+
+[node name="EndDayHint" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "하루를 마감하면 남은 장터 방문 기회는 사라지고 다음 날이 시작됩니다."
+horizontal_alignment = 1
+autowrap_mode = 2
+
 [node name="MarketPanel" type="PanelContainer" parent="Margin/RootVBox"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -2077,13 +2320,22 @@ text = "새 게임 시작"
 layout_mode = 2
 theme_override_constants/separation = 6
 
+[node name="TownNavButton" type="Button" parent="Margin/RootVBox/NavRow"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+theme_override_font_sizes/font_size = 10
+text = "동네"
+autowrap_mode = 3
+
 [node name="MarketNavButton" type="Button" parent="Margin/RootVBox/NavRow"]
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
 theme_override_font_sizes/font_size = 11
-text = "홈"
+text = "장터"
 autowrap_mode = 3
 
 [node name="InventoryNavButton" type="Button" parent="Margin/RootVBox/NavRow"]
