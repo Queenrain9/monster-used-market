@@ -926,10 +926,14 @@ func _render_appraisal() -> void:
 
 	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/ItemArt.texture = Art.texture_for("items", str(listing.get("item_id", "")))
 	appraisal_title.text = Art.item_name(listing)
-	appraisal_info.text = "매입가 %sG\n검사비 누적 %sG · 전문 감정 %sG" % [
-		_money(int(owned["purchase_price"])),
+	var appraisal_cost = engine.professional_appraisal_cost(listing)
+	var purchase_price = max(1, int(owned["purchase_price"]))
+	var appraisal_ratio = float(appraisal_cost) / float(purchase_price) * 100.0
+	appraisal_info.text = "매입가 %sG\n검사비 누적 %sG\n전문 감정 %sG · 매입가 대비 %.1f%%" % [
+		_money(purchase_price),
 		_money(int(owned["inspection_cost_total"])),
-		_money(Content.PROFESSIONAL_APPRAISAL_COST)
+		_money(appraisal_cost),
+		appraisal_ratio
 	]
 	var known_text = _format_discovered_clues(listing)
 	appraisal_clues.text = known_text if not known_text.is_empty() else "구매 전에 확실하게 확인한 정보가 없습니다."
@@ -944,8 +948,8 @@ func _render_appraisal() -> void:
 		post_buttons[i].tooltip_text = str(option["label"])
 		post_buttons[i].disabled = int(owned["inspection_remaining"]) <= 0 or used.has(option["id"]) or gold < int(option["cost"])
 
-	professional_appraise_button.text = "전문 감정 · %sG" % _money(Content.PROFESSIONAL_APPRAISAL_COST)
-	professional_appraise_button.disabled = gold < Content.PROFESSIONAL_APPRAISAL_COST
+	professional_appraise_button.text = "전문 감정 · %sG" % _money(appraisal_cost)
+	professional_appraise_button.disabled = gold < appraisal_cost
 
 func _appraisal_auth_text(state: String) -> String:
 	if state == "진품":
@@ -988,13 +992,17 @@ func _post_inspect(option_index: int) -> void:
 
 func _professional_appraise() -> void:
 	var owned = _current_owned()
-	if owned.is_empty() or gold < Content.PROFESSIONAL_APPRAISAL_COST:
+	if owned.is_empty():
 		return
 	if not owned.get("appraisal_data", {}).is_empty():
 		return
-	gold -= Content.PROFESSIONAL_APPRAISAL_COST
-	owned["appraisal_cost"] = Content.PROFESSIONAL_APPRAISAL_COST
-	owned["appraisal_data"] = engine.appraise(owned["listing"])
+	var listing: Dictionary = owned["listing"]
+	var appraisal_cost = engine.professional_appraisal_cost(listing)
+	if gold < appraisal_cost:
+		return
+	gold -= appraisal_cost
+	owned["appraisal_cost"] = appraisal_cost
+	owned["appraisal_data"] = engine.appraise(listing)
 	owned_items[selected_owned_index] = owned
 	_update_header()
 	_render_appraisal()
