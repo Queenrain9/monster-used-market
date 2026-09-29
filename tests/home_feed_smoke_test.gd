@@ -48,6 +48,13 @@ func _test_public_feed(cards) -> void:
 	game._go_market()
 	await _settle()
 	await _capture("home-feed")
+	var rendered_first = cards.get_child(0)
+	var rendered_listing: Dictionary = game.market_items[0]
+	var rendered_home_text = _visible_text(rendered_first)
+	var art = load("res://scripts/art_catalog.gd")
+	_expect(rendered_home_text.contains(art.item_name(rendered_listing)), "rendered home card must visibly show the item name")
+	_expect(rendered_home_text.contains(art.seller_name(rendered_listing["seller"])), "rendered home card must visibly show the monster seller name")
+	_expect(rendered_home_text.contains(game.feed.public_location_text(rendered_listing)), "rendered home card must visibly show the seller neighborhood")
 	var first_card_rect = cards.get_child(0).get_global_rect()
 	var click_position = first_card_rect.position + Vector2(20, 20)
 	for pressed in [true, false]:
@@ -84,7 +91,6 @@ func _test_public_feed(cards) -> void:
 	_expect(str(public_data["tags_text"]).contains("가격 제안"), "public feed should communicate local price-offer trading without revealing seller archetype")
 	_expect(not str(public_data).contains("급한 판매자"), "public feed must not reveal the hidden urgent seller archetype")
 	_expect(public_data["clue_text"] == "서랍 정리하다 나온 물건이라 올려요.", "home card must read like the seller's post rather than a system clue")
-	var art = load("res://scripts/art_catalog.gd")
 	_expect(str(public_data["meta_text"]).contains(art.seller_name(card["seller"])) and str(public_data["meta_text"]).contains(presenter.public_location_text(card)), "home card must visibly identify the displayed monster seller and neighborhood")
 	var hidden_changed = card.duplicate(true)
 	hidden_changed["state"] = "모조품"
