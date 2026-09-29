@@ -15,6 +15,7 @@ func _init() -> void:
 	var profitable_before_info = 0
 	var asking_ratio_sum = 0.0
 	var best_resale_ratio_sum = 0.0
+	var archetype_ratio_sum = {"stable":0.0,"ambiguous":0.0,"risky":0.0,"jackpot":0.0,"trap":0.0}
 
 	for item in Content.ITEMS:
 		for sample_index in range(40):
@@ -37,6 +38,7 @@ func _init() -> void:
 				_fail("asking/value ratio escaped commercial guardrail: %.3f for %s" % [asking_ratio, item.get("id", "")])
 				return
 			asking_ratio_sum += asking_ratio
+			archetype_ratio_sum[archetype] = float(archetype_ratio_sum.get(archetype, 0.0)) + asking_ratio
 
 			var offers = engine.make_buyer_offers(listing)
 			if offers.size() != 4:
@@ -71,6 +73,16 @@ func _init() -> void:
 	var opportunity_rate = float(profitable_before_info) / float(total)
 	if opportunity_rate < 0.25 or opportunity_rate > 0.95:
 		_fail("raw profitable-opportunity rate is commercially degenerate: %.3f" % opportunity_rate)
+		return
+
+	var stable_ratio = float(archetype_ratio_sum["stable"]) / float(archetypes["stable"])
+	var jackpot_ratio = float(archetype_ratio_sum["jackpot"]) / float(archetypes["jackpot"])
+	var trap_ratio = float(archetype_ratio_sum["trap"]) / float(archetypes["trap"])
+	if jackpot_ratio >= stable_ratio * 0.88:
+		_fail("jackpot listings are no longer meaningfully cheaper than stable listings: %.2f vs %.2f" % [jackpot_ratio, stable_ratio])
+		return
+	if trap_ratio <= stable_ratio * 1.18:
+		_fail("trap listings are no longer meaningfully more expensive than stable listings: %.2f vs %.2f" % [trap_ratio, stable_ratio])
 		return
 
 	# Each district needs enough repeated content variety that a player does not
@@ -125,6 +137,7 @@ func _init() -> void:
 		str(states),
 		str(archetypes)
 	])
+	print("ARCHETYPE ECONOMY OK: jackpot %.2f < stable %.2f < trap %.2f ask/value" % [jackpot_ratio, stable_ratio, trap_ratio])
 	quit(0)
 
 
