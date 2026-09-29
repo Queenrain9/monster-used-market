@@ -17,10 +17,10 @@ Target: `v1.0.0-rc1`
 
 Gameplay / code / data / automated QA are closed for RC.
 
-Verified gate basis:
+Verified RC gate basis:
 
-- source HEAD: `596c8a28ed5a3217fc6b50a7ef9fb3051db5fd41`
-- GitHub Actions run: `36626554665`
+- RC promotion HEAD: `a33e1b537e8209d31b2c48024f60911a77c8de43`
+- GitHub Actions run: `36627962568`
 - conclusion: **SUCCESS**
 
 Successful gates:
