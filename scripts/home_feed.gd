@@ -42,6 +42,9 @@ func seller_behavior_text(listing: Dictionary) -> String:
 	var seller: Dictionary = listing.get("seller", {})
 	var personality: Dictionary = seller.get("personality", {})
 	var cues: Array = personality.get("public_cues", [])
+	var seller_type = str(seller.get("type", ""))
+	if cues.is_empty() and Content.SELLER_TYPES.has(seller_type):
+		cues = Content.SELLER_TYPES[seller_type].get("public_cues", [])
 	if cues.is_empty():
 		return "대화만으로는 어떤 성향인지 단정하기 어렵다."
 	var fingerprint = abs(int(("%s_%s" % [listing.get("listing_id", ""), seller.get("id", "")]).hash()))
