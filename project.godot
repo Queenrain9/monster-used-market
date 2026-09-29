@@ -1,0 +1,26 @@
+; Engine configuration file.
+; Monster Used Market MVP v0.1
+config_version=5
+
+[application]
+
+config/name="괴물 중고마켓 MVP v0.1"
+run/main_scene="res://scenes/main.tscn"
+
+[display]
+
+window/size/viewport_width=390
+window/size/viewport_height=844
+window/size/window_width_override=390
+window/size/window_height_override=844
+window/stretch/mode="canvas_items"
+
+[input_devices]
+
+pointing/emulate_mouse_from_touch=true
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
