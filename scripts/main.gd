@@ -64,6 +64,12 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var seller_portrait = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerRow/SellerPortrait
 @onready var market_price_label = $Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox/MarketPriceLabel
 @onready var detail_budget = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailBudget
+@onready var chat_seller_portrait = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header/Portrait
+@onready var chat_seller_name = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header/Info/SellerName
+@onready var chat_seller_status = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header/Info/SellerStatus
+@onready var chat_scroll = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/MessagesScroll
+@onready var chat_messages = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/MessagesScroll/Messages
+@onready var chat_choice_hint = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/ChoiceHint
 @onready var detail_clues = $Margin/RootVBox/DetailPanel/Scroll/Box/ClueList
 @onready var inquiry_panel = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel
 @onready var inquiry_title = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box/InquiryTitle
@@ -456,13 +462,11 @@ func _render_detail() -> void:
 		feed.seller_profile_text(listing),
 		feed.seller_message_text(listing)
 	]
-	detail_budget.text = "더 물어보거나 확인할 수 있음: %d번" % investigation_remaining
-	var inquiry: Dictionary = listing.get("last_inquiry", {})
-	inquiry_panel.visible = not inquiry.is_empty()
-	if not inquiry.is_empty():
-		inquiry_title.text = str(inquiry.get("title", "추가로 확인함"))
-		inquiry_text.text = str(inquiry.get("text", ""))
-	detail_clues.text = _format_discovered_clues(listing)
+	detail_budget.text = "남은 질문/확인 기회: %d번" % investigation_remaining
+	inquiry_panel.visible = false
+	_render_chat_thread(listing)
+	var memo_text = _format_discovered_clues(listing)
+	detail_clues.text = "아직 메모한 내용이 없습니다." if memo_text.is_empty() else memo_text
 	market_price_label.text = _market_price_reference_text(listing)
 
 	var options = engine.investigation_options(listing)
@@ -476,6 +480,103 @@ func _render_detail() -> void:
 
 	_populate_suspect_options(listing)
 	_restore_trade_plan(listing)
+
+
+func _render_chat_thread(listing: Dictionary) -> void:
+	var seller: Dictionary = listing.get("seller", {})
+	chat_seller_portrait.texture = Art.texture_for("sellers", str(seller.get("id", "")))
+	chat_seller_name.text = Art.seller_name(seller)
+	chat_seller_status.text = feed.seller_activity_text(listing)
+	chat_choice_hint.text = "보낼 메시지를 고르세요 · 남은 기회 %d번" % investigation_remaining
+
+	for child in chat_messages.get_children():
+		chat_messages.remove_child(child)
+		child.queue_free()
+
+	_add_chat_message({
+		"speaker":"seller",
+		"text":feed.seller_message_text(listing).trim_prefix("“").trim_suffix("”")
+	}, Art.seller_name(seller))
+
+	for message in listing.get("chat_history", []):
+		_add_chat_message(message, Art.seller_name(seller))
+
+	call_deferred("_scroll_chat_to_bottom")
+
+
+func _chat_bubble_style(fill: Color, border: Color) -> StyleBoxFlat:
+	var style = StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	style.content_margin_top = 6
+	style.content_margin_bottom = 6
+	return style
+
+
+func _add_chat_message(message: Dictionary, seller_name: String) -> void:
+	var speaker = str(message.get("speaker", "note"))
+	var row = HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 6)
+
+	var left_spacer = Control.new()
+	left_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var right_spacer = Control.new()
+	right_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var bubble = PanelContainer.new()
+	bubble.custom_minimum_size = Vector2(250, 0)
+	if speaker == "buyer":
+		bubble.add_theme_stylebox_override("panel", _chat_bubble_style(Color("edf4ff"), Color("c4d9f2")))
+	elif speaker == "seller":
+		bubble.add_theme_stylebox_override("panel", _chat_bubble_style(Color("f7f7f5"), Color("d9d9d4")))
+	else:
+		bubble.custom_minimum_size = Vector2(280, 0)
+		bubble.add_theme_stylebox_override("panel", _chat_bubble_style(Color("faf7ee"), Color("e1d8be")))
+
+	var box = VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	var who = Label.new()
+	who.add_theme_font_size_override("font_size", 9)
+	who.add_theme_color_override("font_color", Color("6b7078"))
+	if speaker == "buyer":
+		who.text = "나"
+	elif speaker == "seller":
+		who.text = seller_name
+	else:
+		who.text = "거래 메모"
+
+	var body = Label.new()
+	body.custom_minimum_size = Vector2(228 if speaker != "note" else 258, 0)
+	body.add_theme_font_size_override("font_size", 10)
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.text = str(message.get("text", ""))
+
+	box.add_child(who)
+	box.add_child(body)
+	bubble.add_child(box)
+
+	if speaker == "buyer":
+		row.add_child(left_spacer)
+		row.add_child(bubble)
+	elif speaker == "note":
+		row.add_child(left_spacer)
+		row.add_child(bubble)
+		row.add_child(right_spacer)
+	else:
+		row.add_child(bubble)
+		row.add_child(right_spacer)
+
+	chat_messages.add_child(row)
+
+
+func _scroll_chat_to_bottom() -> void:
+	await get_tree().process_frame
+	chat_scroll.scroll_vertical = int(chat_scroll.get_v_scroll_bar().max_value)
 
 
 func _market_price_reference_text(listing: Dictionary) -> String:
@@ -555,14 +656,15 @@ func _investigate(option_index: int) -> void:
 	if bool(result["consumed"]):
 		investigation_remaining -= 1
 		var updated: Dictionary = result["listing"]
-		updated["last_inquiry"] = feed.investigation_interaction(
-			listing,
-			option,
-			str(result["message"])
-		)
+		var history: Array = updated.get("chat_history", []).duplicate(true)
+		for message in feed.investigation_chat_messages(listing, option, str(result["message"])):
+			history.append(message)
+		updated["chat_history"] = history
+		# Keep the previous field for old saves/tests, but the player-facing UX now uses the thread.
+		updated["last_inquiry"] = feed.investigation_interaction(listing, option, str(result["message"]))
 		_sync_market_listing(updated)
 		_render_detail()
-		_set_status(str(updated["last_inquiry"].get("title", "추가로 확인했습니다.")))
+		_set_status("판매자와 대화를 이어갔습니다.")
 		_save_game()
 
 
