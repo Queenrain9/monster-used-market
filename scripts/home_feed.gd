@@ -11,7 +11,7 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 	var available = status not in ["구매 완료", "판매 완료"]
 	var viewed = bool(listing.get("viewed", false)) or not listing.get("inspected_actions", []).is_empty()
 	var tags: Array = []
-	tags.append("가격 협의")
+	tags.append("가격 제안")
 
 	if not available:
 		tags.append(status)
@@ -31,9 +31,9 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 		"seller_short_text": Art.seller_name(seller),
 		"meta_text": "%s · %s" % [public_location_text(listing), public_age_text(listing)],
 		"tags_text": " · ".join(tags),
-		"clue_text": str(listing.get("initial_clue", {}).get("text", "")),
-		"feature_text": "특별 매물" if featured and available else "",
-		"action_text": ("다시 보기 ›" if viewed else "보기 ›") if available else "거래 완료",
+		"clue_text": str(listing.get("listing_story", "직접 보고 결정해주세요.")),
+		"feature_text": "동네 인기 매물" if featured and available else "",
+		"action_text": ("다시 보기 ›" if viewed else "글 보기 ›") if available else "거래 완료",
 		"available": available
 	}
 
@@ -57,10 +57,12 @@ func matches_filter(listing: Dictionary, query: String, tab_id: String, category
 	var q = query.strip_edges().to_lower()
 
 	if not q.is_empty():
-		var haystack = "%s %s %s" % [
+		var haystack = "%s %s %s %s %s" % [
 			Art.item_name(listing),
 			Art.seller_name(seller),
-			str(listing.get("category", ""))
+			str(listing.get("category", "")),
+			public_location_text(listing),
+			str(listing.get("listing_story", ""))
 		]
 		if not haystack.to_lower().contains(q):
 			return false
@@ -98,8 +100,27 @@ func public_age_text(listing: Dictionary) -> String:
 	return "%d분 전" % minutes
 
 
-func public_location_text(_listing: Dictionary) -> String:
-	return "어둠마을 야시장"
+func public_location_text(listing: Dictionary) -> String:
+	var seller: Dictionary = listing.get("seller", {})
+	return str(seller.get("neighborhood", "어둠마을"))
+
+
+func public_meetup_text(listing: Dictionary) -> String:
+	var seller: Dictionary = listing.get("seller", {})
+	return str(seller.get("meetup", "%s 근처" % public_location_text(listing)))
+
+
+func seller_profile_text(listing: Dictionary) -> String:
+	var seller: Dictionary = listing.get("seller", {})
+	return str(seller.get("profile", "근처에서 직거래를 선호하는 판매자입니다."))
+
+
+func listing_post_text(listing: Dictionary) -> String:
+	var story = str(listing.get("listing_story", "정리 중 나온 물건입니다. 직접 보고 결정해주세요."))
+	var claim = str(listing.get("seller_claim", {}).get("text", "")).strip_edges()
+	if claim.is_empty():
+		return story
+	return "%s\n\n%s" % [story, claim]
 
 
 func choose_featured_index(market: Array) -> int:
