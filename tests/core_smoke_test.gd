@@ -2,9 +2,25 @@ extends SceneTree
 
 const MarketEngine = preload("res://scripts/game_logic.gd")
 const Content = preload("res://data/content.gd")
+const Presentation = preload("res://data/presentation_manifest.gd")
 
 
 func _init() -> void:
+	var required_bgm = ["title","town","market","chat","deal","appraisal","sale","result"]
+	for key in required_bgm:
+		if not Presentation.BGM.has(key) or str(Presentation.BGM[key]).is_empty():
+			_fail("presentation BGM slot missing: %s" % key)
+			return
+	var required_sfx = ["tap","open_listing","message_send","clue_reveal","offer_submit","purchase","appraisal_reveal","sale_complete","goal_complete","achievement","upgrade","day_end","warning"]
+	for key in required_sfx:
+		if not Presentation.SFX.has(key) or str(Presentation.SFX[key]).is_empty():
+			_fail("presentation SFX slot missing: %s" % key)
+			return
+	for tip_id in ["market","chat","deal","appraisal","sale","workshop","collection"]:
+		if not Presentation.CONTEXT_TIPS.has(tip_id):
+			_fail("context tutorial slot missing: %s" % tip_id)
+			return
+
 	var engine = MarketEngine.new(20260929)
 	var errors = engine.validate_content()
 	if not errors.is_empty():
@@ -312,7 +328,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.4.0: world districts, day sessions, commercial shell and full trade flow")
+	print("SMOKE OK v0.9.0: commercial presentation hooks, dynamic market, collection, relationships and full trade flow")
 	quit(0)
 
 
