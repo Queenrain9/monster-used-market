@@ -391,6 +391,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "괴물 인연 · 거래한 판매자와 이야기"
 
+[node name="CollectionButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "수집 장부 · 도감과 장기 목표"
+
 [node name="EndDayButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -840,6 +846,141 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "이 판매자 동네 보기"
+
+
+[node name="CollectionPanel" type="PanelContainer" parent="Margin/RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/CollectionPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/CollectionPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="TopRow" type="HBoxContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/TopRow"]
+custom_minimum_size = Vector2(44, 40)
+layout_mode = 2
+text = "←"
+
+[node name="Title" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 19
+text = "수집 장부"
+
+[node name="CompletionLabel" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/TopRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "0 / 12"
+horizontal_alignment = 2
+
+[node name="SummaryPanel" type="PanelContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="SummaryText" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/SummaryPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "아직 정체를 기록한 물건이 없습니다."
+autowrap_mode = 2
+
+[node name="CatalogTitle" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "물건 도감"
+
+[node name="ItemList" type="ItemList" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 210)
+layout_mode = 2
+allow_reselect = true
+fixed_icon_size = Vector2i(44, 44)
+icon_mode = 0
+text_overrun_behavior = 3
+
+[node name="DetailPanel" type="PanelContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Hero" type="HBoxContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Art" type="TextureRect" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box/Hero"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box/Hero"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Name" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box/Hero/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "???"
+
+[node name="Status" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box/Hero/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
+text = "미발견"
+autowrap_mode = 2
+
+[node name="DetailText" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "감정하거나 거래를 끝내 실제 정체를 확인하면 기록됩니다."
+autowrap_mode = 2
+
+[node name="SetsTitle" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "테마 컬렉션"
+
+[node name="SetsText" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "세트 진행도"
+autowrap_mode = 2
+
+[node name="GoalsTitle" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "장기 목표"
+
+[node name="GoalsText" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "장기 목표 진행도"
+autowrap_mode = 2
+
+[node name="AchievementsTitle" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "업적"
+
+[node name="AchievementsText" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "업적 기록"
+autowrap_mode = 2
 
 
 [node name="MarketPanel" type="PanelContainer" parent="Margin/RootVBox"]
