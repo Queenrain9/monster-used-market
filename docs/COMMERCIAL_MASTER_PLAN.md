@@ -121,7 +121,7 @@ Gate:
 Gate:
 수익 외에도 "찾고 싶은 물건"이 생긴다.
 
-## P6 — Dynamic Market & Events
+## P6 — Dynamic Market & Events ✅ IMPLEMENTED v0.8.0
 
 - 시세 변동
 - 소문
