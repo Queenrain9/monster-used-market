@@ -2972,6 +2972,18 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.075, 0.068, 0.09, 0.98)
 
+[node name="ArtBackground" type="TextureRect" parent="CommercialShell"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+modulate = Color(1, 1, 1, 0.46)
+
 [node name="Center" type="CenterContainer" parent="CommercialShell"]
 layout_mode = 1
 anchors_preset = 15
