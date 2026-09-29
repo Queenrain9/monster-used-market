@@ -444,7 +444,7 @@ func _render_detail() -> void:
 		feed.public_age_text(listing),
 		feed.public_location_text(listing)
 	]
-	seller_card_text.text = "%s\n%s\n%s" % [Art.seller_name(seller), personality["name"], personality["summary"]]
+	seller_card_text.text = "%s\n판매자 메모\n%s" % [Art.seller_name(seller), feed.seller_behavior_text(listing)]
 	detail_budget.text = "더 자세히 확인할 수 있는 정보: %d회" % investigation_remaining
 	detail_clues.text = "지금까지 확인한 정보\n%s" % _format_discovered_clues(listing)
 	market_price_label.text = _market_price_reference_text(listing)
@@ -493,7 +493,7 @@ func _populate_suspect_options(listing: Dictionary) -> void:
 	for clue in clues:
 		if clue["kind"] == "판매자 주장":
 			continue
-		_add_clue_option(suspect_option, "[%s] %s" % [clue["kind"], clue["text"]])
+		_add_clue_option(suspect_option, str(clue["text"]))
 		suspect_map.append(str(clue["text"]))
 
 
@@ -594,8 +594,8 @@ func _render_deal() -> void:
 	deal_item_art.texture = Art.texture_for("items", str(listing.get("item_id", "")))
 	deal_title.text = Art.item_name(listing)
 	deal_seller.text = "판매자 · %s" % Art.seller_name(seller)
-	deal_personality.text = str(personality["name"])
-	deal_personality.tooltip_text = str(personality.get("summary", ""))
+	deal_personality.text = "관찰 · %s" % feed.seller_behavior_text(listing)
+	deal_personality.tooltip_text = "판매자 성향은 직접 추론해야 합니다."
 
 	deal_seller_price.text = "판매자 요구가   %sG" % _money(current_price)
 	deal_max_buy.text = "내 최대 매입가  %sG" % _money(max_buy_price)
@@ -916,7 +916,13 @@ func _render_appraisal() -> void:
 			_money(int(appraisal_data.get("value_low", appraisal_data["value"]))),
 			_money(int(appraisal_data.get("value_high", appraisal_data["value"])))
 		]
-		appraisal_comment.text = str(appraisal_data.get("comment", "감정 결과를 확인했습니다."))
+		var clue_review = ""
+		for line in appraisal_data.get("clue_feedback", []):
+			clue_review += "• %s\n" % str(line)
+		appraisal_comment.text = "%s\n\n단서 복기\n%s" % [
+			str(appraisal_data.get("comment", "감정 결과를 확인했습니다.")),
+			clue_review.strip_edges()
+		]
 		return
 
 	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/ItemArt.texture = Art.texture_for("items", str(listing.get("item_id", "")))
@@ -1169,9 +1175,16 @@ func _sell_selected_buyer() -> void:
 	analysis += "✓ 확인 가능한 최고 제안에 판매\n" if sale_price >= best_possible else "△ 다른 판매처에 더 높은 잠재 제안 %sG가 있었음\n" % _money(best_possible)
 	analysis += "• 판매처: %s — %s" % [offer["name"], offer["reason"]]
 
-	last_result_text = "거래 완료 · %s\n\n매입가 %sG\n검사/감정비 %sG\n판매가 %sG\n순이익 %s\n\n내 거래 계획 복기\n%s\n거래 분석\n%s\n\n실제 물건\n%s · %s · %s\n실제 가치 %sG\n\n현재 자산 %sG" % [
+	var seller: Dictionary = listing["seller"]
+	var seller_personality: Dictionary = seller["personality"]
+	var seller_review = "관찰 당시: %s\n실제 성향: %s" % [
+		feed.seller_behavior_text(listing),
+		str(seller_personality["name"])
+	]
+
+	last_result_text = "거래 완료 · %s\n\n매입가 %sG\n검사/감정비 %sG\n판매가 %sG\n순이익 %s\n\n내 거래 계획 복기\n%s\n거래 분석\n%s\n\n판매자 복기\n%s\n\n실제 물건\n%s · %s · %s\n실제 가치 %sG\n\n현재 자산 %sG" % [
 		Art.item_name(listing), _money(purchase_price), _money(info_cost), _money(sale_price), _signed_money(profit),
-		plan_text, analysis,
+		plan_text, analysis, seller_review,
 		listing["state"], listing["rarity"], listing["condition"], _money(int(listing["actual_value"])), _money(gold)
 	]
 
@@ -1211,7 +1224,7 @@ func _current_owned() -> Dictionary:
 func _format_discovered_clues(listing: Dictionary) -> String:
 	var text = ""
 	for clue in listing.get("discovered_clues", []):
-		text += "• [%s] %s\n" % [clue["kind"], clue["text"]]
+		text += "• %s\n" % str(clue["text"])
 	return text.strip_edges()
 
 
