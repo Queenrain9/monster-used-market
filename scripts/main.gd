@@ -778,6 +778,7 @@ func _add_seller_relationship(
 		state["last_memory"] = memory
 	state = _refresh_seller_story_state(seller_id, state)
 	seller_relationships[seller_id] = state
+	_refresh_collection_achievements()
 	return state
 
 
@@ -2676,9 +2677,13 @@ func _professional_appraise() -> void:
 	owned["appraisal_cost"] = appraisal_cost
 	owned["appraisal_data"] = engine.appraise(listing)
 	owned_items[selected_owned_index] = owned
+	var collection_reward = _record_collection_discovery(listing, "appraisal", 0, true)
 	_update_header()
 	_render_appraisal()
-	_set_status("전문 감정으로 물건 자체의 정체와 추정 가치를 확인했습니다. 판매처 가격은 여전히 직접 알아봐야 합니다.")
+	var appraisal_status = "전문 감정으로 물건 자체의 정체와 추정 가치를 확인했습니다. 판매처 가격은 여전히 직접 알아봐야 합니다."
+	if int(collection_reward.get("gold", 0)) > 0 or int(collection_reward.get("reputation", 0)) > 0:
+		appraisal_status += " " + last_collection_reward
+	_set_status(appraisal_status)
 	_save_game()
 
 
@@ -2835,6 +2840,7 @@ func _sell_selected_buyer() -> void:
 	total_deals += 1
 	today_deals += 1
 	var progression_reward = _apply_trade_progress(profit, listing)
+	var collection_reward = _record_collection_discovery(listing, "sale", profit, true)
 	best_profit = max(best_profit, profit)
 	worst_loss = min(worst_loss, profit)
 
@@ -2889,7 +2895,9 @@ func _sell_selected_buyer() -> void:
 		"current_assets":gold,
 		"reputation_gain":int(progression_reward.get("reputation_gain", 0)),
 		"goal_gold":int(progression_reward.get("goal_gold", 0)),
-		"merchant_rank":str(progression_reward.get("rank", _merchant_rank()))
+		"merchant_rank":str(progression_reward.get("rank", _merchant_rank())),
+		"collection_reward_gold":int(collection_reward.get("gold", 0)),
+		"collection_reward_reputation":int(collection_reward.get("reputation", 0))
 	}
 
 	last_result_text = "거래 완료 · %s\n\n매입가 %sG\n검사/감정비 %sG\n판매가 %sG\n순이익 %s\n\n내 거래 계획 복기\n%s\n거래 분석\n%s\n\n판매자 복기\n%s\n\n실제 물건\n%s · %s · %s\n실제 가치 %sG\n\n현재 자산 %sG" % [
@@ -2903,7 +2911,10 @@ func _sell_selected_buyer() -> void:
 	current_stage = "result"
 	_render_records()
 	_show_panel(result_panel)
-	_set_status("이번 거래를 복기하세요. %s" % last_progress_message)
+	var result_status = "이번 거래를 복기하세요. %s" % last_progress_message
+	if not last_collection_reward.is_empty():
+		result_status += " · " + last_collection_reward
+	_set_status(result_status)
 	_save_game()
 
 
