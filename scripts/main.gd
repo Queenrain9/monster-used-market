@@ -1567,6 +1567,8 @@ func _achievement_condition(achievement_id: String) -> bool:
 			return _collection_discovered_states().size() >= 3
 		"six_items":
 			return _collection_discovered_count() >= 6
+		"twelve_items":
+			return _collection_discovered_count() >= 12
 		"one_set":
 			return _completed_collection_sets() >= 1
 		"all_items":
