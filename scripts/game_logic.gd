@@ -70,6 +70,18 @@ func validate_content() -> Array:
 		for clue in item.get("unique_clues", []):
 			if str(clue.get("id", "")).is_empty() or str(clue.get("signal", "")).is_empty() or str(clue.get("text", "")).is_empty():
 				errors.append("%s의 unique clue가 불완전합니다." % item_id)
+		var stories: Array = item.get("market_stories", [])
+		if stories.is_empty():
+			errors.append("%s의 marketplace story가 없습니다." % item_id)
+		for story in stories:
+			if str(story).strip_edges().is_empty():
+				errors.append("%s에 빈 marketplace story가 있습니다." % item_id)
+
+	for seller in Content.SELLERS:
+		var seller_id = str(seller.get("id", ""))
+		for field in ["neighborhood", "meetup", "profile"]:
+			if str(seller.get(field, "")).strip_edges().is_empty():
+				errors.append("%s 판매자의 %s 정보가 없습니다." % [seller_id, field])
 
 	for profile_id in Content.PROFILE_CLUES.keys():
 		if not Content.INVESTIGATION_PROFILES.has(profile_id):
