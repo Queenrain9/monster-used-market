@@ -1503,14 +1503,15 @@ func _sell_selected_buyer() -> void:
 		plan_text += "%s\n" % line
 
 	var negotiation: Dictionary = listing.get("negotiation_state", {})
-	var analysis = ""
+	var analysis_lines: Array = []
 	var discount = int(listing["asking"]) - purchase_price
-	analysis += "✓ 희망가보다 %sG 낮게 구매\n" % _money(discount) if discount > 0 else "△ 희망가 그대로 구매\n"
-	analysis += "✓ 발견 단서를 흥정 근거로 사용\n" if negotiation.get("evidence_used", []).size() > 0 else "△ 조사 단서를 흥정에 사용하지 않음\n"
-	analysis += "• 정보 비용 %sG\n" % _money(info_cost)
+	analysis_lines.append("✓ 희망가보다 %sG 낮게 구매" % _money(discount) if discount > 0 else "△ 희망가 그대로 구매")
+	analysis_lines.append("✓ 발견 단서를 흥정 근거로 사용" if negotiation.get("evidence_used", []).size() > 0 else "△ 조사 단서를 흥정에 사용하지 않음")
+	analysis_lines.append("• 정보 비용 %sG" % _money(info_cost))
 	var best_possible = engine.best_offer_price(offers)
-	analysis += "✓ 확인 가능한 최고 제안에 판매\n" if sale_price >= best_possible else "△ 다른 판매처에 더 높은 잠재 제안 %sG가 있었음\n" % _money(best_possible)
-	analysis += "• 판매처: %s — %s" % [offer["name"], offer["reason"]]
+	analysis_lines.append("✓ 확인 가능한 최고 제안에 판매" if sale_price >= best_possible else "△ 다른 판매처에 더 높은 잠재 제안 %sG가 있었음" % _money(best_possible))
+	analysis_lines.append("• 판매처: %s — %s" % [offer["name"], offer["reason"]])
+	var analysis = "\n".join(analysis_lines)
 
 	var seller: Dictionary = listing["seller"]
 	var seller_personality: Dictionary = seller["personality"]
@@ -1518,6 +1519,26 @@ func _sell_selected_buyer() -> void:
 		feed.seller_behavior_text(listing),
 		str(seller_personality["name"])
 	]
+
+	last_result_record = {
+		"item_id":str(listing.get("item_id", "")),
+		"item_name":Art.item_name(listing),
+		"buyer_name":str(offer.get("name", "판매처")),
+		"buyer_reason":str(offer.get("reason", "거래 완료")),
+		"purchase_price":purchase_price,
+		"info_cost":info_cost,
+		"sale_price":sale_price,
+		"profit":profit,
+		"plan_feedback":plan_feedback.duplicate(true),
+		"analysis_lines":analysis_lines.duplicate(true),
+		"seller_observation":feed.seller_behavior_text(listing),
+		"seller_actual":str(seller_personality.get("name", "-")),
+		"state":str(listing.get("state", "-")),
+		"rarity":str(listing.get("rarity", "-")),
+		"condition":str(listing.get("condition", "-")),
+		"actual_value":int(listing.get("actual_value", 0)),
+		"current_assets":gold
+	}
 
 	last_result_text = "거래 완료 · %s\n\n매입가 %sG\n검사/감정비 %sG\n판매가 %sG\n순이익 %s\n\n내 거래 계획 복기\n%s\n거래 분석\n%s\n\n판매자 복기\n%s\n\n실제 물건\n%s · %s · %s\n실제 가치 %sG\n\n현재 자산 %sG" % [
 		Art.item_name(listing), _money(purchase_price), _money(info_cost), _money(sale_price), _signed_money(profit),
@@ -1710,6 +1731,7 @@ func _reset_save() -> void:
 	selected_owned_index = -1
 	current_stage = "market"
 	last_result_text = ""
+	last_result_record = {}
 	home_query = ""
 	home_tab = "recommended"
 	home_category = "전체"
@@ -1739,7 +1761,8 @@ func _save_game() -> void:
 		"owned_items": owned_items,
 		"selected_owned_index": selected_owned_index,
 		"stage": current_stage,
-		"last_result_text": last_result_text
+		"last_result_text": last_result_text,
+		"last_result_record": last_result_record
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file != null:
@@ -1779,6 +1802,7 @@ func _load_game() -> void:
 	selected_owned_index = int(parsed.get("selected_owned_index", -1))
 	current_stage = str(parsed.get("stage", "market"))
 	last_result_text = str(parsed.get("last_result_text", ""))
+	last_result_record = parsed.get("last_result_record", {})
 
 
 func _signed_money(value: int) -> String:
