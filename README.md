@@ -1,4 +1,4 @@
-# 괴물 중고마켓 MVP v0.2.17 — Conversation Coherence & Purchase Handoff
+# 괴물 중고마켓 MVP v0.2.17.1 — Home Card Visibility Hotfix
 
 이번 버전은 기능 추가가 아니라 **구조 목업과 실제 Godot 홈 화면의 비율/밀도/정보 위계를 맞추는 패스**입니다.
 
@@ -451,3 +451,12 @@ v0.2.16 실제 플레이 캡처에서 드러난 다섯 가지 문제를 정리�
 보유품이 하나뿐일 때는 큰 ItemList를 숨겨 빈 디버그 패널처럼 보이지 않게 하고, 물건 이미지와 거래 결과를 바로 보여준다.
 
 기존 저장에는 `purchase_context`가 없어도 listing의 seller/meetup 데이터로 fallback한다.
+
+
+## v0.2.17.1 — Home Card Visibility Hotfix
+
+v0.2.17 실제 화면에서 홈 카드의 `Name`과 `Meta` 라벨이 Container 압축으로 사라지는 회귀를 수정했다.
+
+- 매물명 / 가격 / 판매자·동네·시간 / 판매글 줄에 최소 높이 보장
+- 오른쪽 보조 영역 축소
+- 자동 테스트가 데이터 Dictionary가 아니라 실제 렌더된 카드 텍스트에서 아이템명·판매자명·동네를 확인
