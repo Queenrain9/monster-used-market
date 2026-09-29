@@ -2179,21 +2179,19 @@ func _render_detail() -> void:
 	detail_budget.text = "남은 질문/확인 기회: %d번" % investigation_remaining
 	inquiry_panel.visible = false
 	var discovered: Array = listing.get("discovered_clues", [])
-	detail_memo_title.text = "거래 메모 %d개" % discovered.size()
+	detail_memo_title.text = "거래 메모 · 확인한 단서 %d개" % discovered.size()
 	if discovered.is_empty():
-		detail_clues.text = "아직 메모한 내용이 없습니다."
+		detail_clues.text = "아직 확인한 단서가 없습니다. 판매자에게 묻거나 사진·시세를 확인해보세요."
 	else:
-		var preview_lines = []
-		var start_index = max(0, discovered.size() - 2)
-		for i in range(start_index, discovered.size()):
-			preview_lines.append("• %s" % str(discovered[i].get("text", "")))
-		detail_clues.text = "\n".join(preview_lines)
+		var memo_lines = []
+		for clue in discovered:
+			var kind = str(clue.get("kind", "단서"))
+			var clue_text = str(clue.get("text", ""))
+			memo_lines.append("• [%s] %s" % [kind, clue_text])
+		detail_clues.text = "\n".join(memo_lines)
 	var chat_count = listing.get("chat_history", []).size()
 	open_seller_chat_button.text = "판매자에게 채팅하기%s" % (" · 대화 %d개" % chat_count if chat_count > 0 else "")
 	market_price_label.text = _market_price_reference_text(listing)
-
-	_populate_suspect_options(listing)
-	_restore_trade_plan(listing)
 
 
 func _open_seller_chat() -> void:
@@ -2388,11 +2386,28 @@ func _scroll_chat_to_bottom() -> void:
 	chat_scroll.scroll_vertical = int(chat_scroll.get_v_scroll_bar().max_value)
 
 
-func _market_price_reference_text(listing: Dictionary) -> String:
+func _estimated_value_range(listing: Dictionary) -> String:
+	var has_market_clue = false
 	for clue in listing.get("discovered_clues", []):
 		if str(clue.get("kind", "")) == "시세" or str(clue.get("id", "")) == "market_estimate":
-			return str(clue.get("text", "시세 정보를 확인했습니다."))
-	return "아직 동종품 시세를 확인하지 않았습니다. 확인하면 거래 계획의 참고 자료로 사용할 수 있습니다."
+			has_market_clue = true
+			break
+	if not has_market_clue:
+		return "???"
+	var reference_value = int(listing.get("base_value", listing.get("asking", 0)))
+	var low = max(500, int(round(float(reference_value) * 0.55)))
+	var high = int(round(float(reference_value) * 1.85))
+	return "%s~%sG" % [_money(low), _money(high)]
+
+
+func _market_price_reference_text(listing: Dictionary) -> String:
+	var estimate = _estimated_value_range(listing)
+	if estimate == "???":
+		return "추정 가치 ??? · 시세 조사를 하면 동종품 거래 범위를 확인할 수 있습니다."
+	for clue in listing.get("discovered_clues", []):
+		if str(clue.get("kind", "")) == "시세" or str(clue.get("id", "")) == "market_estimate":
+			return "추정 가치 %s\n%s" % [estimate, str(clue.get("text", "시세 정보를 확인했습니다."))]
+	return "추정 가치 %s" % estimate
 
 
 func _open_image_preview() -> void:
@@ -2404,9 +2419,7 @@ func _open_image_preview() -> void:
 
 
 func _jump_to_trade_plan() -> void:
-	resale_option.grab_focus()
-	$Margin/RootVBox/DetailPanel/Scroll.ensure_control_visible(resale_option)
-	_set_status("예상 재판매가와 최대 매입가를 정하면 실제 가격 협상으로 이어집니다.")
+	_start_deal()
 
 
 
@@ -2499,20 +2512,7 @@ func _start_deal() -> void:
 	if owned_items.size() >= _inventory_capacity():
 		_set_status("보관 선반이 가득 찼습니다. 보유품을 판매하거나 작업실에서 보관 공간을 늘리세요.")
 		return
-	if resale_option.selected == 0:
-		_set_status("먼저 이 물건을 어느 정도에 되팔 수 있을지 예상해보세요.")
-		return
 
-	var suspect_text = ""
-	if suspect_option.selected > 0 and suspect_option.selected - 1 < suspect_map.size():
-		suspect_text = suspect_map[suspect_option.selected - 1]
-
-	listing = engine.save_trade_plan(
-		listing,
-		resale_option.get_item_text(resale_option.selected),
-		int(round(max_buy_slider.value)),
-		suspect_text
-	)
 	listing["listing_status"] = "거래 중"
 	if not listing.has("negotiation_state") or listing["negotiation_state"].is_empty():
 		listing["negotiation_state"] = engine.start_negotiation(listing)
@@ -2521,7 +2521,7 @@ func _start_deal() -> void:
 	current_stage = "deal"
 	_render_deal()
 	_show_panel(deal_panel)
-	_set_status("내 기준 가격과 확인한 내용을 바탕으로 판매자에게 보낼 가격을 정하세요.")
+	_set_status("확인한 단서와 판매자 반응을 보고 제안할 가격을 정하세요.")
 	_save_game()
 
 
@@ -2534,9 +2534,7 @@ func _render_deal() -> void:
 	var negotiation: Dictionary = listing.get("negotiation_state", engine.start_negotiation(listing))
 	var seller: Dictionary = listing["seller"]
 	var personality: Dictionary = seller["personality"]
-	var plan: Dictionary = listing.get("trade_plan", {})
 	var current_price = int(negotiation["current_price"])
-	var max_buy_price = int(plan.get("max_buy_price", 0))
 	var rounds = int(negotiation["rounds"])
 	var max_rounds = int(negotiation["max_rounds"])
 	var patience = int(negotiation["patience"])
@@ -2554,8 +2552,8 @@ func _render_deal() -> void:
 	deal_personality.tooltip_text = "판매자의 실제 말과 행동을 보고 거래 성향을 직접 판단하세요."
 
 	deal_seller_price.text = ("%s  %sG" % ["판매자가 올린 가격" if rounds <= 0 else "현재 판매자 가격", _money(current_price)])
-	deal_max_buy.text = "내 최대 매입가  %sG" % _money(max_buy_price)
-	deal_expected_resale.text = "예상 재판매가   %s" % str(plan.get("value_band", "-"))
+	deal_max_buy.text = "확인한 단서  %d개" % listing.get("discovered_clues", []).size()
+	deal_expected_resale.text = "추정 가치   %s" % _estimated_value_range(listing)
 
 	var previous_price = int(negotiation.get("previous_price", current_price))
 	var last_offer = int(negotiation.get("last_offer", 0))
@@ -2593,15 +2591,6 @@ func _render_deal() -> void:
 			label += " · 사용함"
 		_add_clue_option(evidence_option, label)
 		evidence_map.append(clue_index)
-
-	var suspect_text = str(plan.get("suspect_text", ""))
-	if not suspect_text.is_empty():
-		for i in range(evidence_map.size()):
-			var clues: Array = listing.get("discovered_clues", [])
-			var clue_index = int(evidence_map[i])
-			if clue_index >= 0 and clue_index < clues.size() and str(clues[clue_index]["text"]) == suspect_text:
-				evidence_option.select(i + 1)
-				break
 
 	var minimum = max(100, int(round(float(current_price) * 0.50)))
 	offer_slider.min_value = minimum
@@ -2644,10 +2633,8 @@ func _update_offer_price_label() -> void:
 	offer_warning_label.text = ""
 	if listing.is_empty():
 		return
-	var plan: Dictionary = listing.get("trade_plan", {})
-	var max_buy_price = int(plan.get("max_buy_price", price))
-	if price > max_buy_price:
-		offer_warning_label.text = "⚠ 내 매입 상한보다 %sG 높음" % _money(price - max_buy_price)
+	if price > gold:
+		offer_warning_label.text = "⚠ 보유 골드보다 %sG 높음" % _money(price - gold)
 
 func _set_offer_discount(discount: float) -> void:
 	var listing = _current_market_listing()
@@ -2667,6 +2654,11 @@ func _submit_offer() -> void:
 		_set_status("보관 공간이 가득 차 새 물건을 살 수 없습니다.")
 		return
 
+	var offer_price = int(round(offer_slider.value))
+	if gold < offer_price:
+		_set_status("이 가격을 제안하려면 골드가 부족합니다.")
+		return
+
 	var negotiation: Dictionary = listing["negotiation_state"]
 	var previous_price = int(negotiation["current_price"])
 	var clue_index = -1
@@ -2680,7 +2672,7 @@ func _submit_offer() -> void:
 	var result: Dictionary = engine.negotiate_offer(
 		listing,
 		negotiation,
-		int(round(offer_slider.value)),
+		offer_price,
 		clue_index
 	)
 	var updated_state: Dictionary = result["state"]
@@ -2907,7 +2899,6 @@ func _render_inventory_detail() -> void:
 	if owned.is_empty():
 		return
 	var listing: Dictionary = owned["listing"]
-	var plan: Dictionary = listing.get("trade_plan", {})
 	var context: Dictionary = owned.get("purchase_context", {})
 	var seller_name = str(context.get("seller_name", Art.seller_name(listing.get("seller", {}))))
 	var meetup = str(context.get("meetup", feed.public_meetup_text(listing)))
@@ -2922,10 +2913,9 @@ func _render_inventory_detail() -> void:
 		_owned_state_text(owned)
 	]
 
-	inventory_detail.text = "내가 산 가격  %sG\n내 예상 재판매가  %s\n내 최대 매입가  %sG\n\n거래 전에 알아낸 것\n%s" % [
+	inventory_detail.text = "내가 산 가격  %sG\n구매 전 추정 가치  %s\n\n거래 전에 알아낸 것\n%s" % [
 		_money(purchase_price),
-		plan.get("value_band", "-"),
-		_money(int(plan.get("max_buy_price", 0))),
+		_estimated_value_range(listing),
 		_format_discovered_clues(listing)
 	]
 	inventory_appraise_button.disabled = false
@@ -3430,6 +3420,15 @@ func _configure_mobile_ui() -> void:
 			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	for scroll in find_children("*", "ScrollContainer", true, false):
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+
+	# Compact HUD labels must never collapse into one-character columns on narrow phones.
+	for hud_label in [day_label, rank_label, reputation_label, gold_label, inventory_count_label]:
+		hud_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		hud_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		hud_label.clip_text = true
+	day_label.custom_minimum_size.x = 54
+	reputation_label.custom_minimum_size.x = 52
+	rank_label.custom_minimum_size.x = 72
 	inventory_list.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 
