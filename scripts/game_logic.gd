@@ -400,10 +400,10 @@ func _make_seller_claim(state: String, seller: Dictionary) -> Dictionary:
 	}
 
 
-func _pick_clue(signal: String, aligned: bool) -> Dictionary:
+func _pick_clue(clue_signal: String, aligned: bool) -> Dictionary:
 	var candidates := []
 	for clue in Content.CLUES:
-		if clue["signal"] == signal:
+		if clue["signal"] == clue_signal:
 			candidates.append(clue)
 	if candidates.is_empty():
 		for clue in Content.CLUES:
