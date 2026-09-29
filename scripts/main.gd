@@ -2006,7 +2006,7 @@ func _update_header() -> void:
 	goal_label.text = (
 		"오늘 목표 · 첫 거래 완료 ✓ · 장터 방문 %d회 남음" % market_visits_remaining
 		if daily_goal_claimed
-		else "오늘 목표 · 거래 %d/1 · 장터 방문 %d회 남음 · 보상 500G + 평판 10" % [daily_goal_progress, market_visits_remaining]
+		else "오늘 목표 · 첫 거래 완료 %d/1 · 장터 방문 %d회 남음 · 보상 500G + 평판 10" % [daily_goal_progress, market_visits_remaining]
 	)
 	stats_label.text = "누적 %d회 · 오늘 %d회 · 최고 %s · 최저 %s" % [
 		total_deals, today_deals, _signed_money(best_profit), _signed_money(worst_loss)
