@@ -1802,7 +1802,7 @@ text = "선택한 전문 판매처에 견적 요청"
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
-text = "판매"
+text = "판매가"
 
 [node name="SaleInventoryButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box"]
 custom_minimum_size = Vector2(0, 34)
@@ -1897,35 +1897,59 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 2
 
 [node name="PurchaseCaption" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+custom_minimum_size = Vector2(100, 22)
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 0
+horizontal_alignment = 1
 theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.45, 0.48, 0.53, 1)
-text = "매입"
+text = "매입가"
 
 [node name="CostCaption" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+custom_minimum_size = Vector2(100, 22)
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 0
+horizontal_alignment = 1
 theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.45, 0.48, 0.53, 1)
 text = "정보비"
 
 [node name="SaleCaption" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+custom_minimum_size = Vector2(100, 22)
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 0
+horizontal_alignment = 1
 theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.45, 0.48, 0.53, 1)
 text = "판매"
 
 [node name="PurchaseValue" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+custom_minimum_size = Vector2(100, 22)
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 0
+horizontal_alignment = 1
 theme_override_font_sizes/font_size = 13
 text = "0G"
 
 [node name="CostValue" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+custom_minimum_size = Vector2(100, 22)
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 0
+horizontal_alignment = 1
 theme_override_font_sizes/font_size = 13
 text = "0G"
 
 [node name="SaleValue" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+custom_minimum_size = Vector2(100, 22)
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 0
+horizontal_alignment = 1
 theme_override_font_sizes/font_size = 13
 text = "0G"
 
