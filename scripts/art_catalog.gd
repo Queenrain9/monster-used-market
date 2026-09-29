@@ -14,7 +14,8 @@ static func catalog() -> Dictionary:
 
 static func texture_for(group: String, id: String) -> Texture2D:
 	var entry: Dictionary = catalog().get(group, {}).get(id, {})
-	var path = str(entry.get("texture", ""))
+	var final_path = str(entry.get("final_texture", ""))
+	var path = final_path if not final_path.is_empty() and ResourceLoader.exists(final_path) else str(entry.get("texture", ""))
 	var result = _texture(path)
 	if result == null:
 		result = _texture(str(catalog().get("ui", {}).get("fallback", {}).get("texture", "")))
