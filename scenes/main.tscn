@@ -456,7 +456,7 @@ disabled = true
 [node name="DetailInfoTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "거래 정보"
+text = "직거래"
 
 [node name="DetailInfoPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
@@ -551,12 +551,34 @@ custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
-text = "거래 계획"
+text = "내 가격 정하기"
+
+[node name="InquiryPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="InquiryTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.35, 0.28, 0.62, 1)
+text = "판매자에게 물어봄"
+
+[node name="InquiryText" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.28, 0.31, 0.35, 1)
+text = "대화 내용"
+autowrap_mode = 2
 
 [node name="KnownTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "확인한 정보"
+text = "내가 알아낸 것"
 
 [node name="ClueList" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 56)
