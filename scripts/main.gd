@@ -536,12 +536,17 @@ func _render_seller_chat() -> void:
 	var used: Array = listing.get("inspected_actions", [])
 	for i in range(inspect_buttons.size()):
 		var option: Dictionary = options[i]
-		inspect_buttons[i].text = "%s%s" % [
-			feed.investigation_button_text(option),
-			" ✓" if used.has(option["id"]) else ""
-		]
+		var was_used = used.has(option["id"])
+		var exhausted = investigation_remaining <= 0
+		var choice_text = feed.investigation_button_text(option)
+		if i < 4:
+			inspect_buttons[i].text = "보낸 메시지 · %s" % choice_text if was_used else "“%s”" % choice_text
+			_apply_chat_reply_style(inspect_buttons[i], was_used or exhausted, false)
+		else:
+			inspect_buttons[i].text = "시세 확인 완료" if was_used else "직접 조사 · 비슷한 매물 찾아보기"
+			_apply_chat_reply_style(inspect_buttons[i], was_used or exhausted, true)
 		inspect_buttons[i].tooltip_text = str(option["label"])
-		inspect_buttons[i].disabled = investigation_remaining <= 0 or used.has(option["id"])
+		inspect_buttons[i].disabled = exhausted or was_used
 
 	_render_chat_thread(listing)
 
@@ -581,6 +586,37 @@ func _chat_bubble_style(fill: Color, border: Color) -> StyleBoxFlat:
 	return style
 
 
+func _chat_reply_style(fill: Color, border: Color) -> StyleBoxFlat:
+	var style = StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(11)
+	style.content_margin_left = 12
+	style.content_margin_right = 10
+	style.content_margin_top = 7
+	style.content_margin_bottom = 7
+	return style
+
+
+func _apply_chat_reply_style(button: Button, muted: bool, search: bool) -> void:
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.add_theme_font_size_override("font_size", 10)
+	button.add_theme_color_override("font_color", Color("4f5661") if muted else Color("253041"))
+	button.add_theme_color_override("font_hover_color", Color("18283d"))
+	button.add_theme_color_override("font_pressed_color", Color("18283d"))
+	button.add_theme_color_override("font_disabled_color", Color("9aa0a8"))
+	if search:
+		button.add_theme_stylebox_override("normal", _chat_reply_style(Color("faf7ee"), Color("ddd3b7")))
+		button.add_theme_stylebox_override("hover", _chat_reply_style(Color("f6f0df"), Color("cfc09b")))
+		button.add_theme_stylebox_override("pressed", _chat_reply_style(Color("f1e8cf"), Color("c0af83")))
+	else:
+		button.add_theme_stylebox_override("normal", _chat_reply_style(Color("eef5ff"), Color("c7d9ef")))
+		button.add_theme_stylebox_override("hover", _chat_reply_style(Color("e5f0ff"), Color("abc7e8")))
+		button.add_theme_stylebox_override("pressed", _chat_reply_style(Color("dceaff"), Color("94b7df")))
+	button.add_theme_stylebox_override("disabled", _chat_reply_style(Color("f3f4f5"), Color("dde0e4")))
+
+
 func _add_chat_message(message: Dictionary, seller_name: String) -> void:
 	var speaker = str(message.get("speaker", "note"))
 	var row = HBoxContainer.new()
@@ -617,7 +653,7 @@ func _add_chat_message(message: Dictionary, seller_name: String) -> void:
 	elif speaker == "seller":
 		who.text = seller_name
 	else:
-		who.text = "거래 메모"
+		who.text = str(message.get("label", "거래 메모"))
 
 	var body = Label.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
