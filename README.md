@@ -1,4 +1,23 @@
-# 괴물 중고마켓 v0.9.0 — Commercial UX & Presentation
+# 괴물 중고마켓 v1.0.0-rc1 — Gameplay Release Candidate
+
+현재 저장소는 **P1~P8 상용화 구현과 자동 release gate를 완료한 gameplay RC**다.
+
+제품 목표:
+> 어둠마을의 괴물들이 올리는 수상한 중고 물건을 찾아 대화·조사·흥정·감정·재판매를 거치며 이름난 기묘한 물건 상인으로 성장한다.
+
+현재 남은 작업은 gameplay 재설계가 아니라:
+- `docs/FINAL_ASSET_MANIFEST.md` 경로에 최종 이미지/UI/VFX 파일 배치
+- `data/presentation_manifest.gd` 경로에 BGM/SFX 배치
+- 실제 iPhone QA
+- signing / TestFlight / App Store package
+
+상용화 진행 Source of Truth:
+- `docs/COMMERCIAL_MASTER_PLAN.md`
+- `docs/RELEASE_CANDIDATE_STATUS.md`
+- `docs/FINAL_ASSET_MANIFEST.md`
+- `docs/APP_STORE_RELEASE_CHECKLIST.md`
+
+---
 
 이번 버전은 기능 추가가 아니라 **구조 목업과 실제 Godot 홈 화면의 비율/밀도/정보 위계를 맞추는 패스**입니다.
 
