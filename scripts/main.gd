@@ -794,6 +794,7 @@ func _show_toast(text_value: String, event_id: String = "") -> void:
 		return
 	if not event_id.is_empty():
 		_play_sfx(event_id)
+		_play_event_vfx(event_id)
 	_toast_serial += 1
 	var serial = _toast_serial
 	toast_label.text = text_value
