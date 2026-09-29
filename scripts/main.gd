@@ -1953,7 +1953,7 @@ func _professional_appraise() -> void:
 	if not owned.get("appraisal_data", {}).is_empty():
 		return
 	var listing: Dictionary = owned["listing"]
-	var appraisal_cost = engine.professional_appraisal_cost(listing)
+	var appraisal_cost = _professional_appraisal_cost(listing)
 	if gold < appraisal_cost:
 		return
 	gold -= appraisal_cost
@@ -2371,7 +2371,7 @@ func _reset_save() -> void:
 	_reset_core_progress()
 	game_started = true
 	onboarding_complete = false
-	_create_new_market(true, false)
+	_create_new_market(true, false, true)
 	_update_header()
 	_show_onboarding_page(0)
 	_save_game()
@@ -2409,7 +2409,8 @@ func _save_game() -> void:
 		"market_visits_remaining": market_visits_remaining,
 		"day_start_gold": day_start_gold,
 		"last_day_summary": last_day_summary,
-		"day_event_id": day_event_id
+		"day_event_id": day_event_id,
+		"upgrade_levels": upgrade_levels
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file != null:
@@ -2443,7 +2444,7 @@ func _load_game() -> void:
 	worst_loss = int(parsed.get("worst_loss", 0))
 	rare_items = parsed.get("rare_items", [])
 	market_items = parsed.get("market_items", [])
-	investigation_remaining = int(parsed.get("investigation_remaining", Content.MARKET_INVESTIGATION_BUDGET))
+	investigation_remaining = int(parsed.get("investigation_remaining", _market_investigation_capacity()))
 	selected_market_index = int(parsed.get("selected_market_index", -1))
 	owned_items = parsed.get("owned_items", [])
 	selected_owned_index = int(parsed.get("selected_owned_index", -1))
@@ -2461,8 +2462,16 @@ func _load_game() -> void:
 	daily_goal_progress = clamp(int(parsed.get("daily_goal_progress", min(1, today_deals))), 0, 1)
 	daily_goal_claimed = bool(parsed.get("daily_goal_claimed", today_deals > 0))
 
+	var loaded_upgrades: Dictionary = parsed.get("upgrade_levels", {})
+	for upgrade_id in upgrade_levels.keys():
+		upgrade_levels[upgrade_id] = max(0, int(loaded_upgrades.get(upgrade_id, 0)))
+
 	current_district_id = str(parsed.get("current_district_id", "night_market"))
-	market_visits_remaining = clamp(int(parsed.get("market_visits_remaining", Content.DAY_MARKET_VISITS)), 0, Content.DAY_MARKET_VISITS)
+	market_visits_remaining = clamp(
+		int(parsed.get("market_visits_remaining", _daily_market_visit_capacity())),
+		0,
+		_daily_market_visit_capacity()
+	)
 	day_start_gold = int(parsed.get("day_start_gold", gold))
 	last_day_summary = parsed.get("last_day_summary", {})
 	day_event_id = str(parsed.get("day_event_id", ""))
