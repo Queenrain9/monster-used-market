@@ -356,13 +356,20 @@ func _test_trade_flow(cards) -> void:
 	_expect(game.owned_items.is_empty() and game.total_deals == 1, "sale must remove exactly one owned item and record the deal")
 	_expect(game.gold == 500000 - asking - inspection_cost - appraisal_cost + sale_price, "net assets must include the actual dynamic information costs and sale")
 	var record = game.last_result_text
-	_expect(record.contains("실제 물건") and record.contains("거래 계획 복기"), "completed record must preserve judgment and hidden-state review")
-	_expect(record.contains("판매자 복기") and record.contains("실제 성향:"), "completed trade must reveal the seller archetype only in post-trade review")
+	_expect(record.contains("실제 물건") and record.contains("거래 계획 복기"), "legacy completed record text must preserve judgment and hidden-state review")
+	_expect(record.contains("판매자 복기") and record.contains("실제 성향:"), "legacy record text must reveal the seller archetype only in post-trade review")
+	_expect(not game.last_result_record.is_empty(), "new transactions must persist a structured record payload")
+	_expect(int(game.last_result_record["profit"]) == sale_price - asking - inspection_cost - appraisal_cost, "structured record must preserve the exact trade profit")
+	_expect(game.record_hero.visible and game.record_money_panel.visible and game.record_truth_panel.visible, "completed trade must render structured record cards")
+	_expect(game.record_item_name.text == str(game.last_result_record["item_name"]), "record hero must show the actual traded item")
+	_expect(game.record_profit_label.text.contains(game._signed_money(int(game.last_result_record["profit"]))), "record hero must foreground net profit")
+	_expect(not game.legacy_result_summary.visible, "new structured transactions must not fall back to the old text dump")
 	game.market_nav_button.pressed.emit()
 	await _settle()
 	game.records_nav_button.pressed.emit()
 	await _settle()
-	_expect(game.current_stage == "result" and game.result_summary.text == record, "records navigation must reopen the actual saved recent result")
+	_expect(game.current_stage == "result" and game.result_summary.text == record, "records navigation must preserve the legacy text payload for compatibility")
+	_expect(game.record_hero.visible and game.record_decision_text.text.length() > 0 and game.record_truth_text.text.contains("실제 가치"), "records navigation must reopen the structured review UI")
 	await _assert_layout("records")
 	await _capture("trade-record")
 	game._save_game()
@@ -403,6 +410,7 @@ func _test_save_compatibility() -> void:
 	file.close()
 	legacy["version"] = 22
 	legacy.erase("home_scroll_offset")
+	legacy.erase("last_result_record")
 	for listing in legacy["market_items"]:
 		listing.erase("viewed")
 	var legacy_path = OS.get_user_data_dir().get_base_dir().path_join("괴물 중고마켓 MVP v0.2.2").path_join(game.SAVE_PATH.get_file())
@@ -421,8 +429,10 @@ func _test_save_compatibility() -> void:
 	_expect(game.total_deals == 2 and not game.last_result_text.is_empty(), "v0.2.2 migration must preserve completed records")
 	game._go_market()
 	game.records_nav_button.pressed.emit()
+	_expect(game.last_result_record.is_empty() and game.legacy_result_summary.visible, "legacy saves without structured record data must use the readable text fallback")
 	await _assert_layout("migrated records")
 	game.last_result_text = ""
+	game.last_result_record = {}
 	game.total_deals = 0
 	game._go_records()
 	_expect(game.result_summary.text.contains("아직"), "empty records must explain the real entry point")
