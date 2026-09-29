@@ -63,5 +63,11 @@ jobs:
           MONSTER_SMOKE_DATA_ROOT: ${{ runner.temp }}/monster-release-layout-data
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/release_layout_test.gd
 
+      - name: Run expanded-catalog save migration gate
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/monster-release-migration-data
+          MONSTER_SMOKE_DATA_ROOT: ${{ runner.temp }}/monster-release-migration-data
+        run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/release_migration_test.gd
+
       - name: Verify artwork catalog and replacements
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/art_smoke_test.gd
