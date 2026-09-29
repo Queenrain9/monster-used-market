@@ -119,7 +119,16 @@ const ARCHETYPES := {
 const MARKET_INVESTIGATION_BUDGET = 4
 const POST_INSPECTION_BUDGET = 2
 const QUOTE_REQUEST_BUDGET = 2
-const PROFESSIONAL_APPRAISAL_COST = 300
+
+# v0.2.14 Information Economy Rebalance
+# Information prices are based only on the player's known purchase price.
+# Hidden actual value / rarity / authenticity never changes a displayed cost.
+const INFORMATION_COST_ROUND_TO = 50
+const PROFESSIONAL_APPRAISAL_COST_RULE := {
+	"ratio":0.075,
+	"min":300,
+	"max":2500
+}
 
 const INVESTIGATION_ACTIONS = [
 	{"id":"exterior","label":"외형 자세히 보기"},
@@ -246,7 +255,7 @@ const PROFILE_CLUES := {
 }
 
 const POST_INSPECTIONS = [
-	{"id":"material","label":"재질 검사","cost":120},
-	{"id":"magic","label":"마력 / 반응 검사","cost":160},
-	{"id":"internal","label":"내부 구조 확인","cost":200}
+	{"id":"material","label":"재질 검사","ratio":0.020,"min":100,"max":700},
+	{"id":"magic","label":"마력 / 반응 검사","ratio":0.030,"min":150,"max":900},
+	{"id":"internal","label":"내부 구조 확인","ratio":0.040,"min":200,"max":1200}
 ]
