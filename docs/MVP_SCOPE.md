@@ -1,4 +1,4 @@
-# MVP v0.2.1 Scope
+> **Historical MVP document.** v0.3.0 이후 상용판 방향의 Source of Truth는 `docs/COMMERCIAL_MASTER_PLAN.md`입니다.\n\n# MVP v0.2.1 Scope
 
 ## 구현
 
