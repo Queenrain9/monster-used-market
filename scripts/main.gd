@@ -106,6 +106,9 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var deal_purchase_warning = $Margin/RootVBox/DealPanel/Scroll/Box/PurchaseWarning
 @onready var buy_current_button = $Margin/RootVBox/DealPanel/Scroll/Box/BottomActions/BuyCurrentButton
 
+@onready var purchase_handoff_panel = $Margin/RootVBox/InventoryPanel/Scroll/Box/PurchaseHandoffPanel
+@onready var purchase_handoff_title = $Margin/RootVBox/InventoryPanel/Scroll/Box/PurchaseHandoffPanel/Box/Title
+@onready var purchase_handoff_text = $Margin/RootVBox/InventoryPanel/Scroll/Box/PurchaseHandoffPanel/Box/Text
 @onready var inventory_list = $Margin/RootVBox/InventoryPanel/Scroll/Box/InventoryList
 @onready var inventory_detail = $Margin/RootVBox/InventoryPanel/Scroll/Box/InventoryDetail
 @onready var inventory_appraise_button = $Margin/RootVBox/InventoryPanel/Scroll/Box/AppraisePlaceButton
@@ -249,7 +252,7 @@ func _connect_buttons() -> void:
 	$Margin/RootVBox/DetailPanel/Scroll/Box/TopBar/BackTopButton.pressed.connect(_go_market)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/ImageColumn/ImageExpandButton.pressed.connect(_open_image_preview)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.pressed.connect(_open_image_preview)
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/NegotiationJumpButton.pressed.connect(_jump_to_trade_plan)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/NegotiationJumpButton.pressed.connect(_jump_to_trade_plan)
 	$ImagePreview/Box/CloseButton.pressed.connect(func(): $ImagePreview.hide())
 
 	offer_slider.value_changed.connect(_offer_slider_changed)
@@ -621,7 +624,7 @@ func _render_deal() -> void:
 	]
 	deal_personality.tooltip_text = "판매자의 실제 말과 행동을 보고 거래 성향을 직접 판단하세요."
 
-	deal_seller_price.text = "판매자가 올린 가격  %sG" % _money(current_price)
+	deal_seller_price.text = ("%s  %sG" % ["판매자가 올린 가격" if rounds <= 0 else "현재 판매자 가격", _money(current_price)])
 	deal_max_buy.text = "내 최대 매입가  %sG" % _money(max_buy_price)
 	deal_expected_resale.text = "예상 재판매가   %s" % str(plan.get("value_band", "-"))
 
@@ -784,6 +787,12 @@ func _complete_purchase(price: int) -> void:
 		"owned_id": listing["listing_id"],
 		"listing": listing.duplicate(true),
 		"purchase_price": price,
+		"purchase_context": {
+			"seller_name": Art.seller_name(listing.get("seller", {})),
+			"neighborhood": feed.public_location_text(listing),
+			"meetup": feed.public_meetup_text(listing),
+			"price": price
+		},
 		"inspection_remaining": Content.POST_INSPECTION_BUDGET,
 		"inspection_cost_total": 0,
 		"appraisal_cost": 0,
@@ -799,7 +808,7 @@ func _complete_purchase(price: int) -> void:
 	_update_header()
 	_render_inventory()
 	_show_panel(inventory_panel)
-	_set_status("%s에서 직거래를 마쳤습니다. 받아온 물건은 보유품에서 다시 살펴볼 수 있습니다." % feed.public_meetup_text(listing))
+	_set_status("%s에게서 물건을 받아왔습니다. 이제 감정할지, 바로 팔지, 보관할지 정할 수 있습니다." % Art.seller_name(listing.get("seller", {})))
 	_save_game()
 
 
@@ -846,17 +855,23 @@ func _render_inventory() -> void:
 		inventory_list.add_item(_compact_option_text(inventory_list, full_text))
 		inventory_list.set_item_tooltip(inventory_list.item_count - 1, full_text)
 
-	$Margin/RootVBox/InventoryPanel/Scroll/Box/ItemArt.visible = not owned_items.is_empty()
-	if owned_items.is_empty():
+	var has_items = not owned_items.is_empty()
+	$Margin/RootVBox/InventoryPanel/Scroll/Box/ItemArt.visible = has_items
+	purchase_handoff_panel.visible = has_items
+	inventory_list.visible = owned_items.size() > 1
+
+	if not has_items:
 		selected_owned_index = -1
-		inventory_detail.text = "아직 보유한 물건이 없습니다.\n마켓에서 물건을 구매하면 이곳에 들어옵니다."
+		purchase_handoff_panel.visible = false
+		inventory_detail.text = "아직 보유한 물건이 없습니다.\n마켓에서 물건을 사면 직거래 후 이곳에 들어옵니다."
 		inventory_appraise_button.disabled = true
 		inventory_sell_button.disabled = true
 		return
 
 	if selected_owned_index < 0 or selected_owned_index >= owned_items.size():
 		selected_owned_index = 0
-	inventory_list.select(selected_owned_index)
+	if inventory_list.visible:
+		inventory_list.select(selected_owned_index)
 	_render_inventory_detail()
 
 
@@ -872,11 +887,22 @@ func _render_inventory_detail() -> void:
 		return
 	var listing: Dictionary = owned["listing"]
 	var plan: Dictionary = listing.get("trade_plan", {})
+	var context: Dictionary = owned.get("purchase_context", {})
+	var seller_name = str(context.get("seller_name", Art.seller_name(listing.get("seller", {}))))
+	var meetup = str(context.get("meetup", feed.public_meetup_text(listing)))
+	var purchase_price = int(owned["purchase_price"])
+
 	$Margin/RootVBox/InventoryPanel/Scroll/Box/ItemArt.texture = Art.texture_for("items", str(listing.get("item_id", "")))
-	inventory_detail.text = "%s\n상태: %s\n매입가 %sG\n내 예상 재판매가 %s\n내 최대 매입가 %sG\n\n확인한 정보\n%s" % [
-		Art.item_name(listing),
-		_owned_state_text(owned),
-		_money(int(owned["purchase_price"])),
+	purchase_handoff_title.text = "직거래 완료 · %s" % Art.item_name(listing)
+	purchase_handoff_text.text = "%s에게서 %s에서 받아왔습니다.\n%sG에 거래 완료 · 현재 %s" % [
+		seller_name,
+		meetup,
+		_money(purchase_price),
+		_owned_state_text(owned)
+	]
+
+	inventory_detail.text = "내가 산 가격  %sG\n내 예상 재판매가  %s\n내 최대 매입가  %sG\n\n거래 전에 알아낸 것\n%s" % [
+		_money(purchase_price),
 		plan.get("value_band", "-"),
 		_money(int(plan.get("max_buy_price", 0))),
 		_format_discovered_clues(listing)
