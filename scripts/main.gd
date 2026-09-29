@@ -448,8 +448,9 @@ func _ready() -> void:
 	$Margin/RootVBox/Header/Brand.texture = Art.texture_for("ui", "brand")
 	$Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Art.texture = Art.texture_for("ui", "market")
 	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/ItemArt.texture = Art.texture_for("ui", "appraiser")
+	$CommercialShell/ArtBackground.texture = Art.texture_for("ui", "title_background")
 	$CommercialShell/Center/Card/TitleView/Brand.texture = Art.texture_for("ui", "brand")
-	$CommercialShell/Center/Card/OnboardingView/Art.texture = Art.texture_for("ui", "market")
+	$CommercialShell/Center/Card/OnboardingView/Art.texture = Art.texture_for("ui", "onboarding_world")
 	_load_presentation_settings()
 	_configure_mobile_ui()
 	_capture_base_font_sizes()
@@ -862,6 +863,8 @@ func _show_onboarding_page(page: int) -> void:
 		"시작 자금은 50,000G.\n싸게 사는 것만으로는 부족합니다. 진짜 가치를 알아보고, 어디에 되팔지까지 결정하세요.",
 		"오늘의 첫 목표는 거래 1건을 끝까지 완료하는 것.\n매물 확인 → 판매자 대화 → 가격 제안 → 구매 → 감정/조사 → 재판매까지 이어가세요.\n\n보상: 500G + 평판 10"
 	]
+	var onboarding_art_keys = ["onboarding_world", "onboarding_role", "onboarding_goal"]
+	$CommercialShell/Center/Card/OnboardingView/Art.texture = Art.texture_for("ui", onboarding_art_keys[onboarding_page])
 	onboarding_step_label.text = "%d / 3" % [onboarding_page + 1]
 	onboarding_title.text = titles[onboarding_page]
 	onboarding_body.text = bodies[onboarding_page]
