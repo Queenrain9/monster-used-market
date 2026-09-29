@@ -228,6 +228,12 @@ func _test_trade_flow(cards) -> void:
 	_expect(not game.owned_items[0]["appraisal_data"].is_empty(), "appraisal must keep the existing hidden-state result")
 	await _assert_layout("appraisal")
 	game._open_sale()
+	await _assert_layout("resale initial")
+	var initial_offers: Array = game.owned_items[0]["buyer_offers"]
+	var resale_text_before = _visible_text(game.get_node("Margin/RootVBox/SalePanel"))
+	_expect(not resale_text_before.contains("%sG" % _money(int(initial_offers[0]["price"]))), "unrequested specialist quote 1 must stay hidden in resale UI")
+	_expect(not resale_text_before.contains("%sG" % _money(int(initial_offers[1]["price"]))), "unrequested specialist quote 2 must stay hidden in resale UI")
+	_expect(resale_text_before.contains("%sG" % _money(int(initial_offers[3]["price"]))), "scrap instant price must be visible before any specialist quote")
 	for i in [0, 1, 2]:
 		game._select_buyer(i)
 		game._request_quote()
@@ -383,6 +389,16 @@ func _visible_text(node: Node) -> String:
 	return text
 
 
+func _money(value: int) -> String:
+	var source = str(abs(value))
+	var out = ""
+	while source.length() > 3:
+		out = "," + source.substr(source.length() - 3, 3) + out
+		source = source.substr(0, source.length() - 3)
+	out = source + out
+	return out
+
+
 func _listing_ids() -> Array:
 	var ids: Array = []
 	for listing in game.market_items:
@@ -412,7 +428,7 @@ func _finish() -> void:
 	game.queue_free()
 	await _settle()
 	if errors.is_empty():
-		print("HOME FEED SMOKE OK v0.2.7: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
+		print("HOME FEED SMOKE OK v0.2.8: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
 		quit(0)
 	else:
 		for message in errors:
