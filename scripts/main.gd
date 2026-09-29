@@ -1506,10 +1506,11 @@ func _render_town() -> void:
 
 	last_day_panel.visible = not last_day_summary.is_empty()
 	if last_day_panel.visible:
-		last_day_text.text = "DAY %d 마감 · 거래 %d건 · 자산 변화 %s" % [
+		last_day_text.text = "DAY %d 마감 · 거래 %d건 · 자산 변화 %s\n그날 소문 · %s" % [
 			int(last_day_summary.get("day", max(1, merchant_day - 1))),
 			int(last_day_summary.get("deals", 0)),
-			_signed_money(int(last_day_summary.get("asset_delta", 0)))
+			_signed_money(int(last_day_summary.get("asset_delta", 0))),
+			str(last_day_summary.get("event_title", "기록 없음"))
 		]
 
 	for i in range(district_cards.size()):
@@ -2478,7 +2479,15 @@ func _render_records() -> void:
 
 		var plan_lines: Array = last_result_record.get("plan_feedback", [])
 		record_decision_text.text = "\n".join(plan_lines) if not plan_lines.is_empty() else "거래 계획을 따로 세우지 않았습니다."
-		var analysis_lines: Array = last_result_record.get("analysis_lines", [])
+		var analysis_lines: Array = last_result_record.get("analysis_lines", []).duplicate()
+		var event_title = str(last_result_record.get("market_event_title", ""))
+		var event_effect = str(last_result_record.get("market_event_effect", ""))
+		if not event_title.is_empty():
+			analysis_lines.append("• 그날 소문: %s" % event_title)
+			if not event_effect.is_empty():
+				analysis_lines.append("  %s" % event_effect)
+			if bool(last_result_record.get("event_special", false)):
+				analysis_lines.append("  이 물건은 소문으로 변동성이 커진 특별 매물이었다.")
 		record_analysis_text.text = "\n".join(analysis_lines) if not analysis_lines.is_empty() else "추가 분석이 없습니다."
 
 		record_truth_text.text = "%s · %s · %s\n실제 가치 %sG" % [
