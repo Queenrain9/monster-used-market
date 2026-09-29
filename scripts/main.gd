@@ -1498,9 +1498,10 @@ func _render_town() -> void:
 	town_visits_label.text = "장터 방문 %d회 남음" % market_visits_remaining
 
 	var event = _day_event()
-	town_event_text.text = "오늘의 소문 · %s\n%s" % [
+	town_event_text.text = "오늘의 소문 · %s\n%s\n시장 영향 · %s" % [
 		str(event.get("title", "조용한 하루")),
-		str(event.get("description", "특별한 소문은 없습니다."))
+		str(event.get("description", "특별한 소문은 없습니다.")),
+		str(event.get("effect_text", "특별한 시장 변화는 없습니다."))
 	]
 
 	last_day_panel.visible = not last_day_summary.is_empty()
@@ -1567,10 +1568,12 @@ func _enter_district(index: int) -> void:
 
 
 func _end_day() -> void:
+	var closing_event = _day_event()
 	last_day_summary = {
 		"day":merchant_day,
 		"deals":today_deals,
-		"asset_delta":gold - day_start_gold
+		"asset_delta":gold - day_start_gold,
+		"event_title":str(closing_event.get("title", "조용한 하루"))
 	}
 	merchant_day += 1
 	today_deals = 0
@@ -1597,6 +1600,14 @@ func _setup_options() -> void:
 		resale_option.add_item(label)
 
 
+func _listing_matches_day_event(listing: Dictionary, event: Dictionary) -> bool:
+	var affected_tags: Array = event.get("affected_tags", [])
+	for tag_value in listing.get("tags", []):
+		if affected_tags.has(str(tag_value)):
+			return true
+	return false
+
+
 func _create_new_market(force: bool = false, save_after: bool = true, consume_visit: bool = false) -> void:
 	if not force and market_items.size() == 3 and not _can_rotate_market():
 		_set_status("새 매물로 넘기려면 조사 기회를 모두 쓰거나, 이 장터에서 실제 구매를 한 번 진행해야 합니다.")
@@ -1610,9 +1621,27 @@ func _create_new_market(force: bool = false, save_after: bool = true, consume_vi
 		current_district_id = "night_market"
 		district = _district_definition(current_district_id)
 
-	market_items = engine.generate_market_for_district(current_district_id, 3)
+	var event = _day_event()
+	var event_tags: Array = event.get("affected_tags", [])
+	market_items = engine.generate_market_for_district(current_district_id, 3, event_tags)
 	_inject_relationship_special_listing()
+
+	var event_candidates: Array = []
 	for i in range(market_items.size()):
+		if bool(market_items[i].get("relationship_special", false)):
+			continue
+		if _listing_matches_day_event(market_items[i], event):
+			event_candidates.append(i)
+	var event_featured_index = -1
+	if not event_candidates.is_empty():
+		event_featured_index = int(event_candidates[(merchant_day + market_visits_remaining) % event_candidates.size()])
+
+	for i in range(market_items.size()):
+		market_items[i] = engine.apply_day_event_to_listing(
+			market_items[i],
+			event,
+			i == event_featured_index
+		)
 		market_items[i] = _apply_relationship_context(market_items[i])
 	if consume_visit:
 		market_visits_remaining = max(0, market_visits_remaining - 1)
@@ -1677,11 +1706,13 @@ func _render_market() -> void:
 
 	market_empty_state.visible = visible_count == 0
 	var district = _district_definition(current_district_id)
-	market_info_label.text = "%s · 새 매물 %d · 거래 가능 %d · 확인 %d회" % [
+	var market_event = _day_event()
+	market_info_label.text = "%s · 새 매물 %d · 거래 가능 %d · 확인 %d회\n오늘 소문 · %s" % [
 		str(district.get("name", "어둠마을")),
 		new_count,
 		available_count,
-		investigation_remaining
+		investigation_remaining,
+		str(market_event.get("effect_text", "특별한 시장 변화 없음"))
 	]
 	_update_home_filter_controls()
 	var can_rotate = _can_rotate_market()
@@ -1778,9 +1809,13 @@ func _render_detail() -> void:
 	detail_tags.text = public_data["tags_text"]
 	detail_seller.text = "%s · %s · %s" % [Art.seller_name(seller), feed.public_location_text(listing), feed.public_age_text(listing)]
 	detail_description.text = feed.listing_post_text(listing)
-	detail_info.text = "직거래   %s\n올린 지   %s\n가격 제안 가능" % [
+	var event_detail = ""
+	if bool(listing.get("event_affected", false)):
+		event_detail = "\n오늘 소문   %s" % str(listing.get("market_event_effect", "시장 영향 있음"))
+	detail_info.text = "직거래   %s\n올린 지   %s\n가격 제안 가능%s" % [
 		feed.public_meetup_text(listing),
-		feed.public_age_text(listing)
+		feed.public_age_text(listing),
+		event_detail
 	]
 	seller_portrait.texture = Art.texture_for("sellers", str(seller.get("id", "")))
 	seller_card_text.text = "%s · %s\n%s\n%s\n%s" % [
@@ -2897,7 +2932,11 @@ func _sell_selected_buyer() -> void:
 		"goal_gold":int(progression_reward.get("goal_gold", 0)),
 		"merchant_rank":str(progression_reward.get("rank", _merchant_rank())),
 		"collection_reward_gold":int(collection_reward.get("gold", 0)),
-		"collection_reward_reputation":int(collection_reward.get("reputation", 0))
+		"collection_reward_reputation":int(collection_reward.get("reputation", 0)),
+		"market_event_id":str(listing.get("market_event_id", "")),
+		"market_event_title":str(listing.get("market_event_title", "")),
+		"market_event_effect":str(listing.get("market_event_effect", "")),
+		"event_special":bool(listing.get("event_special", false))
 	}
 
 	last_result_text = "거래 완료 · %s\n\n매입가 %sG\n검사/감정비 %sG\n판매가 %sG\n순이익 %s\n\n내 거래 계획 복기\n%s\n거래 분석\n%s\n\n판매자 복기\n%s\n\n실제 물건\n%s · %s · %s\n실제 가치 %sG\n\n현재 자산 %sG" % [
