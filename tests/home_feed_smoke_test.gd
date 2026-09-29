@@ -29,6 +29,7 @@ func _run() -> void:
 		await _finish()
 		return
 	await _test_commercial_shell()
+	await _test_world_session()
 	await _test_public_feed(cards)
 	await _test_browsing(cards)
 	await _test_trade_flow(cards)
@@ -54,6 +55,59 @@ func _test_commercial_shell() -> void:
 	await _assert_layout("commercial first session")
 
 
+func _test_world_session() -> void:
+	game.merchant_reputation = 0
+	game.merchant_day = 1
+	game.market_visits_remaining = Content.DAY_MARKET_VISITS
+	game.current_district_id = ""
+	game.market_items = []
+	game.daily_goal_progress = 0
+	game.daily_goal_claimed = false
+	game.day_start_gold = game.gold
+	game.last_day_summary = {}
+	game.day_event_id = ""
+	game._go_town()
+	await _settle()
+	_expect(game.current_stage == "town" and game.town_panel.visible, "P2 must expose a dedicated dark-town world screen")
+	_expect(game.district_enter_buttons[0].disabled == false, "starting district must be available at reputation 0")
+	for i in [1, 2, 3]:
+		_expect(game.district_enter_buttons[i].disabled, "higher districts must be visibly reputation-locked")
+
+	game._enter_district(0)
+	await _settle()
+	_expect(game.current_stage == "market" and game.market_visits_remaining == Content.DAY_MARKET_VISITS - 1, "entering a district must consume one daily market visit")
+	var first_district: Dictionary = Content.DISTRICTS[0]
+	for listing in game.market_items:
+		_expect(first_district["seller_ids"].has(str(listing["seller"]["id"])), "district market must only use sellers from that district")
+
+	game._go_town()
+	game.merchant_reputation = 100
+	game._render_town()
+	_expect(not game.district_enter_buttons[1].disabled and not game.district_enter_buttons[2].disabled, "reputation 100 must unlock tower and dock")
+	_expect(game.district_enter_buttons[3].disabled, "grave district must remain locked below reputation 180")
+
+	var visits_before = game.market_visits_remaining
+	game._enter_district(1)
+	await _settle()
+	_expect(game.current_district_id == "tower" and game.market_visits_remaining == visits_before - 1, "switching to another district must consume another market visit")
+	for listing in game.market_items:
+		_expect(Content.DISTRICTS[1]["seller_ids"].has(str(listing["seller"]["id"])), "tower market must use tower sellers")
+
+	game._go_town()
+	var previous_day = game.merchant_day
+	game.today_deals = 1
+	game.daily_goal_progress = 1
+	game.daily_goal_claimed = true
+	game._end_day()
+	await _settle()
+	_expect(game.merchant_day == previous_day + 1 and game.current_stage == "town", "ending the day must advance the virtual day and return to town")
+	_expect(game.market_visits_remaining == Content.DAY_MARKET_VISITS and game.market_items.is_empty(), "new day must restore the visit budget and clear yesterday's live market")
+	_expect(game.daily_goal_progress == 0 and not game.daily_goal_claimed, "new day must reset the daily objective")
+	_expect(not game.last_day_summary.is_empty() and int(game.last_day_summary["deals"]) == 1, "day close must preserve a summary of the finished day")
+	_expect(game.town_event_text.text.contains("오늘의 소문"), "each day must expose an event/rumor slot")
+	await _assert_layout("world and day session")
+
+
 func _test_public_feed(cards) -> void:
 	var presenter = load("res://scripts/home_feed.gd").new()
 	var engine = MarketEngine.new(20260929)
@@ -64,6 +118,11 @@ func _test_public_feed(cards) -> void:
 	game.gold = 50000
 	game.merchant_day = 1
 	game.merchant_reputation = 0
+	game.current_district_id = "night_market"
+	game.market_visits_remaining = Content.DAY_MARKET_VISITS
+	game.day_start_gold = game.gold
+	game.last_day_summary = {}
+	game.day_event_id = ""
 	game.daily_goal_progress = 0
 	game.daily_goal_claimed = false
 	game.last_result_text = ""
@@ -445,7 +504,7 @@ func _test_save_compatibility() -> void:
 	legacy["version"] = 22
 	legacy.erase("home_scroll_offset")
 	legacy.erase("last_result_record")
-	for field in ["game_started", "onboarding_complete", "merchant_day", "merchant_reputation", "daily_goal_progress", "daily_goal_claimed"]:
+	for field in ["game_started", "onboarding_complete", "merchant_day", "merchant_reputation", "daily_goal_progress", "daily_goal_claimed", "current_district_id", "market_visits_remaining", "day_start_gold", "last_day_summary", "day_event_id"]:
 		legacy.erase(field)
 	for listing in legacy["market_items"]:
 		listing.erase("viewed")
@@ -465,6 +524,7 @@ func _test_save_compatibility() -> void:
 	_expect(game.total_deals == 2 and not game.last_result_text.is_empty(), "v0.2.2 migration must preserve completed records")
 	_expect(game.game_started and game.onboarding_complete, "old v0.2.x saves must migrate as already-started games instead of forcing onboarding")
 	_expect(game.merchant_day == 1 and game.merchant_reputation >= game.total_deals * 15, "old saves must receive safe commercial progression defaults")
+	_expect(game.current_district_id == "night_market" and game.market_visits_remaining == Content.DAY_MARKET_VISITS, "old saves must migrate into the starting district with a full day visit budget")
 	game._go_market()
 	game.records_nav_button.pressed.emit()
 	_expect(not game.last_result_record.is_empty(), "legacy saves without structured record data must be migrated from the old text record")
