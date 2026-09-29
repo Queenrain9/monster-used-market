@@ -2185,9 +2185,8 @@ func _render_detail() -> void:
 	else:
 		var memo_lines = []
 		for clue in discovered:
-			var kind = str(clue.get("kind", "단서"))
 			var clue_text = str(clue.get("text", ""))
-			memo_lines.append("• [%s] %s" % [kind, clue_text])
+			memo_lines.append("• %s" % clue_text)
 		detail_clues.text = "\n".join(memo_lines)
 	var chat_count = listing.get("chat_history", []).size()
 	open_seller_chat_button.text = "판매자에게 채팅하기%s" % (" · 대화 %d개" % chat_count if chat_count > 0 else "")
