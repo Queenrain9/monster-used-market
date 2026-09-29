@@ -80,7 +80,8 @@ func _test_public_feed(cards) -> void:
 	card["seller_claim"]["text"] = "판매자 주장 비공개표식"
 	card["discovered_clues"].append({"kind": "시세", "text": "조사 결과 비공개표식"})
 	var public_data = presenter.describe_listing(card, true)
-	_expect(str(public_data).contains("급처"), "urgent seller must have a data-based tag")
+	_expect(str(public_data["tags_text"]).contains("가격 협의"), "public feed should communicate negotiability without revealing seller archetype")
+	_expect(not str(public_data).contains("급한 판매자"), "public feed must not reveal the hidden urgent seller archetype")
 	_expect(public_data["clue_text"] == "공개된 흔적 하나.", "home must expose only the initial clue")
 	var hidden_changed = card.duplicate(true)
 	hidden_changed["state"] = "모조품"
@@ -138,6 +139,11 @@ func _test_browsing(cards) -> void:
 	cards.get_child(0).get_node("OpenButton").pressed.emit()
 	await _settle()
 	_expect(game.current_stage == "detail" and game.selected_market_index == 0, "tapping the first card must open the existing detail")
+	var pre_purchase_text = _visible_text(game.get_node("Margin/RootVBox/DetailPanel"))
+	var seller_type = str(game.market_items[0]["seller"]["type"])
+	var seller_type_name = str(Content.SELLER_TYPES[seller_type]["name"])
+	_expect(not pre_purchase_text.contains("[긍정적]") and not pre_purchase_text.contains("[부정적]") and not pre_purchase_text.contains("[애매한]"), "detail must show clue facts without polarity labels")
+	_expect(not pre_purchase_text.contains(seller_type_name), "detail must show seller behavior cues without naming the archetype")
 	game.inspect_buttons[0].pressed.emit()
 	_expect(game.investigation_remaining == 3, "A investigation must consume one shared opportunity")
 	var a_clues = game.market_items[0]["discovered_clues"].duplicate(true)
@@ -183,6 +189,9 @@ func _test_browsing(cards) -> void:
 	_expect(game.deal_last_action.text.contains("직전 제안"), "seller response state must expose the player's previous offer")
 	_expect(not game.deal_price_change.text.is_empty(), "seller response state must expose whether the seller price changed or stayed")
 	_expect(game.deal_round_label.text.contains("1 / 3"), "negotiation status must visibly update the spent round")
+	_expect(game.deal_patience_label.size.x >= 90.0 and game.deal_patience_label.autowrap_mode == TextServer.AUTOWRAP_OFF, "patience status must remain a readable single-line indicator")
+	var deal_text = _visible_text(game.get_node("Margin/RootVBox/DealPanel"))
+	_expect(not deal_text.contains("[긍정적]") and not deal_text.contains("[부정적]") and not deal_text.contains("[애매한]"), "negotiation evidence must not expose clue polarity")
 	game._go_market()
 	await _settle()
 	game._open_listing(0)
@@ -235,6 +244,7 @@ func _test_trade_flow(cards) -> void:
 	game.professional_appraise_button.pressed.emit()
 	_expect(game.gold == gold_before - 420, "optional professional appraisal must charge 300G")
 	_expect(not game.owned_items[0]["appraisal_data"].is_empty(), "appraisal must keep the existing hidden-state result")
+	_expect(game.appraisal_comment.text.contains("단서 복기"), "professional appraisal must reveal what discovered facts actually meant")
 	await _assert_layout("appraisal")
 	game._open_sale()
 	await _assert_layout("resale initial")
@@ -272,6 +282,7 @@ func _test_trade_flow(cards) -> void:
 	_expect(game.gold == 500000 - asking - 420 + sale_price, "net assets must include inspection, appraisal and sale")
 	var record = game.last_result_text
 	_expect(record.contains("실제 물건") and record.contains("거래 계획 복기"), "completed record must preserve judgment and hidden-state review")
+	_expect(record.contains("판매자 복기") and record.contains("실제 성향:"), "completed trade must reveal the seller archetype only in post-trade review")
 	game.market_nav_button.pressed.emit()
 	await _settle()
 	game.records_nav_button.pressed.emit()
@@ -441,7 +452,7 @@ func _finish() -> void:
 	game.queue_free()
 	await _settle()
 	if errors.is_empty():
-		print("HOME FEED SMOKE OK v0.2.10: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
+		print("HOME FEED SMOKE OK v0.2.11: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
 		quit(0)
 	else:
 		for message in errors:
