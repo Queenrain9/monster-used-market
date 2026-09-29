@@ -1253,6 +1253,9 @@ func _create_new_market(force: bool = false, save_after: bool = true, consume_vi
 		district = _district_definition(current_district_id)
 
 	market_items = engine.generate_market_for_district(current_district_id, 3)
+	_inject_relationship_special_listing()
+	for i in range(market_items.size()):
+		market_items[i] = _apply_relationship_context(market_items[i])
 	if consume_visit:
 		market_visits_remaining = max(0, market_visits_remaining - 1)
 	home_scroll_offset = 0
@@ -1301,7 +1304,8 @@ func _render_market() -> void:
 		market_cards[i].visible = false
 		if i >= market_items.size():
 			continue
-		var listing: Dictionary = market_items[i]
+		var listing: Dictionary = _apply_relationship_context(market_items[i])
+		market_items[i] = listing
 		var data = feed.describe_listing(listing, i == featured_index)
 		if bool(data["available"]):
 			available_count += 1
