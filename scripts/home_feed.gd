@@ -11,6 +11,8 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 	var available = status not in ["구매 완료", "판매 완료"]
 	var viewed = bool(listing.get("viewed", false)) or not listing.get("inspected_actions", []).is_empty()
 	var tags: Array = []
+	if bool(listing.get("relationship_special", false)):
+		tags.append("단골 전용")
 	tags.append("가격 제안")
 
 	if not available:
@@ -32,7 +34,7 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 		"meta_text": "%s · %s · %s" % [Art.seller_name(seller), public_location_text(listing), public_age_text(listing)],
 		"tags_text": " · ".join(tags),
 		"clue_text": listing_story_text(listing),
-		"feature_text": "동네 인기 매물" if featured and available else "",
+		"feature_text": "단골 전용 매물" if bool(listing.get("relationship_special", false)) and available else ("동네 인기 매물" if featured and available else ""),
 		"action_text": ("다시 보기 ›" if viewed else "글 보기 ›") if available else "거래 완료",
 		"available": available
 	}
@@ -165,6 +167,18 @@ func seller_activity_text(listing: Dictionary) -> String:
 
 
 func seller_message_text(listing: Dictionary) -> String:
+	if bool(listing.get("relationship_special", false)):
+		return "“이건 다른 사람에게 올리기 전에 먼저 보여드리는 겁니다. 그래도 물건은 직접 보고 판단하세요.”"
+
+	var stage = str(listing.get("relationship_stage", "낯선 사이"))
+	match stage:
+		"얼굴 익힘":
+			return "“전에 한 번 봤죠? 이번에도 궁금한 건 편하게 물어보세요.”"
+		"신뢰":
+			return "“이번 건은 당신이니까 아는 만큼 먼저 말해둘게요. 그래도 직접 확인하세요.”"
+		"단골":
+			return "“다른 데 올리기 전에 먼저 보여줄 만한 게 있으면 연락드릴게요. 천천히 보고 결정하세요.”"
+
 	var seller: Dictionary = listing.get("seller", {})
 	var seller_type = str(seller.get("type", ""))
 	var messages := {
