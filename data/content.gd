@@ -65,6 +65,96 @@ const SELLERS := [
 	{"id":"rook","name":"까마귀 루크","type":"urgent","neighborhood":"종탑 뒤편","meetup":"종탑 뒤 우편함 앞","profile":"오래 약속 잡는 건 싫어합니다. 가능하면 오늘 바로 거래해요."}
 ]
 
+const SELLER_RELATIONSHIP_THRESHOLDS := [
+	{"points":0,"name":"낯선 사이"},
+	{"points":4,"name":"얼굴 익힘"},
+	{"points":12,"name":"신뢰"},
+	{"points":24,"name":"단골"}
+]
+
+const SELLER_STORIES := {
+	"blue":{
+		"title":"탑에서 사라진 감정표",
+		"signature_item":"moon_ring",
+		"special_post":"탑 창고 정리 중에 따로 빼둔 반지입니다. 다른 데 올리기 전에 먼저 보여드려요.",
+		"beats":[
+			{"threshold":4,"title":"접힌 감정표","message":"전에 거래했던 분이죠. 탑 물건 중엔 감정표가 빠진 것들이 가끔 있어요. 이상해서 따로 보고 있습니다."},
+			{"threshold":12,"title":"지워진 서명","message":"감정표가 없어진 게 우연은 아닌 것 같아요. 같은 서명이 지워진 물건이 몇 개 더 나왔습니다."},
+			{"threshold":24,"title":"블루가 감춰둔 반지","message":"이제는 말씀드려도 되겠네요. 그 기록과 같이 보관돼 있던 반지가 하나 있습니다. 다른 사람에게 넘기기 전 먼저 보시죠."}
+		]
+	},
+	"krok":{
+		"title":"창고를 비워야 하는 이유",
+		"signature_item":"dragon_tooth",
+		"special_post":"창고 깊숙한 데 있던 물건입니다. 값은 싸게 못 드리지만 단골한테 먼저 보여드리는 거예요.",
+		"beats":[
+			{"threshold":4,"title":"쌓여가는 상자","message":"또 왔군요. 요즘 창고 물건을 계속 빼고 있습니다. 그냥 공간이 모자라서 그런 건 아닙니다."},
+			{"threshold":12,"title":"밀린 창고세","message":"사실 창고 계약이 꼬였습니다. 다음 달까지 일부를 비워야 해서 오래 묵은 물건도 꺼내는 중이죠."},
+			{"threshold":24,"title":"마지막 큰 상자","message":"끝까지 남겨두려던 상자가 하나 있습니다. 당신 정도면 헐값부터 부르진 않을 테니 먼저 보여드리죠."}
+		]
+	},
+	"morna":{
+		"title":"묘지길의 빈 랜턴",
+		"signature_item":"soul_lantern",
+		"special_post":"묘지길에서 오래 기다리며 지켜온 랜턴이에요. 이제는 믿을 만한 분께 넘겨도 될 것 같네요.",
+		"beats":[
+			{"threshold":4,"title":"같은 가로등","message":"또 이 시간에 만났네요. 제가 늘 같은 가로등 아래서 거래하는 게 조금 이상했죠?"},
+			{"threshold":12,"title":"기다리는 불빛","message":"예전에 이 길에서 누군가를 기다렸어요. 그 뒤로 불이 켜진 물건은 함부로 버리지 못하게 됐습니다."},
+			{"threshold":24,"title":"빈 랜턴의 주인","message":"오래 붙잡고 있던 랜턴을 이제 놓으려고 해요. 다른 손에 가야 불빛도 다시 움직일 것 같아서요."}
+		]
+	},
+	"myomyo":{
+		"title":"북문 장부",
+		"signature_item":"meteor_coin",
+		"special_post":"북문 장부에 오래 표시해 둔 수집품입니다. 시장에 공개하기 전에 먼저 확인해보세요.",
+		"beats":[
+			{"threshold":4,"title":"사라진 거래 한 줄","message":"전에 본 얼굴이네요. 요즘 북문 장부에서 거래 한 줄이 통째로 사라진 게 신경 쓰입니다."},
+			{"threshold":12,"title":"같은 별무늬","message":"지워진 기록마다 같은 별무늬가 남아 있더군요. 누군가 일부러 흔적을 지우는 것 같습니다."},
+			{"threshold":24,"title":"장부 끝의 동전","message":"장부 마지막 장 사이에 끼워져 있던 동전을 찾았습니다. 이 일 따라온 분께 먼저 보여드리는 게 맞겠죠."}
+		]
+	},
+	"pipi":{
+		"title":"돌아오지 않은 공방 동료",
+		"signature_item":"witch_thimble",
+		"special_post":"공방 맨 안쪽 상자에서 나온 골무예요. 오래된 사연까지 들어도 괜찮다면 먼저 보여드릴게요.",
+		"beats":[
+			{"threshold":4,"title":"남겨진 바느질 상자","message":"전에 물건 봐주셨죠? 사실 공방 정리품 중엔 예전 동료가 두고 간 것들이 섞여 있어요."},
+			{"threshold":12,"title":"완성되지 않은 옷","message":"그 친구는 마지막 주문을 끝내지 못하고 떠났어요. 그래서 표식이 남은 도구를 계속 찾고 있었답니다."},
+			{"threshold":24,"title":"은골무의 주인","message":"찾던 표식이 있는 골무를 결국 발견했어요. 저는 갖고 있기보다 이 사정을 아는 분께 맡기고 싶어요."}
+		]
+	},
+	"grizzle":{
+		"title":"3번 크레인의 부품",
+		"signature_item":"goblin_watch",
+		"special_post":"3번 크레인 밑에서 나온 마지막 기계 부품입니다. 기계 좋아하는 단골에게 먼저 넘깁니다.",
+		"beats":[
+			{"threshold":4,"title":"맞지 않는 톱니","message":"전에 본 사람이지. 3번 크레인에서 이상한 톱니들이 계속 나와. 원래 부품이 아닌데 서로 맞물리더군."},
+			{"threshold":12,"title":"멈춘 기계의 시간","message":"부품들을 맞춰보니 오래된 시계 장치 비슷한 게 됩니다. 누가 왜 크레인 아래 숨겼는지는 모르겠지만."},
+			{"threshold":24,"title":"마지막 무브먼트","message":"마지막 조각이 나왔어. 내가 고쳐 쓰긴 귀찮고, 네가 이런 걸 보는 눈은 있으니 먼저 가져가서 봐."}
+		]
+	},
+	"toto":{
+		"title":"마지막 공연",
+		"signature_item":"bone_flute",
+		"special_post":"마지막 공연 뒤로 한 번도 불지 않은 피리입니다. 이제는 무대 밖으로 보내려 합니다.",
+		"beats":[
+			{"threshold":4,"title":"연주하지 않는 악사","message":"또 왔군! 내가 악사인데 요즘 피리를 안 부는 게 궁금하지 않나? 뭐, 아직은 긴 얘기지."},
+			{"threshold":12,"title":"관객 없는 마지막 곡","message":"마지막 공연 날 관객이 한 명도 없었는데, 끝나고 박수 소리가 났어. 그 뒤로 그 피리를 손대지 않았지."},
+			{"threshold":24,"title":"마지막 피리","message":"그 피리를 이제 팔려고 해. 네가 몇 번이나 내 허풍을 걸러냈으니 이 얘기는 믿든 말든 네 몫이다."}
+		]
+	},
+	"rook":{
+		"title":"종탑 뒤 우편함",
+		"signature_item":"mimic_key",
+		"special_post":"종탑 뒤 우편함에서 마지막으로 나온 열쇠입니다. 오래 끌 생각 없으니 먼저 연락한 단골에게 보여드립니다.",
+		"beats":[
+			{"threshold":4,"title":"항상 같은 우편함","message":"전에 거래했던 분이군요. 제가 늘 종탑 뒤 우편함 근처만 고집하는 건 이유가 있습니다."},
+			{"threshold":12,"title":"주소 없는 소포","message":"한동안 주소도 없는 소포가 그 우편함에 계속 들어왔습니다. 대부분은 팔았지만 열쇠 몇 개는 남겨뒀죠."},
+			{"threshold":24,"title":"마지막 황동열쇠","message":"오늘 마지막 소포를 비웠습니다. 안에 있던 열쇠는 공개 매물로 올리기 전에 당신에게 먼저 보여드리죠."}
+		]
+	}
+}
+
 const DAY_MARKET_VISITS = 3
 
 const DISTRICTS := [
