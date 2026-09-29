@@ -112,9 +112,9 @@ theme_override_styles/panel = SubResource("Panel")
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/MarketPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll"]
-custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
@@ -169,9 +169,9 @@ theme_override_styles/panel = SubResource("Panel")
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/DetailPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll"]
-custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
@@ -202,22 +202,27 @@ autowrap_mode = 2
 
 [node name="InspectButton1" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "외형 자세히 보기"
 
 [node name="InspectButton2" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "각인 확인"
 
 [node name="InspectButton3" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "작동 확인"
 
 [node name="InspectButton4" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "출처 묻기"
 
 [node name="InspectButton5" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "동종품 시세 확인"
 
 [node name="PlanTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
@@ -227,6 +232,7 @@ text = "내 거래 계획"
 
 [node name="ResaleOption" type="OptionButton" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
+fit_to_longest_item = false
 
 [node name="MaxBuyLabel" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
@@ -238,15 +244,18 @@ layout_mode = 2
 
 [node name="SuspectOption" type="OptionButton" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
+fit_to_longest_item = false
 
 [node name="StartDealButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
+autowrap_mode = 2
 text = "판매자와 가격 협상"
 
 [node name="BackMarketButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+autowrap_mode = 2
 text = "뒤로 · 다른 매물 보기"
 
 [node name="DealPanel" type="PanelContainer" parent="Margin/RootVBox"]
@@ -258,9 +267,9 @@ theme_override_styles/panel = SubResource("Panel")
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/DealPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DealPanel/Scroll"]
-custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
@@ -286,6 +295,7 @@ text = "현재 가격"
 
 [node name="EvidenceOption" type="OptionButton" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
+fit_to_longest_item = false
 
 [node name="OfferPriceLabel" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
@@ -318,6 +328,7 @@ text = "-20%"
 [node name="SubmitOfferButton" type="Button" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
+autowrap_mode = 2
 text = "이 가격과 근거로 제안"
 
 [node name="SellerSpeech" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
@@ -329,10 +340,12 @@ autowrap_mode = 2
 [node name="BuyCurrentButton" type="Button" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
+autowrap_mode = 2
 text = "현재가에 구매"
 
 [node name="DealBackButton" type="Button" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "거래 보류하고 마켓으로"
 
 [node name="InventoryPanel" type="PanelContainer" parent="Margin/RootVBox"]
@@ -344,9 +357,9 @@ theme_override_styles/panel = SubResource("Panel")
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/InventoryPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/InventoryPanel/Scroll"]
-custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
@@ -374,19 +387,23 @@ autowrap_mode = 2
 [node name="AppraisePlaceButton" type="Button" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
+autowrap_mode = 2
 text = "감정소 가기"
 
 [node name="SalePlaceButton" type="Button" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
+autowrap_mode = 2
 text = "판매처 찾아보기"
 
 [node name="KeepButton" type="Button" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "일단 보관하기"
 
 [node name="InventoryMarketButton" type="Button" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "마켓 홈으로"
 
 [node name="AppraisalPanel" type="PanelContainer" parent="Margin/RootVBox"]
@@ -398,9 +415,9 @@ theme_override_styles/panel = SubResource("Panel")
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/AppraisalPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll"]
-custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
@@ -440,14 +457,17 @@ text = "내부 구조 확인"
 [node name="ProfessionalAppraiseButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
+autowrap_mode = 2
 text = "전문 감정"
 
 [node name="AppraisalSaleButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "판매처 찾아보기"
 
 [node name="AppraisalInventoryButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "보유품으로"
 
 [node name="SalePanel" type="PanelContainer" parent="Margin/RootVBox"]
@@ -459,9 +479,9 @@ theme_override_styles/panel = SubResource("Panel")
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/SalePanel"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll"]
-custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
@@ -512,15 +532,18 @@ text = "고물상"
 [node name="QuoteButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
+autowrap_mode = 2
 text = "선택한 전문 판매처에 견적 요청"
 
 [node name="SellButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
+autowrap_mode = 2
 text = "판매"
 
 [node name="SaleInventoryButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "아직 팔지 않고 보유품으로"
 
 [node name="ResultPanel" type="PanelContainer" parent="Margin/RootVBox"]
@@ -532,9 +555,9 @@ theme_override_styles/panel = SubResource("Panel")
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/ResultPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/ResultPanel/Scroll"]
-custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
@@ -552,10 +575,12 @@ autowrap_mode = 2
 
 [node name="ResultMarketButton" type="Button" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "마켓 홈으로"
 
 [node name="ResultInventoryButton" type="Button" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
+autowrap_mode = 2
 text = "남은 보유품 보기"
 
 [node name="Footer" type="Label" parent="Margin/RootVBox"]
