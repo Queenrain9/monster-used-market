@@ -652,6 +652,193 @@ func _apply_trade_progress(profit: int, listing: Dictionary) -> Dictionary:
 	}
 
 
+func _default_seller_relationship() -> Dictionary:
+	return {
+		"points":0,
+		"chats":0,
+		"purchases":0,
+		"last_day":0,
+		"last_memory":"",
+		"story_step":0,
+		"story_seen_step":0,
+		"special_offer_ready":false,
+		"special_offer_claimed":false
+	}
+
+
+func _normalize_seller_relationship(raw: Dictionary) -> Dictionary:
+	var base = _default_seller_relationship()
+	for key in base.keys():
+		if raw.has(key):
+			base[key] = raw[key]
+	base["points"] = max(0, int(base["points"]))
+	base["chats"] = max(0, int(base["chats"]))
+	base["purchases"] = max(0, int(base["purchases"]))
+	base["last_day"] = max(0, int(base["last_day"]))
+	base["story_step"] = clamp(int(base["story_step"]), 0, 3)
+	base["story_seen_step"] = clamp(int(base["story_seen_step"]), 0, int(base["story_step"]))
+	base["special_offer_ready"] = bool(base["special_offer_ready"])
+	base["special_offer_claimed"] = bool(base["special_offer_claimed"])
+	return base
+
+
+func _ensure_seller_relationships() -> void:
+	for seller in Content.SELLERS:
+		var seller_id = str(seller.get("id", ""))
+		var existing: Dictionary = seller_relationships.get(seller_id, {})
+		seller_relationships[seller_id] = _normalize_seller_relationship(existing)
+
+
+func _seller_definition(seller_id: String) -> Dictionary:
+	for seller in Content.SELLERS:
+		if str(seller.get("id", "")) == seller_id:
+			return seller
+	return {}
+
+
+func _item_definition(item_id: String) -> Dictionary:
+	for item in Content.ITEMS:
+		if str(item.get("id", "")) == item_id:
+			return item
+	return {}
+
+
+func _seller_relationship(seller_id: String) -> Dictionary:
+	if not seller_relationships.has(seller_id):
+		seller_relationships[seller_id] = _default_seller_relationship()
+	return _normalize_seller_relationship(seller_relationships[seller_id])
+
+
+func _relationship_stage_name(points: int) -> String:
+	var stage_name = "낯선 사이"
+	for stage in Content.SELLER_RELATIONSHIP_THRESHOLDS:
+		if points >= int(stage.get("points", 0)):
+			stage_name = str(stage.get("name", stage_name))
+	return stage_name
+
+
+func _refresh_seller_story_state(seller_id: String, state: Dictionary) -> Dictionary:
+	var story: Dictionary = Content.SELLER_STORIES.get(seller_id, {})
+	if story.is_empty():
+		return state
+	var unlocked = 0
+	for beat in story.get("beats", []):
+		if int(state.get("points", 0)) >= int(beat.get("threshold", 999999)):
+			unlocked += 1
+	state["story_step"] = max(int(state.get("story_step", 0)), unlocked)
+	if int(state["story_step"]) >= 3 and not bool(state.get("special_offer_claimed", false)):
+		state["special_offer_ready"] = true
+	return state
+
+
+func _add_seller_relationship(
+	seller_id: String,
+	points: int,
+	chat_delta: int = 0,
+	purchase_delta: int = 0,
+	memory: String = ""
+) -> Dictionary:
+	if seller_id.is_empty():
+		return {}
+	var state = _seller_relationship(seller_id)
+	state["points"] = max(0, int(state["points"]) + points)
+	state["chats"] = max(0, int(state["chats"]) + chat_delta)
+	state["purchases"] = max(0, int(state["purchases"]) + purchase_delta)
+	if not memory.is_empty():
+		state["last_day"] = merchant_day
+		state["last_memory"] = memory
+	state = _refresh_seller_story_state(seller_id, state)
+	seller_relationships[seller_id] = state
+	return state
+
+
+func _apply_relationship_context(listing: Dictionary) -> Dictionary:
+	if listing.is_empty():
+		return listing
+	var seller_id = str(listing.get("seller", {}).get("id", ""))
+	var state = _seller_relationship(seller_id)
+	listing["relationship_points"] = int(state.get("points", 0))
+	listing["relationship_stage"] = _relationship_stage_name(int(state.get("points", 0)))
+	listing["relationship_story_step"] = int(state.get("story_step", 0))
+	return listing
+
+
+func _append_unseen_story_messages(listing: Dictionary) -> Dictionary:
+	if listing.is_empty():
+		return listing
+	var seller_id = str(listing.get("seller", {}).get("id", ""))
+	var state = _seller_relationship(seller_id)
+	var story: Dictionary = Content.SELLER_STORIES.get(seller_id, {})
+	if story.is_empty():
+		return listing
+	var unlocked = int(state.get("story_step", 0))
+	var seen = int(state.get("story_seen_step", 0))
+	if unlocked <= seen:
+		return listing
+
+	var history: Array = listing.get("chat_history", []).duplicate(true)
+	var beats: Array = story.get("beats", [])
+	for step in range(seen + 1, unlocked + 1):
+		if step - 1 >= beats.size():
+			break
+		var beat: Dictionary = beats[step - 1]
+		history.append({
+			"speaker":"seller",
+			"text":str(beat.get("message", "")),
+			"story":true,
+			"story_title":str(beat.get("title", "개인 이야기"))
+		})
+	listing["chat_history"] = history
+	state["story_seen_step"] = unlocked
+	state["last_day"] = merchant_day
+	if unlocked > 0 and unlocked - 1 < beats.size():
+		state["last_memory"] = "DAY %d · 개인 이야기 ‘%s’을 들었다." % [
+			merchant_day,
+			str(beats[unlocked - 1].get("title", ""))
+		]
+	seller_relationships[seller_id] = state
+	return listing
+
+
+func _district_index_for_seller(seller_id: String) -> int:
+	for i in range(Content.DISTRICTS.size()):
+		if Content.DISTRICTS[i].get("seller_ids", []).has(seller_id):
+			return i
+	return -1
+
+
+func _inject_relationship_special_listing() -> void:
+	var district = _district_definition(current_district_id)
+	if district.is_empty() or market_items.is_empty():
+		return
+	var ready_ids = []
+	for seller_id_value in district.get("seller_ids", []):
+		var seller_id = str(seller_id_value)
+		var state = _seller_relationship(seller_id)
+		if bool(state.get("special_offer_ready", false)) and not bool(state.get("special_offer_claimed", false)):
+			ready_ids.append(seller_id)
+	if ready_ids.is_empty():
+		return
+
+	var choose_index = (merchant_day + market_visits_remaining) % ready_ids.size()
+	var seller_id = str(ready_ids[choose_index])
+	var story: Dictionary = Content.SELLER_STORIES.get(seller_id, {})
+	var signature_item = _item_definition(str(story.get("signature_item", "")))
+	if signature_item.is_empty():
+		return
+
+	var special_item = signature_item.duplicate(true)
+	special_item["rarity_weights"] = {"희귀":0.45, "영웅":0.35, "전설":0.20}
+	var special_listing = engine.generate_listing(special_item, [seller_id])
+	special_listing["relationship_special"] = true
+	special_listing["relationship_seller_id"] = seller_id
+	special_listing["listing_story"] = str(story.get("special_post", special_listing.get("listing_story", "")))
+	special_listing["district_id"] = current_district_id
+	special_listing["district_name"] = str(district.get("name", ""))
+	special_listing = _apply_relationship_context(special_listing)
+	market_items[0] = special_listing
+
+
 func _upgrade_definition(upgrade_id: String) -> Dictionary:
 	for upgrade in Content.UPGRADES:
 		if str(upgrade.get("id", "")) == upgrade_id:
