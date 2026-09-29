@@ -5,12 +5,12 @@ const MarketEngine = preload("res://scripts/game_logic.gd")
 
 func _init() -> void:
 	var engine = MarketEngine.new(20260929)
-	var errors := engine.validate_content()
+	var errors = engine.validate_content()
 	if not errors.is_empty():
 		_fail("content validation failed: %s" % str(errors))
 		return
 
-	var summary := engine.content_summary()
+	var summary = engine.content_summary()
 	if int(summary["items"]) != 12:
 		_fail("expected 12 items, got %s" % str(summary["items"]))
 		return
@@ -27,41 +27,41 @@ func _init() -> void:
 		_fail("expected at least 25 clues, got %s" % str(summary["clues"]))
 		return
 
-	var signatures := {}
-	var seen_states := {}
-	var seen_archetypes := {}
-	var seen_seller_types := {}
+	var signatures = {}
+	var seen_states = {}
+	var seen_archetypes = {}
+	var seen_seller_types = {}
 
 	for market_index in range(20):
-		var market := engine.generate_market(3)
+		var market = engine.generate_market(3)
 		if market.size() != 3:
 			_fail("market %d did not contain 3 listings" % market_index)
 			return
 
-		var ids := {}
+		var ids = {}
 		for listing in market:
-			var item_id := str(listing["item_id"])
+			var item_id = str(listing["item_id"])
 			if ids.has(item_id):
 				_fail("market %d contained duplicate item ids" % market_index)
 				return
 			ids[item_id] = true
 
-			var before_value := int(listing["actual_value"])
-			var appraisal := engine.appraise(listing)
+			var before_value = int(listing["actual_value"])
+			var appraisal = engine.appraise(listing)
 			if int(appraisal["value"]) != before_value:
 				_fail("appraisal rerolled hidden value")
 				return
 
-			var offers := engine.make_buyer_offers(listing)
+			var offers = engine.make_buyer_offers(listing)
 			if offers.size() != 3:
 				_fail("buyer offers did not contain 3 choices")
 				return
 
-			var negotiation := engine.start_negotiation(listing)
+			var negotiation = engine.start_negotiation(listing)
 			for _round in range(3):
 				if bool(negotiation.get("closed", false)):
 					break
-				var bargain := engine.negotiate(listing, negotiation, "soft")
+				var bargain = engine.negotiate(listing, negotiation, "soft")
 				negotiation = bargain["state"]
 			if int(negotiation["rounds"]) > 3:
 				_fail("negotiation exceeded 3 rounds")
@@ -70,7 +70,7 @@ func _init() -> void:
 			seen_states[str(listing["state"])] = true
 			seen_archetypes[str(listing["archetype"])] = true
 			seen_seller_types[str(listing["seller"]["type"])] = true
-			var signature := "%s|%s|%s|%s|%s|%s" % [
+			var signature = "%s|%s|%s|%s|%s|%s" % [
 				listing["item_id"],
 				listing["state"],
 				listing["rarity"],
