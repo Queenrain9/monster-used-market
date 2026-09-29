@@ -16,6 +16,11 @@ func _init() -> void:
 		if not Presentation.SFX.has(key) or str(Presentation.SFX[key]).is_empty():
 			_fail("presentation SFX slot missing: %s" % key)
 			return
+	var required_vfx = ["clue_reveal","purchase","appraisal_reveal","sale_complete","goal_complete","achievement","upgrade","warning"]
+	for key in required_vfx:
+		if not Presentation.VFX.has(key) or str(Presentation.VFX[key]).is_empty():
+			_fail("presentation VFX slot missing: %s" % key)
+			return
 	for tip_id in ["market","chat","deal","appraisal","sale","workshop","collection"]:
 		if not Presentation.CONTEXT_TIPS.has(tip_id):
 			_fail("context tutorial slot missing: %s" % tip_id)
