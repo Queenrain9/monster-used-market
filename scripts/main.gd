@@ -1655,6 +1655,7 @@ func _sell_selected_buyer() -> void:
 	gold += sale_price
 	total_deals += 1
 	today_deals += 1
+	var progression_reward = _apply_trade_progress(profit, listing)
 	best_profit = max(best_profit, profit)
 	worst_loss = min(worst_loss, profit)
 
@@ -1706,7 +1707,10 @@ func _sell_selected_buyer() -> void:
 		"rarity":str(listing.get("rarity", "-")),
 		"condition":str(listing.get("condition", "-")),
 		"actual_value":int(listing.get("actual_value", 0)),
-		"current_assets":gold
+		"current_assets":gold,
+		"reputation_gain":int(progression_reward.get("reputation_gain", 0)),
+		"goal_gold":int(progression_reward.get("goal_gold", 0)),
+		"merchant_rank":str(progression_reward.get("rank", _merchant_rank()))
 	}
 
 	last_result_text = "거래 완료 · %s\n\n매입가 %sG\n검사/감정비 %sG\n판매가 %sG\n순이익 %s\n\n내 거래 계획 복기\n%s\n거래 분석\n%s\n\n판매자 복기\n%s\n\n실제 물건\n%s · %s · %s\n실제 가치 %sG\n\n현재 자산 %sG" % [
@@ -1720,7 +1724,7 @@ func _sell_selected_buyer() -> void:
 	current_stage = "result"
 	_render_records()
 	_show_panel(result_panel)
-	_set_status("이번 거래의 손익과 내가 맞춘 판단, 놓친 판단을 확인하세요.")
+	_set_status("이번 거래를 복기하세요. %s" % last_progress_message)
 	_save_game()
 
 
@@ -1768,6 +1772,7 @@ func _show_panel(target) -> void:
 
 	var focus_mode = target == detail_panel or target == seller_chat_panel or target == deal_panel or target == appraisal_panel or target == sale_panel
 	global_header.visible = not focus_mode
+	meta_strip.visible = not focus_mode
 	status_panel.visible = target != market_panel and not focus_mode
 	nav_row.visible = not focus_mode
 
@@ -1784,6 +1789,14 @@ func _update_header() -> void:
 	appraisal_gold_label.text = "%s G" % _money(gold)
 	sale_gold_label.text = "%s G" % _money(gold)
 	inventory_count_label.text = "보유품 %d" % owned_items.size()
+	day_label.text = "DAY %d" % merchant_day
+	rank_label.text = _merchant_rank()
+	reputation_label.text = "평판 %d" % merchant_reputation
+	goal_label.text = (
+		"오늘 목표 · 첫 거래 완료 ✓ · 보상 수령"
+		if daily_goal_claimed
+		else "오늘 목표 · 첫 거래 완료 %d/1 · 보상 500G + 평판 10" % daily_goal_progress
+	)
 	stats_label.text = "누적 %d회 · 오늘 %d회 · 최고 %s · 최저 %s" % [
 		total_deals, today_deals, _signed_money(best_profit), _signed_money(worst_loss)
 	]
@@ -1891,27 +1904,13 @@ func _confirm_reset_save() -> void:
 
 
 func _reset_save() -> void:
-	gold = STARTING_GOLD
-	total_deals = 0
-	today_deals = 0
-	today_date = Time.get_date_string_from_system()
-	best_profit = 0
-	worst_loss = 0
-	rare_items = []
-	owned_items = []
-	market_items = []
-	selected_market_index = -1
-	selected_owned_index = -1
-	current_stage = "market"
-	last_result_text = ""
-	last_result_record = {}
-	home_query = ""
-	home_tab = "recommended"
-	home_category = "전체"
+	_reset_core_progress()
+	game_started = true
+	onboarding_complete = false
 	_create_new_market(true, false)
 	_update_header()
+	_show_onboarding_page(0)
 	_save_game()
-	_set_status("새 장터에서 다시 시작합니다.")
 
 
 func _save_game() -> void:
@@ -1935,7 +1934,13 @@ func _save_game() -> void:
 		"selected_owned_index": selected_owned_index,
 		"stage": current_stage,
 		"last_result_text": last_result_text,
-		"last_result_record": last_result_record
+		"last_result_record": last_result_record,
+		"game_started": game_started,
+		"onboarding_complete": onboarding_complete,
+		"merchant_day": merchant_day,
+		"merchant_reputation": merchant_reputation,
+		"daily_goal_progress": daily_goal_progress,
+		"daily_goal_claimed": daily_goal_claimed
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file != null:
@@ -1978,6 +1983,14 @@ func _load_game() -> void:
 	last_result_record = parsed.get("last_result_record", {})
 	if last_result_record.is_empty() and not last_result_text.is_empty():
 		last_result_record = _legacy_record_to_structured(last_result_text)
+
+	# Old v0.2.x saves are real games even though these fields did not exist yet.
+	game_started = bool(parsed.get("game_started", true))
+	onboarding_complete = bool(parsed.get("onboarding_complete", true))
+	merchant_day = max(1, int(parsed.get("merchant_day", 1)))
+	merchant_reputation = max(0, int(parsed.get("merchant_reputation", total_deals * 15)))
+	daily_goal_progress = clamp(int(parsed.get("daily_goal_progress", min(1, today_deals))), 0, 1)
+	daily_goal_claimed = bool(parsed.get("daily_goal_claimed", today_deals > 0))
 
 
 func _number_from_record_line(line: String) -> int:
