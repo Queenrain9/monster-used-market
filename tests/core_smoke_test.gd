@@ -11,6 +11,25 @@ func _init() -> void:
 		_fail("content validation failed: %s" % str(errors))
 		return
 
+	# P2 world structure: each district must generate only its assigned sellers.
+	if Content.DISTRICTS.size() != 4:
+		_fail("commercial world must expose four districts")
+		return
+	for district in Content.DISTRICTS:
+		var district_id = str(district["id"])
+		var allowed_sellers: Array = district["seller_ids"]
+		var district_market = engine.generate_market_for_district(district_id, 12)
+		if district_market.size() != min(12, Content.ITEMS.size()):
+			_fail("%s did not generate a full district market" % district_id)
+			return
+		for listing in district_market:
+			if not allowed_sellers.has(str(listing["seller"]["id"])):
+				_fail("%s generated seller %s outside its district pool" % [district_id, listing["seller"]["id"]])
+				return
+			if str(listing.get("district_id", "")) != district_id:
+				_fail("district listing lost its district identity")
+				return
+
 	var signatures = {}
 	var trade_plan_checks = 0
 	var quote_checks = 0
@@ -249,7 +268,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.3.0: commercial shell foundation, structured records and full trade flow")
+	print("SMOKE OK v0.4.0: world districts, day sessions, commercial shell and full trade flow")
 	quit(0)
 
 
