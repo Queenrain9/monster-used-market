@@ -604,6 +604,9 @@ func _reset_core_progress() -> void:
 	day_start_gold = STARTING_GOLD
 	last_day_summary = {}
 	day_event_id = ""
+	seller_relationships = {}
+	selected_relationship_seller_index = 0
+	_ensure_seller_relationships()
 
 
 func _merchant_rank() -> String:
@@ -2775,7 +2778,9 @@ func _save_game() -> void:
 		"day_start_gold": day_start_gold,
 		"last_day_summary": last_day_summary,
 		"day_event_id": day_event_id,
-		"upgrade_levels": upgrade_levels
+		"upgrade_levels": upgrade_levels,
+		"seller_relationships": seller_relationships,
+		"selected_relationship_seller_index": selected_relationship_seller_index
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file != null:
@@ -2840,6 +2845,15 @@ func _load_game() -> void:
 	day_start_gold = int(parsed.get("day_start_gold", gold))
 	last_day_summary = parsed.get("last_day_summary", {})
 	day_event_id = str(parsed.get("day_event_id", ""))
+
+	var loaded_relationships = parsed.get("seller_relationships", {})
+	seller_relationships = loaded_relationships if typeof(loaded_relationships) == TYPE_DICTIONARY else {}
+	selected_relationship_seller_index = clamp(
+		int(parsed.get("selected_relationship_seller_index", 0)),
+		0,
+		max(0, Content.SELLERS.size() - 1)
+	)
+	_ensure_seller_relationships()
 
 
 func _number_from_record_line(line: String) -> int:
