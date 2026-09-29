@@ -474,22 +474,76 @@ func _render_detail() -> void:
 	]
 	detail_budget.text = "남은 질문/확인 기회: %d번" % investigation_remaining
 	inquiry_panel.visible = false
-	_render_chat_thread(listing)
-	var memo_text = _format_discovered_clues(listing)
-	detail_clues.text = "아직 메모한 내용이 없습니다." if memo_text.is_empty() else memo_text
+	var discovered: Array = listing.get("discovered_clues", [])
+	detail_memo_title.text = "거래 메모 %d개" % discovered.size()
+	if discovered.is_empty():
+		detail_clues.text = "아직 메모한 내용이 없습니다."
+	else:
+		var preview_lines = []
+		var start_index = max(0, discovered.size() - 2)
+		for i in range(start_index, discovered.size()):
+			preview_lines.append("• %s" % str(discovered[i].get("text", "")))
+		detail_clues.text = "\n".join(preview_lines)
+	var chat_count = listing.get("chat_history", []).size()
+	open_seller_chat_button.text = "판매자에게 채팅하기%s" % (" · 대화 %d개" % chat_count if chat_count > 0 else "")
 	market_price_label.text = _market_price_reference_text(listing)
+
+	_populate_suspect_options(listing)
+	_restore_trade_plan(listing)
+
+
+func _open_seller_chat() -> void:
+	var listing = _current_market_listing()
+	if listing.is_empty():
+		return
+	current_stage = "chat"
+	_render_seller_chat()
+	_show_panel(seller_chat_panel)
+	_set_status("판매자에게 궁금한 걸 물어보세요.")
+	_save_game()
+
+
+func _back_to_detail() -> void:
+	if _current_market_listing().is_empty():
+		_go_market()
+		return
+	current_stage = "detail"
+	_render_detail()
+	_show_panel(detail_panel)
+	$Margin/RootVBox/DetailPanel/Scroll.ensure_control_visible(open_seller_chat_button)
+	_save_game()
+
+
+func _render_seller_chat() -> void:
+	var listing = _current_market_listing()
+	if listing.is_empty():
+		_go_market()
+		return
+	var seller: Dictionary = listing.get("seller", {})
+	chat_gold_label.text = "%s G" % _money(gold)
+	chat_seller_portrait.texture = Art.texture_for("sellers", str(seller.get("id", "")))
+	chat_seller_name.text = Art.seller_name(seller)
+	chat_seller_status.text = feed.seller_activity_text(listing)
+	chat_item_art.texture = Art.texture_for("items", str(listing.get("item_id", "")))
+	chat_item_title.text = Art.item_name(listing)
+	chat_item_meta.text = "%sG · %s · %s" % [
+		_money(int(listing.get("asking", 0))),
+		feed.public_location_text(listing),
+		feed.public_meetup_text(listing)
+	]
 
 	var options = engine.investigation_options(listing)
 	var used: Array = listing.get("inspected_actions", [])
 	for i in range(inspect_buttons.size()):
 		var option: Dictionary = options[i]
-		var action_text = feed.investigation_button_text(option)
-		inspect_buttons[i].text = "%s%s" % [action_text, " ✓" if used.has(option["id"]) else ""]
+		inspect_buttons[i].text = "%s%s" % [
+			feed.investigation_button_text(option),
+			" ✓" if used.has(option["id"]) else ""
+		]
 		inspect_buttons[i].tooltip_text = str(option["label"])
 		inspect_buttons[i].disabled = investigation_remaining <= 0 or used.has(option["id"])
 
-	_populate_suspect_options(listing)
-	_restore_trade_plan(listing)
+	_render_chat_thread(listing)
 
 
 func _render_chat_thread(listing: Dictionary) -> void:
@@ -497,7 +551,7 @@ func _render_chat_thread(listing: Dictionary) -> void:
 	chat_seller_portrait.texture = Art.texture_for("sellers", str(seller.get("id", "")))
 	chat_seller_name.text = Art.seller_name(seller)
 	chat_seller_status.text = feed.seller_activity_text(listing)
-	chat_choice_hint.text = "보낼 메시지를 고르세요 · 남은 기회 %d번" % investigation_remaining
+	chat_choice_hint.text = "뭐라고 물어볼까? · 남은 기회 %d번" % investigation_remaining
 
 	for child in chat_messages.get_children():
 		chat_messages.remove_child(child)
@@ -676,7 +730,7 @@ func _investigate(option_index: int) -> void:
 		# Keep the previous field for old saves/tests, but the player-facing UX now uses the thread.
 		updated["last_inquiry"] = feed.investigation_interaction(listing, option, str(result["message"]))
 		_sync_market_listing(updated)
-		_render_detail()
+		_render_seller_chat()
 		_set_status("판매자와 대화를 이어갔습니다.")
 		_save_game()
 
@@ -1409,15 +1463,15 @@ func _select_option_by_text(option_button: OptionButton, text_value: String) -> 
 
 
 func _show_panel(target) -> void:
-	for panel in [market_panel, detail_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
+	for panel in [market_panel, detail_panel, seller_chat_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
 
-	var focus_mode = target == detail_panel or target == deal_panel or target == appraisal_panel or target == sale_panel
+	var focus_mode = target == detail_panel or target == seller_chat_panel or target == deal_panel or target == appraisal_panel or target == sale_panel
 	global_header.visible = not focus_mode
 	status_panel.visible = target != market_panel and not focus_mode
 	nav_row.visible = not focus_mode
 
-	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "deal"])
+	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "chat", "deal"])
 	inventory_nav_button.set_pressed_no_signal(current_stage in ["inventory", "appraisal", "sale"])
 	records_nav_button.set_pressed_no_signal(current_stage == "result")
 
@@ -1425,6 +1479,7 @@ func _show_panel(target) -> void:
 func _update_header() -> void:
 	gold_label.text = "%s G" % _money(gold)
 	detail_gold_label.text = "%s G" % _money(gold)
+	chat_gold_label.text = "%s G" % _money(gold)
 	deal_gold_label.text = "%s G" % _money(gold)
 	appraisal_gold_label.text = "%s G" % _money(gold)
 	sale_gold_label.text = "%s G" % _money(gold)
@@ -1489,6 +1544,12 @@ func _restore_stage() -> void:
 			if selected_market_index >= 0 and selected_market_index < market_items.size():
 				_render_detail()
 				_show_panel(detail_panel)
+			else:
+				_go_market()
+		"chat":
+			if selected_market_index >= 0 and selected_market_index < market_items.size():
+				_render_seller_chat()
+				_show_panel(seller_chat_panel)
 			else:
 				_go_market()
 		"deal":
