@@ -1471,7 +1471,7 @@ custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
-text = "이 물건, 얼마까지 낼지 정하기"
+text = "가격 제안하기"
 
 [node name="InquiryPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 visible = false
@@ -1523,12 +1523,14 @@ autowrap_mode = 2
 
 
 [node name="PlanTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.42, 0.27, 0.12, 1)
 theme_override_font_sizes/font_size = 15
 text = "내 가격 정하기"
 
 [node name="PlanHelp" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.45, 0.48, 0.53, 1)
@@ -1536,25 +1538,30 @@ text = "이 물건을 얼마에 되팔 수 있을지 생각하고, 내가 어디
 autowrap_mode = 2
 
 [node name="ResaleOption" type="OptionButton" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 fit_to_longest_item = false
 
 [node name="MaxBuyLabel" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "내 최대 매입가"
 
 [node name="MaxBuySlider" type="HSlider" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 
 [node name="SuspectOption" type="OptionButton" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 fit_to_longest_item = false
 
 [node name="StartDealButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 text = "판매자에게 가격 제안"
@@ -1825,13 +1832,13 @@ text = "판매자 요구가 0G"
 [node name="MaxBuyPrice" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/PriceComparison/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "내 최대 매입가 0G"
+text = "확인한 단서 0개"
 
 [node name="ExpectedResale" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/PriceComparison/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.36, 0.39, 0.43, 1)
-text = "예상 재판매가 -"
+text = "추정 가치 ???"
 
 [node name="PriceChange" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/PriceComparison/Box"]
 layout_mode = 2
