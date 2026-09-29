@@ -16,6 +16,7 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var status_panel = $Margin/RootVBox/StatusPanel
 @onready var status_label = $Margin/RootVBox/StatusPanel/StatusLabel
 @onready var nav_row = $Margin/RootVBox/NavRow
+@onready var town_nav_button = $Margin/RootVBox/NavRow/TownNavButton
 @onready var market_nav_button = $Margin/RootVBox/NavRow/MarketNavButton
 @onready var inventory_nav_button = $Margin/RootVBox/NavRow/InventoryNavButton
 @onready var records_nav_button = $Margin/RootVBox/NavRow/RecordsNavButton
@@ -36,6 +37,7 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var onboarding_body = $CommercialShell/Center/Card/OnboardingView/Body
 @onready var onboarding_next_button = $CommercialShell/Center/Card/OnboardingView/NextButton
 
+@onready var town_panel = $Margin/RootVBox/TownPanel
 @onready var market_panel = $Margin/RootVBox/MarketPanel
 @onready var detail_panel = $Margin/RootVBox/DetailPanel
 @onready var seller_chat_panel = $Margin/RootVBox/SellerChatPanel
@@ -44,6 +46,48 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var appraisal_panel = $Margin/RootVBox/AppraisalPanel
 @onready var sale_panel = $Margin/RootVBox/SalePanel
 @onready var result_panel = $Margin/RootVBox/ResultPanel
+
+@onready var town_visits_label = $Margin/RootVBox/TownPanel/Scroll/Box/TitleRow/VisitsLabel
+@onready var town_event_text = $Margin/RootVBox/TownPanel/Scroll/Box/EventPanel/EventText
+@onready var last_day_panel = $Margin/RootVBox/TownPanel/Scroll/Box/LastDayPanel
+@onready var last_day_text = $Margin/RootVBox/TownPanel/Scroll/Box/LastDayPanel/LastDayText
+@onready var district_cards = [
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4
+]
+@onready var district_arts = [
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Art,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Art,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Art,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Art
+]
+@onready var district_name_labels = [
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Info/Name,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Info/Name,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Info/Name,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info/Name
+]
+@onready var district_neighborhood_labels = [
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Info/Neighborhoods,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Info/Neighborhoods,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Info/Neighborhoods,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info/Neighborhoods
+]
+@onready var district_description_labels = [
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Info/Description,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Info/Description,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Info/Description,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info/Description
+]
+@onready var district_enter_buttons = [
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1/Row/Info/EnterButton,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2/Row/Info/EnterButton,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3/Row/Info/EnterButton,
+	$Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4/Row/Info/EnterButton
+]
+@onready var end_day_button = $Margin/RootVBox/TownPanel/Scroll/Box/EndDayButton
 
 @onready var market_scroll = $Margin/RootVBox/MarketPanel/Scroll
 @onready var search_input = $Margin/RootVBox/MarketPanel/Scroll/Box/SearchInput
@@ -258,6 +302,12 @@ var merchant_reputation = 0
 var daily_goal_progress = 0
 var daily_goal_claimed = false
 var last_progress_message = ""
+
+var current_district_id = "night_market"
+var market_visits_remaining = Content.DAY_MARKET_VISITS
+var day_start_gold = STARTING_GOLD
+var last_day_summary: Dictionary = {}
+var day_event_id = ""
 
 
 func _ready() -> void:
