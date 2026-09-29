@@ -60,7 +60,8 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var detail_seller = $Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn/SellerInfo
 @onready var detail_description = $Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn/DescriptionPanel/ItemDescription
 @onready var detail_info = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailInfoPanel/DetailInfo
-@onready var seller_card_text = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerCardText
+@onready var seller_card_text = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerRow/SellerCardText
+@onready var seller_portrait = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerRow/SellerPortrait
 @onready var market_price_label = $Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox/MarketPriceLabel
 @onready var detail_budget = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailBudget
 @onready var detail_clues = $Margin/RootVBox/DetailPanel/Scroll/Box/ClueList
@@ -416,7 +417,7 @@ func _open_listing(index: int) -> void:
 	current_stage = "detail"
 	_render_detail()
 	_show_panel(detail_panel)
-	_set_status("필요한 정보만 더 확인하고, 이 물건을 얼마에 되팔 수 있을지 거래 계획을 세워보세요.")
+	_set_status("판매자가 올린 글을 보고 필요한 것만 더 물어보거나 확인한 뒤, 가격을 제안해보세요.")
 	_save_game()
 
 
@@ -436,14 +437,21 @@ func _render_detail() -> void:
 	detail_price.text = "%sG" % _money(int(listing["asking"]))
 	detail_tags.text = public_data["tags_text"]
 	detail_seller.text = "%s · %s · %s" % [Art.seller_name(seller), feed.public_location_text(listing), feed.public_age_text(listing)]
-	detail_description.text = "%s\n\n첫 인상: %s" % [str(listing["seller_claim"]["text"]), str(listing["initial_clue"]["text"])]
-	detail_info.text = "확인 상태   단서 %d개 확인 · 미감정\n카테고리   %s\n등록 시점   %s\n거래 위치   %s\n거래 방식   직거래 · 가격 협상 가능" % [
+	detail_description.text = feed.listing_post_text(listing)
+	detail_info.text = "확인 상태   단서 %d개 확인 · 미감정\n카테고리   %s\n올린 시각   %s\n동네        %s\n직거래 장소 %s\n거래 방식   직거래 · 가격 제안 가능" % [
 		listing.get("discovered_clues", []).size(),
 		listing.get("category", "기타"),
 		feed.public_age_text(listing),
-		feed.public_location_text(listing)
+		feed.public_location_text(listing),
+		feed.public_meetup_text(listing)
 	]
-	seller_card_text.text = "%s\n판매자 메모\n%s" % [Art.seller_name(seller), feed.seller_behavior_text(listing)]
+	seller_portrait.texture = Art.texture_for("sellers", str(seller.get("id", "")))
+	seller_card_text.text = "%s · %s\n%s\n\n대화에서 느껴진 점\n%s" % [
+		Art.seller_name(seller),
+		feed.public_location_text(listing),
+		feed.seller_profile_text(listing),
+		feed.seller_behavior_text(listing)
+	]
 	detail_budget.text = "더 자세히 확인할 수 있는 정보: %d회" % investigation_remaining
 	detail_clues.text = "지금까지 확인한 정보\n%s" % _format_discovered_clues(listing)
 	market_price_label.text = _market_price_reference_text(listing)
@@ -568,7 +576,7 @@ func _start_deal() -> void:
 	current_stage = "deal"
 	_render_deal()
 	_show_panel(deal_panel)
-	_set_status("내 매입 상한을 보면서 실제 제안가와 근거를 정하세요.")
+	_set_status("내 기준 가격과 확인한 내용을 바탕으로 판매자에게 보낼 가격을 정하세요.")
 	_save_game()
 
 
@@ -592,11 +600,11 @@ func _render_deal() -> void:
 	deal_gold_label.text = "%s G" % _money(gold)
 	deal_item_art.texture = Art.texture_for("items", str(listing.get("item_id", "")))
 	deal_title.text = Art.item_name(listing)
-	deal_seller.text = "판매자 · %s" % Art.seller_name(seller)
-	deal_personality.text = "관찰 · %s" % feed.seller_behavior_text(listing)
+	deal_seller.text = "%s · %s" % [Art.seller_name(seller), feed.public_location_text(listing)]
+	deal_personality.text = "직거래 %s\n대화에서 느껴진 점 · %s" % [feed.public_meetup_text(listing), feed.seller_behavior_text(listing)]
 	deal_personality.tooltip_text = "판매자 성향은 직접 추론해야 합니다."
 
-	deal_seller_price.text = "판매자 요구가   %sG" % _money(current_price)
+	deal_seller_price.text = "판매자가 올린 가격  %sG" % _money(current_price)
 	deal_max_buy.text = "내 최대 매입가  %sG" % _money(max_buy_price)
 	deal_expected_resale.text = "예상 재판매가   %s" % str(plan.get("value_band", "-"))
 
@@ -656,14 +664,14 @@ func _render_deal() -> void:
 
 	var closed = bool(negotiation.get("closed", false))
 	deal_submit_button.disabled = closed
-	deal_submit_button.text = "새 제안 불가" if closed else ("다시 제안" if rounds > 0 else "이 가격과 근거로 제안")
+	deal_submit_button.text = "새 제안 불가" if closed else ("다시 제안 보내기" if rounds > 0 else "이 가격으로 제안 보내기")
 	offer_slider.editable = not closed
 	evidence_option.disabled = closed
 	for button in deal_preset_buttons:
 		button.disabled = closed
 
 	buy_current_button.disabled = gold < current_price
-	buy_current_button.text = "%sG에 구매" % _money(current_price)
+	buy_current_button.text = "%sG에 바로 거래" % _money(current_price)
 	if gold < current_price:
 		deal_purchase_warning.text = "보유 골드보다 %sG 부족" % _money(current_price - gold)
 	elif closed:
@@ -671,7 +679,7 @@ func _render_deal() -> void:
 	else:
 		deal_purchase_warning.text = ""
 
-	seller_speech.text = str(negotiation.get("last_speech", "“가격을 불러봐. 이유가 있으면 들어보지.”"))
+	seller_speech.text = str(negotiation.get("last_speech", "“네, 아직 있어요. 가격 말씀해보세요.”"))
 
 func _offer_slider_changed(_value: float) -> void:
 	_update_offer_price_label()
@@ -774,7 +782,7 @@ func _complete_purchase(price: int) -> void:
 	_update_header()
 	_render_inventory()
 	_show_panel(inventory_panel)
-	_set_status("구매한 물건이 보유품에 들어왔습니다. 지금 감정할 수도, 일단 보관하거나 판매처부터 볼 수도 있습니다.")
+	_set_status("%s에서 직거래를 마쳤습니다. 받아온 물건은 보유품에서 다시 살펴볼 수 있습니다." % feed.public_meetup_text(listing))
 	_save_game()
 
 
