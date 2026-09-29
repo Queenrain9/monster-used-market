@@ -22,7 +22,7 @@ func _run() -> void:
 			break
 
 	if failures.is_empty():
-		print("RELEASE LAYOUT OK: 375x812, 390x844, 430x932 commercial shells and meta screens")
+		print("RELEASE LAYOUT OK: 390 logical canvas safely scales to 375x812 / 390x844 / 430x932; all commercial screens remain horizontally contained")
 		quit(0)
 	else:
 		for failure in failures:
@@ -36,6 +36,11 @@ func _test_size(size: Vector2i) -> void:
 	root.add_child(game)
 	await _settle()
 
+	var logical_size = game.size
+	var physical_scale = float(size.x) / max(1.0, logical_size.x)
+	_expect(logical_size.x >= 389.0 and logical_size.x <= 391.0, "%s must preserve the 390px commercial logical canvas" % str(size))
+	_expect(physical_scale >= 0.90 and physical_scale <= 1.15, "%s physical scaling must stay within the supported phone range" % str(size))
+
 	game._reset_core_progress()
 	game.game_started = true
 	game.onboarding_complete = true
@@ -45,13 +50,13 @@ func _test_size(size: Vector2i) -> void:
 
 	game._show_title_screen()
 	await _settle()
-	_assert_horizontal_fit(game.commercial_shell, size, "%s title" % str(size))
+	_assert_horizontal_fit(game.commercial_shell, Vector2i(int(logical_size.x), int(logical_size.y)), "%s title" % str(size))
 	_expect(game.get_node("CommercialShell/ArtBackground").texture != null, "%s title final-art slot must resolve to final or fallback texture" % str(size))
 
 	for page in range(3):
 		game._show_onboarding_page(page)
 		await _settle()
-		_assert_horizontal_fit(game.commercial_shell, size, "%s onboarding %d" % [str(size), page + 1])
+		_assert_horizontal_fit(game.commercial_shell, Vector2i(int(logical_size.x), int(logical_size.y)), "%s onboarding %d" % [str(size), page + 1])
 		_expect(game.get_node("CommercialShell/Center/Card/OnboardingView/Art").texture != null, "%s onboarding page %d needs a resolved art slot" % [str(size), page + 1])
 
 	game.commercial_shell.hide()
@@ -70,7 +75,7 @@ func _test_size(size: Vector2i) -> void:
 		await _settle()
 		var panel: Control = spec["node"]
 		_expect(panel.visible, "%s %s must become visible" % [str(size), spec["name"]])
-		_assert_horizontal_fit(panel, size, "%s %s" % [str(size), spec["name"]])
+		_assert_horizontal_fit(panel, Vector2i(int(logical_size.x), int(logical_size.y)), "%s %s" % [str(size), spec["name"]])
 		for scroll in _nodes_of_type(panel, "ScrollContainer"):
 			_expect(scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "%s %s must never require horizontal scrolling" % [str(size), spec["name"]])
 
