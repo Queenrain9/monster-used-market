@@ -573,7 +573,249 @@ func _connect_buttons() -> void:
 	$Margin/RootVBox/ResultPanel/Scroll/Box/ResultInventoryButton.pressed.connect(_go_inventory)
 
 
+func _default_presentation_settings() -> Dictionary:
+	return {
+		"music_volume":0.70,
+		"sfx_volume":0.80,
+		"haptics":true,
+		"reduced_motion":false,
+		"large_text":false
+	}
+
+
+func _load_presentation_settings() -> void:
+	presentation_settings = _default_presentation_settings()
+	if not FileAccess.file_exists(SETTINGS_PATH):
+		return
+	var file = FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+	if file == null:
+		return
+	var parsed = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return
+	presentation_settings["music_volume"] = clamp(float(parsed.get("music_volume", 0.70)), 0.0, 1.0)
+	presentation_settings["sfx_volume"] = clamp(float(parsed.get("sfx_volume", 0.80)), 0.0, 1.0)
+	presentation_settings["haptics"] = bool(parsed.get("haptics", true))
+	presentation_settings["reduced_motion"] = bool(parsed.get("reduced_motion", false))
+	presentation_settings["large_text"] = bool(parsed.get("large_text", false))
+
+
+func _save_presentation_settings() -> void:
+	var file = FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+	if file != null:
+		file.store_string(JSON.stringify(presentation_settings))
+
+
+func _sync_settings_controls() -> void:
+	_syncing_settings = true
+	settings_music_slider.value = float(presentation_settings.get("music_volume", 0.70))
+	settings_sfx_slider.value = float(presentation_settings.get("sfx_volume", 0.80))
+	settings_haptics_check.button_pressed = bool(presentation_settings.get("haptics", true))
+	settings_reduced_motion_check.button_pressed = bool(presentation_settings.get("reduced_motion", false))
+	settings_large_text_check.button_pressed = bool(presentation_settings.get("large_text", false))
+	settings_music_label.text = "배경음악 %d%%" % int(round(float(settings_music_slider.value) * 100.0))
+	settings_sfx_label.text = "효과음 %d%%" % int(round(float(settings_sfx_slider.value) * 100.0))
+	_syncing_settings = false
+
+
+func _show_settings() -> void:
+	_sync_settings_controls()
+	settings_overlay.show()
+	_presentation_event("tap", "light")
+
+
+func _hide_settings() -> void:
+	settings_overlay.hide()
+	_presentation_event("tap", "light")
+
+
+func _on_music_volume_changed(value: float) -> void:
+	if _syncing_settings:
+		return
+	presentation_settings["music_volume"] = clamp(value, 0.0, 1.0)
+	settings_music_label.text = "배경음악 %d%%" % int(round(value * 100.0))
+	_apply_audio_settings()
+	_save_presentation_settings()
+
+
+func _on_sfx_volume_changed(value: float) -> void:
+	if _syncing_settings:
+		return
+	presentation_settings["sfx_volume"] = clamp(value, 0.0, 1.0)
+	settings_sfx_label.text = "효과음 %d%%" % int(round(value * 100.0))
+	_apply_audio_settings()
+	_save_presentation_settings()
+	_play_sfx("tap")
+
+
+func _on_haptics_toggled(enabled: bool) -> void:
+	if _syncing_settings:
+		return
+	presentation_settings["haptics"] = enabled
+	_save_presentation_settings()
+	if enabled:
+		_emit_haptic("light")
+
+
+func _on_reduced_motion_toggled(enabled: bool) -> void:
+	if _syncing_settings:
+		return
+	presentation_settings["reduced_motion"] = enabled
+	_save_presentation_settings()
+
+
+func _on_large_text_toggled(enabled: bool) -> void:
+	if _syncing_settings:
+		return
+	presentation_settings["large_text"] = enabled
+	_apply_accessibility_settings()
+	_save_presentation_settings()
+
+
+func _capture_base_font_sizes() -> void:
+	for control in find_children("*", "Control", true, false):
+		if control is Label or control is Button or control is LineEdit:
+			var key = str(control.get_instance_id())
+			if not _base_font_sizes.has(key):
+				_base_font_sizes[key] = int(control.get_theme_font_size("font_size"))
+
+
+func _apply_accessibility_settings() -> void:
+	var extra = 1 if bool(presentation_settings.get("large_text", false)) else 0
+	for control in find_children("*", "Control", true, false):
+		if not (control is Label or control is Button or control is LineEdit):
+			continue
+		var key = str(control.get_instance_id())
+		if not _base_font_sizes.has(key):
+			_base_font_sizes[key] = int(control.get_theme_font_size("font_size"))
+		var base_size = int(_base_font_sizes[key])
+		control.add_theme_font_size_override("font_size", base_size + extra)
+
+
+func _apply_audio_settings() -> void:
+	var music_value = max(0.0001, float(presentation_settings.get("music_volume", 0.70)))
+	var sfx_value = max(0.0001, float(presentation_settings.get("sfx_volume", 0.80)))
+	music_player.volume_db = linear_to_db(music_value)
+	sfx_player.volume_db = linear_to_db(sfx_value)
+
+
+func _presentation_stream(path: String) -> AudioStream:
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return null
+	return load(path) as AudioStream
+
+
+func _set_bgm_state(state_id: String) -> void:
+	if current_bgm_state == state_id:
+		return
+	current_bgm_state = state_id
+	var path = str(Presentation.BGM.get(state_id, ""))
+	var stream = _presentation_stream(path)
+	if stream == null:
+		music_player.stop()
+		music_player.stream = null
+		return
+	music_player.stream = stream
+	music_player.play()
+
+
+func _play_sfx(event_id: String) -> void:
+	last_presentation_event = event_id
+	var path = str(Presentation.SFX.get(event_id, ""))
+	var stream = _presentation_stream(path)
+	if stream == null:
+		return
+	sfx_player.stream = stream
+	sfx_player.play()
+
+
+func _emit_haptic(kind: String) -> void:
+	if not bool(presentation_settings.get("haptics", true)):
+		return
+	if DisplayServer.get_name() == "headless":
+		return
+	var duration = int(Presentation.HAPTIC_MS.get(kind, 18))
+	Input.vibrate_handheld(duration)
+
+
+func _presentation_event(event_id: String, haptic_kind: String = "") -> void:
+	_play_sfx(event_id)
+	if not haptic_kind.is_empty():
+		_emit_haptic(haptic_kind)
+
+
+func _show_toast(text_value: String, event_id: String = "") -> void:
+	if text_value.strip_edges().is_empty():
+		return
+	if not event_id.is_empty():
+		_play_sfx(event_id)
+	_toast_serial += 1
+	var serial = _toast_serial
+	toast_label.text = text_value
+	toast_panel.show()
+	if DisplayServer.get_name() == "headless":
+		return
+	get_tree().create_timer(2.2).timeout.connect(_hide_toast_if_serial.bind(serial), CONNECT_ONE_SHOT)
+
+
+func _hide_toast_if_serial(serial: int) -> void:
+	if serial == _toast_serial:
+		toast_panel.hide()
+
+
+func _maybe_show_context_tip(stage_id: String, force: bool = false) -> void:
+	if not Presentation.CONTEXT_TIPS.has(stage_id):
+		return
+	if bool(tutorial_flags.get(stage_id, false)):
+		return
+	if DisplayServer.get_name() == "headless" and not force:
+		return
+	var tip: Dictionary = Presentation.CONTEXT_TIPS[stage_id]
+	active_context_tip = stage_id
+	context_tip_title.text = str(tip.get("title", "알아둘 점"))
+	context_tip_body.text = str(tip.get("body", ""))
+	context_tip.show()
+
+
+func _dismiss_context_tip() -> void:
+	if not active_context_tip.is_empty():
+		tutorial_flags[active_context_tip] = true
+	active_context_tip = ""
+	context_tip.hide()
+	_presentation_event("tap", "light")
+	if game_started:
+		_save_game()
+
+
+func _play_screen_enter(target: Control) -> void:
+	if DisplayServer.get_name() == "headless" or bool(presentation_settings.get("reduced_motion", false)):
+		target.modulate = Color(1, 1, 1, 1)
+		return
+	target.modulate = Color(1, 1, 1, 0)
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(target, "modulate", Color(1, 1, 1, 1), 0.14)
+
+
+func _bgm_state_for_target(target: Control) -> String:
+	if target == town_panel or target == workshop_panel or target == relationships_panel or target == collection_panel:
+		return "town"
+	if target == seller_chat_panel:
+		return "chat"
+	if target == deal_panel:
+		return "deal"
+	if target == appraisal_panel:
+		return "appraisal"
+	if target == sale_panel:
+		return "sale"
+	if target == result_panel:
+		return "result"
+	return "market"
+
+
 func _show_title_screen() -> void:
+	_set_bgm_state("title")
 	commercial_shell.show()
 	title_view.show()
 	onboarding_view.hide()
@@ -587,6 +829,9 @@ func _continue_from_title() -> void:
 	if onboarding_complete:
 		commercial_shell.hide()
 		_restore_stage()
+		if save_recovery_notice:
+			_show_toast("이전 정상 저장에서 플레이를 복구했습니다.", "warning")
+			save_recovery_notice = false
 	else:
 		_show_onboarding_page(0)
 
