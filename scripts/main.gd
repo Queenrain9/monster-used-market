@@ -76,15 +76,31 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var max_buy_label = $Margin/RootVBox/DetailPanel/Scroll/Box/MaxBuyLabel
 @onready var suspect_option = $Margin/RootVBox/DetailPanel/Scroll/Box/SuspectOption
 
-@onready var deal_title = $Margin/RootVBox/DealPanel/Scroll/Box/DealTitle
-@onready var deal_seller = $Margin/RootVBox/DealPanel/Scroll/Box/SellerInfo
-@onready var plan_summary = $Margin/RootVBox/DealPanel/Scroll/Box/PlanSummary
-@onready var deal_state = $Margin/RootVBox/DealPanel/Scroll/Box/DealState
+@onready var deal_gold_label = $Margin/RootVBox/DealPanel/Scroll/Box/TopBar/GoldLabel
+@onready var deal_item_art = $Margin/RootVBox/DealPanel/Scroll/Box/ItemSellerSummary/Row/ItemArt
+@onready var deal_title = $Margin/RootVBox/DealPanel/Scroll/Box/ItemSellerSummary/Row/Info/DealTitle
+@onready var deal_seller = $Margin/RootVBox/DealPanel/Scroll/Box/ItemSellerSummary/Row/Info/SellerInfo
+@onready var deal_personality = $Margin/RootVBox/DealPanel/Scroll/Box/ItemSellerSummary/Row/Info/SellerPersonality
+@onready var deal_seller_price = $Margin/RootVBox/DealPanel/Scroll/Box/PriceComparison/Box/SellerPrice
+@onready var deal_max_buy = $Margin/RootVBox/DealPanel/Scroll/Box/PriceComparison/Box/MaxBuyPrice
+@onready var deal_expected_resale = $Margin/RootVBox/DealPanel/Scroll/Box/PriceComparison/Box/ExpectedResale
+@onready var deal_price_change = $Margin/RootVBox/DealPanel/Scroll/Box/PriceComparison/Box/PriceChange
+@onready var deal_round_label = $Margin/RootVBox/DealPanel/Scroll/Box/NegotiationStatus/Row/RoundLabel
+@onready var deal_patience_label = $Margin/RootVBox/DealPanel/Scroll/Box/NegotiationStatus/Row/PatienceLabel
 @onready var evidence_option = $Margin/RootVBox/DealPanel/Scroll/Box/EvidenceOption
-@onready var offer_price_label = $Margin/RootVBox/DealPanel/Scroll/Box/OfferPriceLabel
-@onready var offer_slider = $Margin/RootVBox/DealPanel/Scroll/Box/OfferSlider
-@onready var seller_speech = $Margin/RootVBox/DealPanel/Scroll/Box/SellerSpeech
-@onready var buy_current_button = $Margin/RootVBox/DealPanel/Scroll/Box/BuyCurrentButton
+@onready var offer_price_label = $Margin/RootVBox/DealPanel/Scroll/Box/OfferSection/Box/OfferPriceLabel
+@onready var offer_warning_label = $Margin/RootVBox/DealPanel/Scroll/Box/OfferSection/Box/OfferWarning
+@onready var offer_slider = $Margin/RootVBox/DealPanel/Scroll/Box/OfferSection/Box/OfferSlider
+@onready var deal_submit_button = $Margin/RootVBox/DealPanel/Scroll/Box/SubmitOfferButton
+@onready var deal_preset_buttons = [
+	$Margin/RootVBox/DealPanel/Scroll/Box/OfferSection/Box/PresetRow/Preset5Button,
+	$Margin/RootVBox/DealPanel/Scroll/Box/OfferSection/Box/PresetRow/Preset10Button,
+	$Margin/RootVBox/DealPanel/Scroll/Box/OfferSection/Box/PresetRow/Preset20Button
+]
+@onready var deal_last_action = $Margin/RootVBox/DealPanel/Scroll/Box/SellerResponsePanel/Box/LastAction
+@onready var seller_speech = $Margin/RootVBox/DealPanel/Scroll/Box/SellerResponsePanel/Box/SellerSpeech
+@onready var deal_purchase_warning = $Margin/RootVBox/DealPanel/Scroll/Box/PurchaseWarning
+@onready var buy_current_button = $Margin/RootVBox/DealPanel/Scroll/Box/BottomActions/BuyCurrentButton
 
 @onready var inventory_list = $Margin/RootVBox/InventoryPanel/Scroll/Box/InventoryList
 @onready var inventory_detail = $Margin/RootVBox/InventoryPanel/Scroll/Box/InventoryDetail
@@ -233,12 +249,13 @@ func _connect_buttons() -> void:
 	$ImagePreview/Box/CloseButton.pressed.connect(func(): $ImagePreview.hide())
 
 	offer_slider.value_changed.connect(_offer_slider_changed)
-	$Margin/RootVBox/DealPanel/Scroll/Box/PresetRow/Preset5Button.pressed.connect(_set_offer_discount.bind(0.05))
-	$Margin/RootVBox/DealPanel/Scroll/Box/PresetRow/Preset10Button.pressed.connect(_set_offer_discount.bind(0.10))
-	$Margin/RootVBox/DealPanel/Scroll/Box/PresetRow/Preset20Button.pressed.connect(_set_offer_discount.bind(0.20))
-	$Margin/RootVBox/DealPanel/Scroll/Box/SubmitOfferButton.pressed.connect(_submit_offer)
+	deal_preset_buttons[0].pressed.connect(_set_offer_discount.bind(0.05))
+	deal_preset_buttons[1].pressed.connect(_set_offer_discount.bind(0.10))
+	deal_preset_buttons[2].pressed.connect(_set_offer_discount.bind(0.20))
+	deal_submit_button.pressed.connect(_submit_offer)
 	buy_current_button.pressed.connect(_buy_current_price)
-	$Margin/RootVBox/DealPanel/Scroll/Box/DealBackButton.pressed.connect(_go_market)
+	$Margin/RootVBox/DealPanel/Scroll/Box/TopBar/BackButton.pressed.connect(_go_market)
+	$Margin/RootVBox/DealPanel/Scroll/Box/BottomActions/DealBackButton.pressed.connect(_go_market)
 
 	inventory_list.item_selected.connect(_inventory_selected)
 	inventory_appraise_button.pressed.connect(_open_appraisal)
@@ -561,27 +578,66 @@ func _render_deal() -> void:
 	if listing.is_empty():
 		_go_market()
 		return
+
 	var negotiation: Dictionary = listing.get("negotiation_state", engine.start_negotiation(listing))
 	var seller: Dictionary = listing["seller"]
+	var personality: Dictionary = seller["personality"]
 	var plan: Dictionary = listing.get("trade_plan", {})
 	var current_price = int(negotiation["current_price"])
+	var max_buy_price = int(plan.get("max_buy_price", 0))
+	var rounds = int(negotiation["rounds"])
+	var max_rounds = int(negotiation["max_rounds"])
+	var patience = int(negotiation["patience"])
+	var initial_patience = max(1, int(personality.get("patience", patience)))
 
-	deal_title.text = "%s · 판매자와 거래" % Art.item_name(listing)
-	deal_seller.text = "%s · %s" % [Art.seller_name(seller), seller["personality"]["name"]]
-	plan_summary.text = "내 예상 재판매가 %s\n내 최대 매입가 %sG" % [
-		plan.get("value_band", "-"), _money(int(plan.get("max_buy_price", 0)))
-	]
-	deal_state.text = "현재 판매자 가격 %sG · 흥정 %d/%d · 인내도 %d" % [
-		_money(current_price), int(negotiation["rounds"]), int(negotiation["max_rounds"]), int(negotiation["patience"])
-	]
+	deal_gold_label.text = "%s G" % _money(gold)
+	deal_item_art.texture = Art.texture_for("items", str(listing.get("item_id", "")))
+	deal_title.text = Art.item_name(listing)
+	deal_seller.text = "판매자 · %s" % Art.seller_name(seller)
+	deal_personality.text = str(personality["name"])
+	deal_personality.tooltip_text = str(personality.get("summary", ""))
+
+	deal_seller_price.text = "판매자 요구가   %sG" % _money(current_price)
+	deal_max_buy.text = "내 최대 매입가  %sG" % _money(max_buy_price)
+	deal_expected_resale.text = "예상 재판매가   %s" % str(plan.get("value_band", "-"))
+
+	var previous_price = int(negotiation.get("previous_price", current_price))
+	var last_offer = int(negotiation.get("last_offer", 0))
+	var last_evidence = str(negotiation.get("last_evidence_text", ""))
+	var last_status = str(negotiation.get("last_status", ""))
+	if rounds <= 0:
+		deal_price_change.text = "아직 제안 전 · 판매자 가격을 기준으로 첫 제안을 정하세요."
+		deal_last_action.text = "아직 제안하지 않았습니다."
+	else:
+		if previous_price != current_price:
+			deal_price_change.text = "판매자 가격  %sG → %sG" % [_money(previous_price), _money(current_price)]
+		else:
+			deal_price_change.text = "판매자 가격  %sG · 유지" % _money(current_price)
+		var evidence_text = "근거 없음" if last_evidence.is_empty() else last_evidence
+		deal_last_action.text = "직전 제안 %sG · %s\n사용 근거: %s" % [_money(last_offer), last_status, evidence_text]
+
+	deal_round_label.text = "협상 %d / %d" % [rounds, max_rounds]
+	var filled = clamp(patience, 0, initial_patience)
+	var patience_dots = "●".repeat(filled) + "○".repeat(max(0, initial_patience - filled))
+	deal_patience_label.text = "인내도 %s" % patience_dots
 
 	evidence_option.clear()
-	evidence_option.add_item("흥정 근거 없음")
+	evidence_option.add_item("근거 없이 가격만 제안")
 	evidence_map = []
 	var evidence_options = engine.negotiation_evidence_options(listing)
+	var used_evidence: Array = negotiation.get("evidence_used", [])
 	for evidence in evidence_options:
-		_add_clue_option(evidence_option, str(evidence["label"]))
-		evidence_map.append(int(evidence["clue_index"]))
+		var clue_index = int(evidence["clue_index"])
+		var clues: Array = listing.get("discovered_clues", [])
+		var clue_text = ""
+		if clue_index >= 0 and clue_index < clues.size():
+			clue_text = str(clues[clue_index]["text"])
+		var label = str(evidence["label"])
+		if used_evidence.has(clue_text):
+			label += " · 사용함"
+		_add_clue_option(evidence_option, label)
+		evidence_map.append(clue_index)
+
 	var suspect_text = str(plan.get("suspect_text", ""))
 	if not suspect_text.is_empty():
 		for i in range(evidence_map.size()):
@@ -600,12 +656,23 @@ func _render_deal() -> void:
 	_update_offer_price_label()
 
 	var closed = bool(negotiation.get("closed", false))
-	$Margin/RootVBox/DealPanel/Scroll/Box/SubmitOfferButton.disabled = closed
+	deal_submit_button.disabled = closed
+	deal_submit_button.text = "새 제안 불가" if closed else ("다시 제안" if rounds > 0 else "이 가격과 근거로 제안")
 	offer_slider.editable = not closed
-	buy_current_button.disabled = gold < current_price
-	buy_current_button.text = "현재가 %sG에 구매" % _money(current_price)
-	seller_speech.text = str(negotiation.get("last_speech", "“가격을 불러봐. 이유가 있으면 들어보지.”"))
+	evidence_option.disabled = closed
+	for button in deal_preset_buttons:
+		button.disabled = closed
 
+	buy_current_button.disabled = gold < current_price
+	buy_current_button.text = "%sG에 구매" % _money(current_price)
+	if gold < current_price:
+		deal_purchase_warning.text = "보유 골드보다 %sG 부족" % _money(current_price - gold)
+	elif closed:
+		deal_purchase_warning.text = "협상 종료 · 현재 가격에 구매하거나 거래를 보류하세요."
+	else:
+		deal_purchase_warning.text = ""
+
+	seller_speech.text = str(negotiation.get("last_speech", "“가격을 불러봐. 이유가 있으면 들어보지.”"))
 
 func _offer_slider_changed(_value: float) -> void:
 	_update_offer_price_label()
@@ -614,13 +681,14 @@ func _offer_slider_changed(_value: float) -> void:
 func _update_offer_price_label() -> void:
 	var price = int(round(offer_slider.value))
 	var listing = _current_market_listing()
-	var warning = ""
-	if not listing.is_empty():
-		var plan: Dictionary = listing.get("trade_plan", {})
-		if price > int(plan.get("max_buy_price", price)):
-			warning = " · 내 매입 상한 초과"
-	offer_price_label.text = "내 제안가: %sG%s" % [_money(price), warning]
-
+	offer_price_label.text = "내 제안가   %sG" % _money(price)
+	offer_warning_label.text = ""
+	if listing.is_empty():
+		return
+	var plan: Dictionary = listing.get("trade_plan", {})
+	var max_buy_price = int(plan.get("max_buy_price", price))
+	if price > max_buy_price:
+		offer_warning_label.text = "⚠ 내 매입 상한보다 %sG 높음" % _money(price - max_buy_price)
 
 func _set_offer_discount(discount: float) -> void:
 	var listing = _current_market_listing()
@@ -635,17 +703,27 @@ func _submit_offer() -> void:
 	var listing = _current_market_listing()
 	if listing.is_empty():
 		return
+
+	var negotiation: Dictionary = listing["negotiation_state"]
+	var previous_price = int(negotiation["current_price"])
 	var clue_index = -1
+	var evidence_text = ""
 	if evidence_option.selected > 0 and evidence_option.selected - 1 < evidence_map.size():
 		clue_index = int(evidence_map[evidence_option.selected - 1])
+		var clues: Array = listing.get("discovered_clues", [])
+		if clue_index >= 0 and clue_index < clues.size():
+			evidence_text = str(clues[clue_index]["text"])
 
 	var result: Dictionary = engine.negotiate_offer(
 		listing,
-		listing["negotiation_state"],
+		negotiation,
 		int(round(offer_slider.value)),
 		clue_index
 	)
 	var updated_state: Dictionary = result["state"]
+	updated_state["previous_price"] = previous_price
+	updated_state["last_evidence_text"] = evidence_text
+	updated_state["last_status"] = str(result["status"])
 	updated_state["last_speech"] = result["speech"]
 	listing["negotiation_state"] = updated_state
 	_sync_market_listing(listing)
@@ -657,7 +735,6 @@ func _submit_offer() -> void:
 	_render_deal()
 	_set_status(str(result["status"]))
 	_save_game()
-
 
 func _buy_current_price() -> void:
 	var listing = _current_market_listing()
@@ -1149,7 +1226,7 @@ func _show_panel(target) -> void:
 	for panel in [market_panel, detail_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
 
-	var focus_mode = target == detail_panel or target == appraisal_panel or target == sale_panel
+	var focus_mode = target == detail_panel or target == deal_panel or target == appraisal_panel or target == sale_panel
 	global_header.visible = not focus_mode
 	status_panel.visible = target != market_panel and not focus_mode
 	nav_row.visible = not focus_mode
@@ -1162,6 +1239,7 @@ func _show_panel(target) -> void:
 func _update_header() -> void:
 	gold_label.text = "%s G" % _money(gold)
 	detail_gold_label.text = "%s G" % _money(gold)
+	deal_gold_label.text = "%s G" % _money(gold)
 	appraisal_gold_label.text = "%s G" % _money(gold)
 	sale_gold_label.text = "%s G" % _money(gold)
 	inventory_count_label.text = "보유품 %d" % owned_items.size()
