@@ -1065,7 +1065,7 @@ func _go_records() -> void:
 	current_stage = "result"
 	_render_records()
 	_show_panel(result_panel)
-	_set_status("최근 완료한 거래와 지금까지의 손익을 다시 확인할 수 있습니다.")
+	_set_status("최근 거래에서 무엇을 맞췄고 놓쳤는지 다시 확인할 수 있습니다.")
 	_save_game()
 
 
@@ -1551,7 +1551,7 @@ func _sell_selected_buyer() -> void:
 	current_stage = "result"
 	_render_records()
 	_show_panel(result_panel)
-	_set_status("거래 기록을 보고 내가 세운 매입 상한과 판매처 판단이 어땠는지 확인하세요.")
+	_set_status("이번 거래의 손익과 내가 맞춘 판단, 놓친 판단을 확인하세요.")
 	_save_game()
 
 
@@ -1615,7 +1615,7 @@ func _update_header() -> void:
 	appraisal_gold_label.text = "%s G" % _money(gold)
 	sale_gold_label.text = "%s G" % _money(gold)
 	inventory_count_label.text = "보유품 %d" % owned_items.size()
-	stats_label.text = "완료 거래 %d회 · 오늘 %d회\n최고 순이익 %s · 최대 손실 %s" % [
+	stats_label.text = "누적 %d회 · 오늘 %d회 · 최고 %s · 최저 %s" % [
 		total_deals, today_deals, _signed_money(best_profit), _signed_money(worst_loss)
 	]
 
