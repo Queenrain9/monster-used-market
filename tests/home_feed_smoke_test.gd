@@ -475,7 +475,7 @@ func _test_save_compatibility() -> void:
 	game.last_result_record = {}
 	game.total_deals = 0
 	game._go_records()
-	_expect(game.result_summary.text.contains("아직"), "empty records must explain the real entry point")
+	_expect(game.legacy_result_summary.visible and game.legacy_result_summary.text.contains("아직 완료한 거래가 없습니다"), "empty records must explain the real entry point in the current record UI")
 	await _assert_layout("empty records")
 	game.get_node("Margin/RootVBox/ResultPanel/Scroll/Box/ResetButton").pressed.emit()
 	await _settle()
