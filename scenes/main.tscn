@@ -450,7 +450,7 @@ disabled = true
 [node name="DetailInfoTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "상세 정보"
+text = "거래 정보"
 
 [node name="DetailInfoPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
@@ -465,22 +465,33 @@ autowrap_mode = 2
 [node name="SellerTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "판매자 정보"
+text = "판매자"
 
 [node name="SellerCard" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
-[node name="SellerCardText" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard"]
+[node name="SellerRow" type="HBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard"]
 layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SellerPortrait" type="TextureRect" parent="Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerRow"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SellerCardText" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
-text = "판매자 정보"
+text = "판매자"
 autowrap_mode = 2
 
 [node name="InvestigationTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "더 확인하기"
+text = "더 알아보기"
 
 [node name="DetailBudget" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
@@ -568,7 +579,7 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.42, 0.27, 0.12, 1)
 theme_override_font_sizes/font_size = 15
-text = "내 거래 계획"
+text = "가격 제안 준비"
 
 [node name="PlanHelp" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
@@ -599,7 +610,7 @@ fit_to_longest_item = false
 [node name="StartDealButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
-text = "이 계획으로 가격 협상"
+text = "판매자에게 가격 제안"
 
 [node name="BackMarketButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 40)
@@ -636,7 +647,7 @@ text = "←"
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 17
-text = "가격 협상"
+text = "가격 제안"
 vertical_alignment = 1
 
 [node name="GoldLabel" type="Label" parent="Margin/RootVBox/DealPanel/Scroll/Box/TopBar"]
