@@ -4,6 +4,7 @@ const Art = preload("res://scripts/art_catalog.gd")
 const Content = preload("res://data/content.gd")
 const MarketEngine = preload("res://scripts/game_logic.gd")
 const Feed = preload("res://scripts/home_feed.gd")
+const FinalAssets = preload("res://data/final_asset_manifest.gd")
 var failures: Array = []
 
 
@@ -12,8 +13,16 @@ func _init() -> void:
 	var feed = Feed.new()
 	for item in Content.ITEMS:
 		_check(Art.catalog().items.has(item.id), "missing item mapping: " + item.id)
+		var item_entry: Dictionary = Art.catalog().items.get(item.id, {})
+		_check(not str(item_entry.get("final_texture", "")).is_empty(), "missing stable final item slot: " + item.id)
+		_check(str(item_entry.get("final_texture", "")).ends_with("/%s.png" % item.id), "final item slot must keep stable ID filename: " + item.id)
 	for seller in Content.SELLERS:
 		_check(Art.catalog().sellers.has(seller.id), "missing seller mapping: " + seller.id)
+		var seller_entry: Dictionary = Art.catalog().sellers.get(seller.id, {})
+		_check(not str(seller_entry.get("final_texture", "")).is_empty(), "missing stable final seller slot: " + seller.id)
+	for ui_key in FinalAssets.REQUIRED_UI_KEYS:
+		_check(Art.catalog().ui.has(ui_key), "missing required final UI slot: " + ui_key)
+		_check(not str(Art.catalog().ui.get(ui_key, {}).get("final_texture", "")).is_empty(), "required UI slot has no final path: " + ui_key)
 	for group in Art.catalog():
 		for id in Art.catalog()[group]:
 			var path = str(Art.catalog()[group][id].texture)
@@ -25,6 +34,12 @@ func _init() -> void:
 	Art.catalog().items["missing-file"] = {"texture": "res://assets/not-present.png"}
 	_check(Art.texture_for("items", "missing-file") == fallback, "missing replacement must not break UI")
 	Art.catalog().items.erase("missing-file")
+	Art.catalog().items["missing-final"] = {
+		"texture":"res://assets/art/ui/fallback.png",
+		"final_texture":"res://assets/art/items/not-yet-produced.png"
+	}
+	_check(Art.texture_for("items", "missing-final") == fallback, "absent final art must transparently use its placeholder")
+	Art.catalog().items.erase("missing-final")
 	for listing in engine.generate_market(3):
 		var before = listing.duplicate(true)
 		var data = feed.describe_listing(listing, true)
@@ -38,7 +53,7 @@ func _init() -> void:
 			listing.rarity = "전설"
 			_check(feed.describe_listing(listing, true) == data, "art must not reveal hidden truth")
 	if failures.is_empty():
-		print("ART SMOKE OK: 24 items, 8 sellers, drop-in final slots, replacement fallback, mobile textures, no truth leaks")
+		print("ART SMOKE OK: 24 items, 8 sellers, required UI final slots, drop-in fallback, mobile textures, no truth leaks")
 		quit(0)
 	else:
 		for failure in failures:
