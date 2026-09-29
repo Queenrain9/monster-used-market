@@ -83,24 +83,24 @@ func investigation_chat_messages(listing: Dictionary, option: Dictionary, result
 				claim = "정확한 건 저도 잘 모르겠어요. 가지고 있던 경로는 말씀드릴게요."
 			result.append({"speaker":"buyer","text":"이거 어디서 얻으셨어요?"})
 			result.append({"speaker":"seller","text":claim.trim_prefix("“").trim_suffix("”")})
-			result.append({"speaker":"note","text":"대화 메모 · %s" % result_message})
+			result.append({"speaker":"note","label":"대화하며 확인","text":result_message})
 		"market":
-			result.append({"speaker":"note","text":"비슷한 매물을 직접 찾아봤다.\n%s" % result_message})
+			result.append({"speaker":"note","label":"시세 검색 결과","text":result_message})
 		"exterior":
 			result.append({"speaker":"buyer","text":"사진 조금 더 볼게요. 다른 각도도 있나요?"})
 			result.append({"speaker":"seller","text":"네, 잠깐만요. 지금 있는 사진 하나 더 보내드릴게요."})
-			result.append({"speaker":"note","text":"사진 확인 · %s" % result_message})
+			result.append({"speaker":"note","label":"사진에서 확인","text":result_message})
 		"mark":
 			result.append({"speaker":"buyer","text":"%s 쪽도 가까이 찍어줄 수 있어요?" % subject})
 			result.append({"speaker":"seller","text":"네. 잘 보이게 가까이 찍어서 보낼게요."})
-			result.append({"speaker":"note","text":"추가 사진 · %s" % result_message})
+			result.append({"speaker":"note","label":"사진에서 확인","text":result_message})
 		"function":
 			result.append({"speaker":"buyer","text":"%s 직접 확인해봐도 돼요?" % subject})
 			result.append({"speaker":"seller","text":"네, 만나서 직접 확인하셔도 됩니다."})
-			result.append({"speaker":"note","text":"직접 확인 · %s" % result_message})
+			result.append({"speaker":"note","label":"직접 확인","text":result_message})
 		_:
 			result.append({"speaker":"buyer","text":"이 부분 조금 더 확인해볼게요."})
-			result.append({"speaker":"note","text":result_message})
+			result.append({"speaker":"note","label":"확인한 내용","text":result_message})
 
 	return result
 
