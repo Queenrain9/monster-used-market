@@ -222,7 +222,7 @@ func _deterministic_action_signal(listing: Dictionary, action_id: String) -> Str
 func _semantic_action_clue(listing: Dictionary, action_id: String) -> Dictionary:
 	var signal = _deterministic_action_signal(listing, action_id)
 	var channel: Dictionary = Content.INVESTIGATION_ACTION_CLUES.get(action_id, {})
-	var template: Dictionary = channel.get(signal, channel.get("neutral", {}))
+	var clue_template: Dictionary = channel.get(signal, channel.get("neutral", {}))
 	var kind = "애매한"
 	if signal == "genuine":
 		kind = "긍정적"
@@ -232,8 +232,8 @@ func _semantic_action_clue(listing: Dictionary, action_id: String) -> Dictionary
 		"id":"action_%s_%s" % [action_id, signal],
 		"kind":kind,
 		"signal":signal,
-		"text":str(template.get("text", "확인했지만 결정적인 정보는 얻지 못했다.")),
-		"reveal":str(template.get("reveal", "결정적인 가치 판단 근거는 아니었다.")),
+		"text":str(clue_template.get("text", "확인했지만 결정적인 정보는 얻지 못했다.")),
+		"reveal":str(clue_template.get("reveal", "결정적인 가치 판단 근거는 아니었다.")),
 		"aligned":signal != "neutral"
 	}
 
