@@ -41,7 +41,7 @@ corner_radius_bottom_left = 7
 corner_radius_bottom_right = 7
 
 [node name="ListingCard" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 112)
+custom_minimum_size = Vector2(0, 116)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("Regular")
@@ -63,7 +63,7 @@ mouse_filter = 2
 theme_override_constants/separation = 8
 
 [node name="Thumbnail" type="TextureRect" parent="Margin/Body"]
-custom_minimum_size = Vector2(92, 92)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
@@ -84,6 +84,7 @@ theme_override_colors/font_color = Color(0.56, 0.2, 0.64, 1)
 text = "특별 매물"
 
 [node name="Name" type="Label" parent="Margin/Body/MainInfo"]
+custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 13
@@ -92,6 +93,7 @@ text = "매물 이름"
 text_overrun_behavior = 3
 
 [node name="Price" type="Label" parent="Margin/Body/MainInfo"]
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 17
@@ -99,6 +101,7 @@ theme_override_colors/font_color = Color(0.09, 0.1, 0.12, 1)
 text = "0G"
 
 [node name="Meta" type="Label" parent="Margin/Body/MainInfo"]
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 9
@@ -107,6 +110,7 @@ text = "어둠마을 · 3분 전"
 text_overrun_behavior = 3
 
 [node name="Clue" type="Label" parent="Margin/Body/MainInfo"]
+custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 9
@@ -116,7 +120,7 @@ max_lines_visible = 1
 text_overrun_behavior = 3
 
 [node name="Side" type="VBoxContainer" parent="Margin/Body"]
-custom_minimum_size = Vector2(52, 0)
+custom_minimum_size = Vector2(44, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
@@ -138,7 +142,7 @@ alignment = 2
 theme_override_constants/separation = 3
 
 [node name="Portrait" type="TextureRect" parent="Margin/Body/Side/SellerRow"]
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
@@ -159,7 +163,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.18, 0.42, 0.72, 1)
-text = "보기 ›"
+text = "›"
 horizontal_alignment = 2
 
 [node name="OpenButton" type="Button" parent="."]
