@@ -195,6 +195,30 @@ const ENTRIES = {
       "texture": "res://assets/art/ui/market.png",
       "final_texture": "res://assets/art/ui/collection.png"
     },
+    "skin_panel": {
+      "texture": "res://assets/art/ui/fallback.png",
+      "final_texture": "res://assets/art/ui/skin/panel.png"
+    },
+    "skin_button_normal": {
+      "texture": "res://assets/art/ui/fallback.png",
+      "final_texture": "res://assets/art/ui/skin/button_normal.png"
+    },
+    "skin_button_hover": {
+      "texture": "res://assets/art/ui/fallback.png",
+      "final_texture": "res://assets/art/ui/skin/button_hover.png"
+    },
+    "skin_button_pressed": {
+      "texture": "res://assets/art/ui/fallback.png",
+      "final_texture": "res://assets/art/ui/skin/button_pressed.png"
+    },
+    "skin_button_disabled": {
+      "texture": "res://assets/art/ui/fallback.png",
+      "final_texture": "res://assets/art/ui/skin/button_disabled.png"
+    },
+    "skin_input": {
+      "texture": "res://assets/art/ui/fallback.png",
+      "final_texture": "res://assets/art/ui/skin/input.png"
+    },
     "fallback": {
       "texture": "res://assets/art/ui/fallback.png",
       "final_texture": "res://assets/art/ui/fallback.png"
