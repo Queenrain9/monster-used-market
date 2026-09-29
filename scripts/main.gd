@@ -452,8 +452,8 @@ func _render_detail() -> void:
 	var used: Array = listing.get("inspected_actions", [])
 	for i in range(inspect_buttons.size()):
 		var option: Dictionary = options[i]
-		var short_labels = ["외형", "각인", "작동 상태", "출처 묻기", "시세 조사"]
-		inspect_buttons[i].text = "%s%s" % [short_labels[i], " ✓" if used.has(option["id"]) else ""]
+		var short_label = str(option.get("short_label", option.get("label", "확인")))
+		inspect_buttons[i].text = "%s%s" % [short_label, " ✓" if used.has(option["id"]) else ""]
 		inspect_buttons[i].tooltip_text = str(option["label"])
 		inspect_buttons[i].disabled = investigation_remaining <= 0 or used.has(option["id"])
 
@@ -538,7 +538,7 @@ func _investigate(option_index: int) -> void:
 		investigation_remaining -= 1
 		_sync_market_listing(result["listing"])
 		_render_detail()
-		_set_status("확인 결과: %s" % result["message"])
+		_set_status("%s → %s" % [str(result.get("action_label", "확인")), str(result["message"])])
 		_save_game()
 
 
