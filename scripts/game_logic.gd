@@ -104,6 +104,10 @@ func generate_listing(item: Dictionary) -> Dictionary:
 
 	var archetype = _choose_archetype()
 	var asking = _calculate_asking(actual_value, archetype, seller)
+	var market_stories: Array = item.get("market_stories", [])
+	var listing_story = "정리 중 나온 물건입니다. 직접 보고 결정해주세요."
+	if not market_stories.is_empty():
+		listing_story = str(market_stories[rng.randi_range(0, market_stories.size() - 1)])
 	var clue_pack = _generate_clues(state, condition, seller, item)
 
 	var public_clues: Array = clue_pack["public"]
@@ -139,6 +143,7 @@ func generate_listing(item: Dictionary) -> Dictionary:
 		"actual_value": actual_value,
 		"asking": asking,
 		"seller": seller,
+		"listing_story": listing_story,
 		"archetype": archetype,
 		"listing_status": "미확인",
 		"initial_clue": initial_clue,
