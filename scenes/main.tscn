@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/listing_card.tscn" id="2_card"]
 
 [sub_resource type="StyleBoxFlat" id="Panel"]
 bg_color = Color(0.105, 0.082, 0.117, 0.96)
@@ -54,45 +55,34 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="Margin/RootVBox"]
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="Margin/RootVBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.956, 0.766, 0.368, 1)
-theme_override_font_sizes/font_size = 22
-text = "괴물 중고마켓"
-
-[node name="Spacer" type="Control" parent="Margin/RootVBox/Header"]
-layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.956, 0.766, 0.368, 1)
+theme_override_font_sizes/font_size = 18
+text = "괴물 중고마켓"
+autowrap_mode = 3
 
 [node name="GoldLabel" type="Label" parent="Margin/RootVBox/Header"]
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.88, 0.48, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 13
 text = "50,000 G"
+horizontal_alignment = 2
+autowrap_mode = 3
 
-[node name="StatsLabel" type="Label" parent="Margin/RootVBox"]
+[node name="InventoryCount" type="Label" parent="Margin/RootVBox/Header"]
+custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "오늘 0회 · 누적 0회 · 최고 0G · 최악 0G · 보유품 0"
-autowrap_mode = 2
-
-[node name="NavRow" type="HBoxContainer" parent="Margin/RootVBox"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="MarketNavButton" type="Button" parent="Margin/RootVBox/NavRow"]
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "마켓 홈"
-
-[node name="InventoryNavButton" type="Button" parent="Margin/RootVBox/NavRow"]
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
 text = "보유품 0"
+horizontal_alignment = 2
+autowrap_mode = 3
 
 [node name="StatusPanel" type="PanelContainer" parent="Margin/RootVBox"]
 layout_mode = 2
@@ -119,46 +109,61 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
 
-[node name="MarketTitle" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+[node name="MarketState" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
-text = "현재 거래 가능 매물"
+theme_override_constants/separation = 3
 
-[node name="MarketInfo" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+[node name="MarketTitle" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketState"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.77, 0.63, 1, 1)
-text = "더 자세히 확인할 정보 4회 남음"
+theme_override_font_sizes/font_size = 18
+text = "어둠마을 야시장"
+autowrap_mode = 3
 
-[node name="ItemButton1" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 96)
+[node name="MarketIntro" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketState"]
 layout_mode = 2
-alignment = 0
-autowrap_mode = 2
-text = "매물 1"
+theme_override_font_sizes/font_size = 12
+text = "오늘도 수상한 물건들이 올라와 있습니다."
+autowrap_mode = 3
 
-[node name="ItemButton2" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 96)
+[node name="MarketInfo" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketState"]
 layout_mode = 2
-alignment = 0
-autowrap_mode = 2
-text = "매물 2"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.77, 0.7, 0.9, 1)
+text = "새 매물 3 · 거래 가능 3
+더 자세히 확인 가능 4회"
+autowrap_mode = 3
 
-[node name="ItemButton3" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 96)
+[node name="FeedTitle" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
 layout_mode = 2
-alignment = 0
-autowrap_mode = 2
-text = "매물 3"
+theme_override_font_sizes/font_size = 12
+text = "오늘 올라온 물건"
+autowrap_mode = 3
+
+[node name="FeedCards" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ListingCard1" parent="Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards" instance=ExtResource("2_card")]
+layout_mode = 2
+
+[node name="ListingCard2" parent="Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards" instance=ExtResource("2_card")]
+layout_mode = 2
+
+[node name="ListingCard3" parent="Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards" instance=ExtResource("2_card")]
+layout_mode = 2
 
 [node name="NextMarketButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "다음 장터 보기"
+autowrap_mode = 3
 
-[node name="ResetButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 36)
+[node name="NextMarketHint" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
 layout_mode = 2
-text = "테스트 데이터 초기화"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.66, 0.75, 1)
+text = "남은 확인 기회를 모두 쓰거나 구매하면 다음 장터가 열립니다."
+autowrap_mode = 3
 
 [node name="DetailPanel" type="PanelContainer" parent="Margin/RootVBox"]
 visible = false
@@ -567,8 +572,20 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "거래 기록"
 
+[node name="StatsLabel" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "완료 거래 0회"
+autowrap_mode = 3
+
+[node name="RecentTitle" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "최근 완료한 거래"
+autowrap_mode = 3
+
 [node name="ResultSummary" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 430)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 text = "결과"
 autowrap_mode = 2
@@ -583,9 +600,43 @@ layout_mode = 2
 autowrap_mode = 2
 text = "남은 보유품 보기"
 
-[node name="Footer" type="Label" parent="Margin/RootVBox"]
+[node name="ResetButton" type="Button" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.42)
-theme_override_font_sizes/font_size = 10
-text = "MVP v0.2.2 · Market Experience Integration"
-horizontal_alignment = 1
+text = "새 게임 시작"
+autowrap_mode = 3
+
+[node name="NavRow" type="HBoxContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MarketNavButton" type="Button" parent="Margin/RootVBox/NavRow"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "홈"
+autowrap_mode = 3
+
+[node name="InventoryNavButton" type="Button" parent="Margin/RootVBox/NavRow"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "보유품"
+autowrap_mode = 3
+
+[node name="RecordsNavButton" type="Button" parent="Margin/RootVBox/NavRow"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "거래 기록"
+autowrap_mode = 3
+
+[node name="ResetConfirmation" type="ConfirmationDialog" parent="."]
+title = "새 게임 시작"
+dialog_text = "골드, 보유품, 거래 기록을 지우고 다시 시작할까요?"
+dialog_autowrap = true
+ok_button_text = "다시 시작"
+cancel_button_text = "취소"

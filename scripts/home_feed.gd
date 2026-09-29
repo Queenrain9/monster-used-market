@@ -1,0 +1,71 @@
+extends RefCounted
+
+# The feed is a public projection, never an appraisal or a recommendation.
+const Content = preload("res://data/content.gd")
+
+
+func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary:
+	var seller: Dictionary = listing.get("seller", {})
+	var personality: Dictionary = seller.get("personality", {})
+	var status = str(listing.get("listing_status", "미확인"))
+	var available = status not in ["구매 완료", "판매 완료"]
+	var viewed = bool(listing.get("viewed", false)) or not listing.get("inspected_actions", []).is_empty()
+	var tags: Array = []
+	if str(seller.get("type", "")) == "urgent":
+		tags.append("급처")
+	elif float(personality.get("discount_receptiveness", 0.0)) >= 0.6:
+		tags.append("흥정 여지 있음")
+	elif str(seller.get("type", "")) == "expert":
+		tags.append("시세에 밝음")
+	elif str(seller.get("type", "")) == "greedy":
+		tags.append("가격 고수")
+	else:
+		tags.append("설명 적극적")
+
+	if not available:
+		tags.append(status)
+	elif status == "거래 중":
+		tags.append("거래 중")
+	elif viewed:
+		tags.append("확인한 매물")
+	else:
+		tags.append("거래 가능")
+
+	return {
+		"name": str(listing.get("name", "")),
+		"price_text": "%sG" % _money(int(listing.get("asking", 0))),
+		"seller_text": "판매자: %s" % str(seller.get("name", "")),
+		"tags_text": " · ".join(tags),
+		"clue_text": str(listing.get("initial_clue", {}).get("text", "")),
+		"feature_text": "특별 매물" if featured and available else "",
+		"action_text": ("다시 보기 ›" if viewed else "자세히 보기 ›") if available else "거래 완료",
+		"available": available
+	}
+
+
+func choose_featured_index(market: Array) -> int:
+	if market.is_empty():
+		return -1
+	# Listing IDs already persist. A deterministic choice does not reroll on back,
+	# consume the game's RNG, or alter hidden values / prices / future markets.
+	var fingerprint = int(str(market[0].get("listing_id", "")).hash())
+	if fingerprint % 3 != 0:
+		return -1
+	var candidates: Array = []
+	for i in range(market.size()):
+		# All existing archetypes have identical eligibility and public appearance.
+		# In particular, jackpot and trap cannot be distinguished by this badge.
+		if Content.ARCHETYPES.has(str(market[i].get("archetype", ""))):
+			candidates.append(i)
+	if candidates.is_empty():
+		return -1
+	return int(candidates[int(fingerprint / 3.0) % candidates.size()])
+
+
+func _money(value: int) -> String:
+	var source = str(abs(value))
+	var result = ""
+	while source.length() > 3:
+		result = "," + source.right(3) + result
+		source = source.left(source.length() - 3)
+	return ("-" if value < 0 else "") + source + result

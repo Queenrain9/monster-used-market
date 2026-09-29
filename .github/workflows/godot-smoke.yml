@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -43,3 +44,9 @@ jobs:
 
       - name: Run core smoke test
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/core_smoke_test.gd
+
+      - name: Run home feed and portrait regression test
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/monster-smoke-data
+          MONSTER_SMOKE_DATA_ROOT: ${{ runner.temp }}/monster-smoke-data
+        run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/home_feed_smoke_test.gd

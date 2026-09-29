@@ -2,15 +2,18 @@ extends Control
 
 const MarketEngine = preload("res://scripts/game_logic.gd")
 const Content = preload("res://data/content.gd")
+const HomeFeed = preload("res://scripts/home_feed.gd")
 
 const STARTING_GOLD = 50000
 const SAVE_PATH = "user://monster_used_market_save_v022.json"
 
 @onready var gold_label = $Margin/RootVBox/Header/GoldLabel
-@onready var stats_label = $Margin/RootVBox/StatsLabel
+@onready var inventory_count_label = $Margin/RootVBox/Header/InventoryCount
+@onready var stats_label = $Margin/RootVBox/ResultPanel/Scroll/Box/StatsLabel
 @onready var status_label = $Margin/RootVBox/StatusPanel/StatusLabel
 @onready var market_nav_button = $Margin/RootVBox/NavRow/MarketNavButton
 @onready var inventory_nav_button = $Margin/RootVBox/NavRow/InventoryNavButton
+@onready var records_nav_button = $Margin/RootVBox/NavRow/RecordsNavButton
 
 @onready var market_panel = $Margin/RootVBox/MarketPanel
 @onready var detail_panel = $Margin/RootVBox/DetailPanel
@@ -20,13 +23,15 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var sale_panel = $Margin/RootVBox/SalePanel
 @onready var result_panel = $Margin/RootVBox/ResultPanel
 
-@onready var market_info_label = $Margin/RootVBox/MarketPanel/Scroll/Box/MarketInfo
-@onready var market_buttons = [
-	$Margin/RootVBox/MarketPanel/Scroll/Box/ItemButton1,
-	$Margin/RootVBox/MarketPanel/Scroll/Box/ItemButton2,
-	$Margin/RootVBox/MarketPanel/Scroll/Box/ItemButton3
+@onready var market_scroll = $Margin/RootVBox/MarketPanel/Scroll
+@onready var market_info_label = $Margin/RootVBox/MarketPanel/Scroll/Box/MarketState/MarketInfo
+@onready var market_cards = [
+	$Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards/ListingCard1,
+	$Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards/ListingCard2,
+	$Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards/ListingCard3
 ]
 @onready var next_market_button = $Margin/RootVBox/MarketPanel/Scroll/Box/NextMarketButton
+@onready var next_market_hint = $Margin/RootVBox/MarketPanel/Scroll/Box/NextMarketHint
 
 @onready var detail_title = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailTitle
 @onready var detail_seller = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerInfo
@@ -85,6 +90,8 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var result_summary = $Margin/RootVBox/ResultPanel/Scroll/Box/ResultSummary
 
 var engine = MarketEngine.new()
+var feed = HomeFeed.new()
+var home_scroll_offset = 0
 var evidence_map = []
 var suspect_map = []
 
@@ -106,6 +113,7 @@ var last_result_text = ""
 
 
 func _ready() -> void:
+	_configure_mobile_ui()
 	_connect_buttons()
 	_setup_options()
 	_load_game()
@@ -116,14 +124,16 @@ func _ready() -> void:
 
 	_update_header()
 	_restore_stage()
+	_save_game()
 
 
 func _connect_buttons() -> void:
 	market_nav_button.pressed.connect(_go_market)
 	inventory_nav_button.pressed.connect(_go_inventory)
+	records_nav_button.pressed.connect(_go_records)
 
-	for i in range(market_buttons.size()):
-		market_buttons[i].pressed.connect(_open_listing.bind(i))
+	for i in range(market_cards.size()):
+		market_cards[i].opened.connect(_open_listing.bind(i))
 	for i in range(inspect_buttons.size()):
 		inspect_buttons[i].pressed.connect(_investigate.bind(i))
 	for i in range(post_buttons.size()):
@@ -132,7 +142,8 @@ func _connect_buttons() -> void:
 		buyer_buttons[i].pressed.connect(_select_buyer.bind(i))
 
 	next_market_button.pressed.connect(_request_next_market)
-	$Margin/RootVBox/MarketPanel/Scroll/Box/ResetButton.pressed.connect(_reset_save)
+	$Margin/RootVBox/ResultPanel/Scroll/Box/ResetButton.pressed.connect(_confirm_reset_save)
+	$ResetConfirmation.confirmed.connect(_reset_save)
 
 	max_buy_slider.value_changed.connect(_max_buy_changed)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/StartDealButton.pressed.connect(_start_deal)
@@ -176,6 +187,8 @@ func _create_new_market(force: bool = false, save_after: bool = true) -> void:
 		return
 
 	market_items = engine.generate_market(3)
+	home_scroll_offset = 0
+	market_scroll.scroll_vertical = 0
 	investigation_remaining = Content.MARKET_INVESTIGATION_BUDGET
 	selected_market_index = -1
 	current_stage = "market"
@@ -200,28 +213,43 @@ func _can_rotate_market() -> bool:
 
 
 func _render_market() -> void:
-	market_info_label.text = "현재 거래 가능 매물 · 더 자세히 확인할 정보 %d회 남음" % investigation_remaining
-
-	for i in range(market_buttons.size()):
+	var available_count = 0
+	var new_count = 0
+	var featured_index = feed.choose_featured_index(market_items)
+	for i in range(market_cards.size()):
+		market_cards[i].visible = i < market_items.size()
 		if i >= market_items.size():
-			market_buttons[i].visible = false
 			continue
-		market_buttons[i].visible = true
 		var listing: Dictionary = market_items[i]
-		var seller: Dictionary = listing["seller"]
-		var initial: Dictionary = listing["initial_clue"]
-		var status = str(listing.get("listing_status", "미확인"))
-		market_buttons[i].text = "%s · %sG\n%s · %s\n%s" % [
-			listing["name"],
-			_money(int(listing["asking"])),
-			seller["name"],
-			status,
-			initial["text"]
-		]
-		market_buttons[i].disabled = status in ["구매 완료", "판매 완료"]
+		var data = feed.describe_listing(listing, i == featured_index)
+		market_cards[i].render(data)
+		if bool(data["available"]):
+			available_count += 1
+			if not bool(listing.get("viewed", false)) and listing.get("inspected_actions", []).is_empty():
+				new_count += 1
 
+	market_info_label.text = "새 매물 %d · 거래 가능 %d\n더 자세히 확인 가능 %d회" % [new_count, available_count, investigation_remaining]
 	next_market_button.disabled = not _can_rotate_market()
-	next_market_button.text = "다음 장터 보기" if _can_rotate_market() else "조사 또는 구매 후 다음 장터 가능"
+	next_market_button.text = "다음 장터 보기"
+	if not _can_rotate_market():
+		next_market_hint.text = "남은 확인 기회를 모두 쓰거나 구매하면 다음 장터가 열립니다."
+	elif investigation_remaining <= 0:
+		next_market_hint.text = "확인 기회를 모두 썼어요. 다음 장터의 새 매물을 둘러볼 수 있습니다."
+	else:
+		next_market_hint.text = "이 장터에서 물건을 구매했어요. 다음 장터도 둘러볼 수 있습니다."
+
+
+func _remember_home_position() -> void:
+	if current_stage == "market":
+		home_scroll_offset = market_scroll.scroll_vertical
+
+
+func _restore_home_position() -> void:
+	# Wait for the previously hidden container to finish its layout before clamping.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if current_stage == "market":
+		market_scroll.scroll_vertical = home_scroll_offset
 
 
 func _open_listing(index: int) -> void:
@@ -229,7 +257,10 @@ func _open_listing(index: int) -> void:
 		return
 	if str(market_items[index].get("listing_status", "")) in ["구매 완료", "판매 완료"]:
 		return
+	_remember_home_position()
+	market_items[index]["viewed"] = true
 	selected_market_index = index
+	$Margin/RootVBox/DetailPanel/Scroll.scroll_vertical = 0
 	current_stage = "detail"
 	_render_detail()
 	_show_panel(detail_panel)
@@ -271,7 +302,7 @@ func _populate_suspect_options(listing: Dictionary) -> void:
 	for clue in clues:
 		if clue["kind"] == "판매자 주장":
 			continue
-		suspect_option.add_item("[%s] %s" % [clue["kind"], clue["text"]])
+		_add_clue_option(suspect_option, "[%s] %s" % [clue["kind"], clue["text"]])
 		suspect_map.append(str(clue["text"]))
 
 
@@ -375,7 +406,7 @@ func _render_deal() -> void:
 	evidence_map = []
 	var evidence_options = engine.negotiation_evidence_options(listing)
 	for evidence in evidence_options:
-		evidence_option.add_item(str(evidence["label"]))
+		_add_clue_option(evidence_option, str(evidence["label"]))
 		evidence_map.append(int(evidence["clue_index"]))
 	var suspect_text = str(plan.get("suspect_text", ""))
 	if not suspect_text.is_empty():
@@ -498,15 +529,18 @@ func _complete_purchase(price: int) -> void:
 
 
 func _go_market() -> void:
+	_remember_home_position()
 	selected_market_index = -1
 	current_stage = "market"
 	_render_market()
 	_show_panel(market_panel)
-	_set_status("매물은 그대로 남아 있습니다. 필요하면 다른 물건과 비교해보세요.")
+	_restore_home_position()
+	_set_status("다른 물건과 비교하고, 궁금한 매물을 다시 살펴보세요.")
 	_save_game()
 
 
 func _go_inventory() -> void:
+	_remember_home_position()
 	current_stage = "inventory"
 	_render_inventory()
 	_show_panel(inventory_panel)
@@ -514,12 +548,28 @@ func _go_inventory() -> void:
 	_save_game()
 
 
+func _go_records() -> void:
+	_remember_home_position()
+	current_stage = "result"
+	_render_records()
+	_show_panel(result_panel)
+	_set_status("최근 완료한 거래와 지금까지의 손익을 다시 확인할 수 있습니다.")
+	_save_game()
+
+
+func _render_records() -> void:
+	_update_header()
+	result_summary.text = last_result_text if not last_result_text.is_empty() else "아직 완료한 거래가 없습니다.\n구매한 물건을 판매하면 이곳에서 최근 거래의 손익과 판단을 다시 확인할 수 있습니다."
+
+
 func _render_inventory() -> void:
 	inventory_list.clear()
 	for owned in owned_items:
 		var listing: Dictionary = owned["listing"]
 		var state_text = _owned_state_text(owned)
-		inventory_list.add_item("%s · 매입 %sG · %s" % [listing["name"], _money(int(owned["purchase_price"])), state_text])
+		var full_text = "%s · 매입 %sG · %s" % [listing["name"], _money(int(owned["purchase_price"])), state_text]
+		inventory_list.add_item(_compact_option_text(inventory_list, full_text))
+		inventory_list.set_item_tooltip(inventory_list.item_count - 1, full_text)
 
 	if owned_items.is_empty():
 		selected_owned_index = -1
@@ -803,8 +853,7 @@ func _sell_selected_buyer() -> void:
 	owned_items.remove_at(selected_owned_index)
 	selected_owned_index = -1
 	current_stage = "result"
-	result_summary.text = last_result_text
-	_update_header()
+	_render_records()
 	_show_panel(result_panel)
 	_set_status("거래 기록을 보고 내가 세운 매입 상한과 판매처 판단이 어땠는지 확인하세요.")
 	_save_game()
@@ -851,14 +900,56 @@ func _select_option_by_text(option_button: OptionButton, text_value: String) -> 
 func _show_panel(target) -> void:
 	for panel in [market_panel, detail_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
+	$Margin/RootVBox/StatusPanel.visible = target != market_panel
+	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "deal"])
+	inventory_nav_button.set_pressed_no_signal(current_stage in ["inventory", "appraisal", "sale"])
+	records_nav_button.set_pressed_no_signal(current_stage == "result")
 
 
 func _update_header() -> void:
 	gold_label.text = "%s G" % _money(gold)
-	stats_label.text = "오늘 %d회 · 누적 %d회 · 최고 %s · 최악 %s · 보유품 %d" % [
-		today_deals, total_deals, _signed_money(best_profit), _signed_money(worst_loss), owned_items.size()
+	inventory_count_label.text = "보유품 %d" % owned_items.size()
+	stats_label.text = "완료 거래 %d회 · 오늘 %d회\n최고 순이익 %s · 최대 손실 %s" % [
+		total_deals, today_deals, _signed_money(best_profit), _signed_money(worst_loss)
 	]
-	inventory_nav_button.text = "보유품 %d" % owned_items.size()
+
+
+func _configure_mobile_ui() -> void:
+	for label in find_children("*", "Label", true, false):
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	for button in find_children("*", "Button", true, false):
+		# Godot-owned dialog buttons use intrinsic text widths. Wrapping them
+		# reduces their HBox minimum to padding and makes their labels disappear.
+		if button.owner == null:
+			continue
+		if button is OptionButton:
+			button.fit_to_longest_item = false
+			button.clip_text = true
+			button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		else:
+			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	for scroll in find_children("*", "ScrollContainer", true, false):
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	inventory_list.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+
+
+func _add_clue_option(option: OptionButton, full_text: String) -> void:
+	option.add_item(_compact_option_text(option, full_text))
+	option.get_popup().set_item_tooltip(option.item_count - 1, full_text)
+
+
+func _compact_option_text(control: Control, full_text: String) -> String:
+	# PopupMenu items cannot wrap. Keep the full clue in the detail and tooltip,
+	# while the selectable label fits both the button and its embedded popup.
+	var font = control.get_theme_font("font")
+	var font_size = control.get_theme_font_size("font_size")
+	var max_width = max(40.0, get_viewport_rect().size.x - 100.0)
+	var compact = full_text.replace("\n", " ")
+	if font.get_string_size(compact, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= max_width:
+		return compact
+	while compact.length() > 1 and font.get_string_size(compact + "…", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > max_width:
+		compact = compact.left(compact.length() - 1)
+	return compact + "…"
 
 
 func _set_status(text_value: String) -> void:
@@ -902,11 +993,16 @@ func _restore_stage() -> void:
 			else:
 				_go_inventory()
 		"result":
-			result_summary.text = last_result_text
+			_render_records()
 			_show_panel(result_panel)
 		_:
 			_render_market()
 			_show_panel(market_panel)
+			_restore_home_position()
+
+
+func _confirm_reset_save() -> void:
+	$ResetConfirmation.popup_centered(Vector2i(min(320, int(get_viewport_rect().size.x) - 24), 180))
 
 
 func _reset_save() -> void:
@@ -926,12 +1022,13 @@ func _reset_save() -> void:
 	_create_new_market(true, false)
 	_update_header()
 	_save_game()
-	_set_status("v0.2.2 테스트 데이터를 초기화했습니다.")
+	_set_status("새 장터에서 다시 시작합니다.")
 
 
 func _save_game() -> void:
 	var payload = {
-		"version": 22,
+		"version": 23,
+		"home_scroll_offset": home_scroll_offset,
 		"gold": gold,
 		"total_deals": total_deals,
 		"today_deals": today_deals,
@@ -954,14 +1051,20 @@ func _save_game() -> void:
 
 func _load_game() -> void:
 	today_date = Time.get_date_string_from_system()
-	if not FileAccess.file_exists(SAVE_PATH):
-		return
-	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var load_path = SAVE_PATH
+	if not FileAccess.file_exists(load_path):
+		# Desktop Godot uses the project title as its default save directory.
+		# Xogot can keep user:// in place; keeping the existing filename covers it.
+		load_path = OS.get_user_data_dir().get_base_dir().path_join("괴물 중고마켓 MVP v0.2.2").path_join(SAVE_PATH.get_file())
+		if not FileAccess.file_exists(load_path):
+			return
+	var file = FileAccess.open(load_path, FileAccess.READ)
 	if file == null:
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return
+	home_scroll_offset = max(0, int(parsed.get("home_scroll_offset", 0)))
 	gold = int(parsed.get("gold", STARTING_GOLD))
 	total_deals = int(parsed.get("total_deals", 0))
 	today_deals = int(parsed.get("today_deals", 0))

@@ -3,7 +3,8 @@ config_version=5
 
 [application]
 
-config/name="괴물 중고마켓 MVP v0.2.2"
+config/name="괴물 중고마켓 MVP v0.2.3"
+config/version="0.2.3"
 run/main_scene="res://scenes/main.tscn"
 
 [display]
@@ -13,6 +14,7 @@ window/size/viewport_height=844
 window/size/window_width_override=390
 window/size/window_height_override=844
 window/stretch/mode="canvas_items"
+window/subwindows/embed_subwindows=true
 
 [input_devices]
 

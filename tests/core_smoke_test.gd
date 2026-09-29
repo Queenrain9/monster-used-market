@@ -91,10 +91,21 @@ func _init() -> void:
 		_fail("not enough listing variety")
 		return
 	if trade_plan_checks != 60 or quote_checks != 60:
-		_fail("v0.2.2 core flow not fully exercised")
+		_fail("core flow not fully exercised")
 		return
 
-	print("SMOKE OK v0.2.2: 20 markets / 60 listings, trade plans, inventory-ready ownership flow and 3-of-4 resale discovery")
+	var evidence_listing = engine.generate_listing(Content.ITEMS[0])
+	evidence_listing["asking"] = 10000
+	evidence_listing["seller"]["type"] = "urgent"
+	evidence_listing["seller"]["personality"] = Content.SELLER_TYPES["urgent"].duplicate(true)
+	evidence_listing["discovered_clues"] = [{"kind": "부정적", "text": "균열 흔적", "aligned": true}]
+	var without_evidence = engine.negotiate_offer(evidence_listing, engine.start_negotiation(evidence_listing), 5600, -1)
+	var with_evidence = engine.negotiate_offer(evidence_listing, engine.start_negotiation(evidence_listing), 5600, 0)
+	if bool(without_evidence["accepted"]) or not bool(with_evidence["accepted"]) or with_evidence["state"]["evidence_used"] != ["균열 흔적"]:
+		_fail("aligned discovered evidence no longer changes the negotiation outcome")
+		return
+
+	print("SMOKE OK v0.2.3: 20 markets / 60 listings, trade plans, clue-based negotiation and 3-of-4 resale discovery")
 	quit(0)
 
 

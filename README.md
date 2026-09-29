@@ -1,28 +1,53 @@
-# 괴물 중고마켓 MVP v0.2.2
+# 괴물 중고마켓 MVP v0.2.3 — Home Feed Integration
 
-v0.2.2는 v0.2.1의 조사·추론·가격 협상 게임성을 유지하면서 이를 **중고마켓 홈 → 매물 상세 → 거래 → 보유품 → 감정소 → 재판매 → 거래 기록** 구조로 재배치한 버전입니다.
+“오늘 뭐 올라왔지?” 하고 세 매물을 둘러보는 **홈 피드 → 상세 조사 → 거래 계획·흥정 → 보유품 → 선택 감정 → 재판매 → 거래 기록** 흐름입니다. v0.2.2의 숨은 물건 상태와 제한된 조사·견적, 가격 협상, 정보 비용, 판매처 선택과 손익 복기를 유지합니다.
 
-## 핵심 변화
+## 이번 버전
 
-- 3개 매물은 "3지선다"가 아니라 마켓 홈의 거래 가능 매물로 유지
-- 상세 화면에서 제한된 정보 조사
-- 구매 전 설문 제거 → **예상 재판매가 + 내 최대 매입가**로 거래 계획 작성
-- 가격 + 단서 근거 중심 흥정 유지
-- 구매한 물건은 즉시 감정으로 넘어가지 않고 **보유품**에 저장
-- 보유품에서 감정소 / 판매처 / 보관을 자유롭게 선택
-- 감정소의 검사·전문 감정은 선택적 정보 구매로 유지
-- 재판매는 **전문 판매처 3곳 + 고물상 1곳**
-- 전문 견적은 2회만 요청 가능, 고물상 즉시가는 항상 공개
-- 결과는 거래 기록 형태로 매입 상한·판매 예상·정보비·판매처 선택을 복기
-- 다음 장터는 조사 4회를 모두 사용하거나 실제 구매를 진행한 뒤 열 수 있어 무료 무한 새로고침을 막음
+- 컴팩트한 골드·보유품 상단과 어둠마을 야시장 상태
+- 이름, 희망가, 판매자, 데이터 기반 태그와 공개 단서 하나를 담은 세로 카드 3개
+- 가끔 한 개의 특별 매물: 모든 archetype이 같은 표시를 쓰며 대박이나 안전을 보장하지 않음
+- 다른 매물을 비교할 때 매물·단서·공유 조사 잔량·흥정 상태·홈 스크롤 유지
+- 조사 기회 소진 또는 실제 구매 후에만 가능한 ‘다음 장터 보기’와 조건 안내
+- 고정 하단 홈 / 보유품 / 거래 기록, 기존 최근 거래와 누적 손익 재진입
+- v0.2.2 저장 호환, 390px 세로 UI와 긴 단서·선택 메뉴 폭 제한
+
+검색·필터, 가짜 메뉴, 이미지 에셋과 새 핵심 게임 시스템은 추가하지 않습니다. 전문 감정은 선택한 보유품에서 이용하고, 감정 없이 판매해도 됩니다.
 
 ## 실행
 
-Godot 4.x에서 저장소 루트를 열고 실행합니다.
+Godot 4.5.1 이상에서 저장소 루트를 엽니다.
 
 - 메인 씬: `res://scenes/main.tscn`
 - 기준 해상도: 390×844
-- PC 마우스 / 모바일 터치 에뮬레이션 유지
-- 실제 이미지 에셋 없이 기본 Control UI만 사용
+- PC 마우스 / iPhone Xogot 터치 대응, 기본 Control UI만 사용
+- 첫 실행 시 홈, 저장이 있으면 진행 중 화면과 상태 복원
 
-자세한 설계는 `docs/V0_2_2_MARKET_EXPERIENCE.md`를 참고하세요.
+## 자동 검증
+
+```sh
+godot --headless --path . --quit-after 3
+godot --headless --path . -s res://tests/core_smoke_test.gd
+```
+
+실제 화면과 저장을 검사하는 home feed smoke는 **격리된 저장 폴더**에서 실행합니다.
+
+Linux:
+
+```sh
+export XDG_DATA_HOME="$PWD/.godot/smoke-data"
+export MONSTER_SMOKE_DATA_ROOT="$XDG_DATA_HOME"
+godot --headless --path . -s res://tests/home_feed_smoke_test.gd
+```
+
+Windows PowerShell:
+
+```powershell
+$env:APPDATA = Join-Path (Get-Location) '.godot/smoke-data'
+$env:MONSTER_SMOKE_DATA_ROOT = $env:APPDATA
+godot --headless --path . -s res://tests/home_feed_smoke_test.gd
+```
+
+GitHub Actions에서도 메인 씬 부팅, core smoke, 실제 UI의 390×844 가로 넘침과 거래/저장 회귀를 검증합니다. iPhone Xogot 기기 확인은 별도로 필요합니다.
+
+설계: [v0.2.3 홈 피드](docs/V0_2_3_HOME_FEED.md), [v0.2.2 마켓 경험](docs/V0_2_2_MARKET_EXPERIENCE.md).
