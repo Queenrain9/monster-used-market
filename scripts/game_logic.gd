@@ -131,6 +131,7 @@ func generate_listing(item: Dictionary) -> Dictionary:
 		"category": item["category"],
 		"tags": item["tags"].duplicate(),
 		"investigation_profile": str(item.get("investigation_profile", "")),
+		"investigation_overrides": item.get("investigation_overrides", {}).duplicate(true),
 		"base_value": item["base_value"],
 		"state": state,
 		"condition": condition,
@@ -153,19 +154,23 @@ func generate_listing(item: Dictionary) -> Dictionary:
 
 
 func investigation_options(listing: Dictionary) -> Array:
-	var item = _item_definition(str(listing.get("item_id", "")))
-	if not item.is_empty():
-		var profile_id = str(item.get("investigation_profile", ""))
-		if Content.INVESTIGATION_PROFILES.has(profile_id):
-			var options: Array = Content.INVESTIGATION_PROFILES[profile_id].duplicate(true)
-			var overrides: Dictionary = item.get("investigation_overrides", {})
-			for i in range(options.size()):
-				var action_id = str(options[i]["id"])
-				if overrides.has(action_id):
-					var patch: Dictionary = overrides[action_id]
-					for key in patch.keys():
-						options[i][key] = patch[key]
-			return options
+	var profile_id = str(listing.get("investigation_profile", ""))
+	var overrides: Dictionary = listing.get("investigation_overrides", {})
+	if profile_id.is_empty():
+		var item = _item_definition(str(listing.get("item_id", "")))
+		if not item.is_empty():
+			profile_id = str(item.get("investigation_profile", ""))
+			overrides = item.get("investigation_overrides", {})
+
+	if Content.INVESTIGATION_PROFILES.has(profile_id):
+		var options: Array = Content.INVESTIGATION_PROFILES[profile_id].duplicate(true)
+		for i in range(options.size()):
+			var action_id = str(options[i]["id"])
+			if overrides.has(action_id):
+				var patch: Dictionary = overrides[action_id]
+				for key in patch.keys():
+					options[i][key] = patch[key]
+		return options
 
 	var fallback = Content.INVESTIGATION_ACTIONS.duplicate(true)
 	for option in fallback:
