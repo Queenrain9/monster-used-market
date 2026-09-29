@@ -546,12 +546,12 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "시세 조사"
 
-[node name="NegotiationJumpButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
-custom_minimum_size = Vector2(0, 42)
+[node name="NegotiationJumpButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-text = "내 가격 정하기"
+theme_override_font_sizes/font_size = 11
+text = "이 물건, 얼마까지 낼지 정하기"
 
 [node name="InquiryPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 visible = false
@@ -925,22 +925,43 @@ text = "보유품"
 
 [node name="InventoryHelp" type="Label" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
 layout_mode = 2
-text = "구매한 물건은 바로 팔지 않아도 됩니다. 감정하거나 보관하고, 원하는 때 판매처를 찾아보세요."
+text = "방금 받아온 물건을 다시 살펴보고, 감정할지 바로 팔지 정하세요."
+autowrap_mode = 2
+
+[node name="PurchaseHandoffPanel" type="PanelContainer" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="Margin/RootVBox/InventoryPanel/Scroll/Box/PurchaseHandoffPanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="Margin/RootVBox/InventoryPanel/Scroll/Box/PurchaseHandoffPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "직거래 완료"
+
+[node name="Text" type="Label" parent="Margin/RootVBox/InventoryPanel/Scroll/Box/PurchaseHandoffPanel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.3, 0.33, 0.37, 1)
+text = "판매자에게 물건을 받아왔습니다."
 autowrap_mode = 2
 
 [node name="InventoryList" type="ItemList" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 150)
+custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 
 [node name="ItemArt" type="TextureRect" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 88)
+custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
 [node name="InventoryDetail" type="Label" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 170)
+custom_minimum_size = Vector2(0, 130)
 layout_mode = 2
 text = "보유품 상세"
 autowrap_mode = 2
