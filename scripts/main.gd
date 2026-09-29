@@ -572,8 +572,15 @@ func _reset_core_progress() -> void:
 	daily_goal_claimed = false
 	last_progress_message = ""
 
+	upgrade_levels = {
+		"storage":0,
+		"notebook":0,
+		"appraisal":0,
+		"network":0,
+		"routes":0
+	}
 	current_district_id = "night_market"
-	market_visits_remaining = Content.DAY_MARKET_VISITS
+	market_visits_remaining = _daily_market_visit_capacity()
 	day_start_gold = STARTING_GOLD
 	last_day_summary = {}
 	day_event_id = ""
@@ -619,6 +626,167 @@ func _apply_trade_progress(profit: int, listing: Dictionary) -> Dictionary:
 		"goal_gold":goal_gold,
 		"rank":_merchant_rank()
 	}
+
+
+func _upgrade_definition(upgrade_id: String) -> Dictionary:
+	for upgrade in Content.UPGRADES:
+		if str(upgrade.get("id", "")) == upgrade_id:
+			return upgrade
+	return {}
+
+
+func _upgrade_level(upgrade_id: String) -> int:
+	return max(0, int(upgrade_levels.get(upgrade_id, 0)))
+
+
+func _upgrade_value(upgrade_id: String) -> int:
+	var upgrade = _upgrade_definition(upgrade_id)
+	if upgrade.is_empty():
+		return 0
+	var level = _upgrade_level(upgrade_id)
+	if level <= 0:
+		return int(upgrade.get("base_value", 0))
+	var levels: Array = upgrade.get("levels", [])
+	var index = clamp(level - 1, 0, max(0, levels.size() - 1))
+	return int(levels[index].get("value", upgrade.get("base_value", 0)))
+
+
+func _inventory_capacity() -> int:
+	return _upgrade_value("storage")
+
+
+func _market_investigation_capacity() -> int:
+	return _upgrade_value("notebook")
+
+
+func _professional_appraisal_discount() -> int:
+	return _upgrade_value("appraisal")
+
+
+func _quote_request_capacity() -> int:
+	return _upgrade_value("network")
+
+
+func _daily_market_visit_capacity() -> int:
+	return _upgrade_value("routes")
+
+
+func _professional_appraisal_cost(listing: Dictionary) -> int:
+	var base_cost = engine.professional_appraisal_cost(listing)
+	var discount = _professional_appraisal_discount()
+	if discount <= 0:
+		return base_cost
+	var step = max(1, int(Content.INFORMATION_COST_ROUND_TO))
+	var discounted = float(base_cost) * (1.0 - float(discount) / 100.0)
+	return max(step, int(round(discounted / float(step))) * step)
+
+
+func _next_rank_info() -> Dictionary:
+	for entry in [
+		{"rep":60,"name":"동네 감정꾼"},
+		{"rep":150,"name":"골목 상인"},
+		{"rep":300,"name":"기묘품 중개상"},
+		{"rep":600,"name":"어둠마을 상인"}
+	]:
+		if merchant_reputation < int(entry["rep"]):
+			return entry
+	return {"rep":600,"name":"최고 등급"}
+
+
+func _render_workshop() -> void:
+	_update_header()
+	workshop_gold_label.text = "%s G" % _money(gold)
+	workshop_rank_label.text = "%s · 평판 %d" % [_merchant_rank(), merchant_reputation]
+	var next_rank = _next_rank_info()
+	if str(next_rank["name"]) == "최고 등급":
+		workshop_progress_label.text = "최고 상인 등급 달성"
+	else:
+		workshop_progress_label.text = "다음 등급 %s · 평판 %d까지 %d" % [
+			str(next_rank["name"]),
+			int(next_rank["rep"]),
+			max(0, int(next_rank["rep"]) - merchant_reputation)
+		]
+	var unlocked_names = []
+	for district in Content.DISTRICTS:
+		if _district_unlocked(district):
+			unlocked_names.append(str(district["name"]))
+	workshop_unlock_label.text = "열린 상권 · %s" % " · ".join(unlocked_names)
+
+	for i in range(upgrade_cards.size()):
+		if i >= Content.UPGRADES.size():
+			upgrade_cards[i].hide()
+			continue
+		upgrade_cards[i].show()
+		var upgrade: Dictionary = Content.UPGRADES[i]
+		var upgrade_id = str(upgrade["id"])
+		var level = _upgrade_level(upgrade_id)
+		var levels: Array = upgrade.get("levels", [])
+		var current_value = _upgrade_value(upgrade_id)
+		upgrade_name_labels[i].text = str(upgrade["name"])
+		upgrade_level_labels[i].text = "Lv.%d / %d" % [level, levels.size()]
+		upgrade_description_labels[i].text = str(upgrade["description"])
+		upgrade_effect_labels[i].text = "현재 효과 · %d%s" % [current_value, str(upgrade.get("unit", ""))]
+		if level >= levels.size():
+			upgrade_requirement_labels[i].text = "모든 업그레이드를 완료했습니다."
+			upgrade_buy_buttons[i].text = "최대 단계"
+			upgrade_buy_buttons[i].disabled = true
+			continue
+		var next: Dictionary = levels[level]
+		var rep_need = int(next.get("reputation", 0))
+		var cost = int(next.get("cost", 0))
+		upgrade_requirement_labels[i].text = "다음 효과 %d%s · 평판 %d · %sG" % [
+			int(next.get("value", current_value)),
+			str(upgrade.get("unit", "")),
+			rep_need,
+			_money(cost)
+		]
+		if merchant_reputation < rep_need:
+			upgrade_buy_buttons[i].text = "평판 %d 필요" % rep_need
+			upgrade_buy_buttons[i].disabled = true
+		elif gold < cost:
+			upgrade_buy_buttons[i].text = "%sG 필요" % _money(cost)
+			upgrade_buy_buttons[i].disabled = true
+		else:
+			upgrade_buy_buttons[i].text = "%sG로 업그레이드" % _money(cost)
+			upgrade_buy_buttons[i].disabled = false
+
+
+func _go_workshop() -> void:
+	current_stage = "workshop"
+	_render_workshop()
+	_show_panel(workshop_panel)
+	_set_status("평판으로 새 단계가 열리고, 골드를 투자해 거래 능력을 확장할 수 있습니다.")
+	_save_game()
+
+
+func _buy_upgrade(index: int) -> void:
+	if index < 0 or index >= Content.UPGRADES.size():
+		return
+	var upgrade: Dictionary = Content.UPGRADES[index]
+	var upgrade_id = str(upgrade["id"])
+	var level = _upgrade_level(upgrade_id)
+	var levels: Array = upgrade.get("levels", [])
+	if level >= levels.size():
+		return
+	var next: Dictionary = levels[level]
+	var rep_need = int(next.get("reputation", 0))
+	var cost = int(next.get("cost", 0))
+	if merchant_reputation < rep_need or gold < cost:
+		return
+	var old_route_capacity = _daily_market_visit_capacity()
+	gold -= cost
+	upgrade_levels[upgrade_id] = level + 1
+	if upgrade_id == "routes":
+		var gain = max(0, _daily_market_visit_capacity() - old_route_capacity)
+		market_visits_remaining += gain
+	_update_header()
+	_render_workshop()
+	_set_status("%s Lv.%d 업그레이드 완료 · %s" % [
+		str(upgrade["name"]),
+		level + 1,
+		"현재 플레이에 바로 적용됩니다."
+	])
+	_save_game()
 
 
 func _district_definition(district_id: String) -> Dictionary:
@@ -727,7 +895,7 @@ func _end_day() -> void:
 	today_date = Time.get_date_string_from_system()
 	daily_goal_progress = 0
 	daily_goal_claimed = false
-	market_visits_remaining = Content.DAY_MARKET_VISITS
+	market_visits_remaining = _daily_market_visit_capacity()
 	day_start_gold = gold
 	day_event_id = ""
 	market_items = []
@@ -770,7 +938,7 @@ func _create_new_market(force: bool = false, save_after: bool = true, consume_vi
 	if is_instance_valid(search_input):
 		search_input.text = ""
 	market_scroll.scroll_vertical = 0
-	investigation_remaining = Content.MARKET_INVESTIGATION_BUDGET
+	investigation_remaining = _market_investigation_capacity()
 	selected_market_index = -1
 	current_stage = "market"
 	_render_market()
