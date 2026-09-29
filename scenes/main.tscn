@@ -1832,39 +1832,186 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "거래 기록"
 
-[node name="StatsLabel" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+[node name="StatsPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "완료 거래 0회"
-autowrap_mode = 3
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="StatsLabel" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/StatsPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "완료 거래 0회 · 오늘 0회"
+autowrap_mode = 2
 
 [node name="RecentTitle" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "최근 완료한 거래"
-autowrap_mode = 3
+
+[node name="RecordHero" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Row" type="HBoxContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ItemArt" type="TextureRect" parent="Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="ItemName" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "최근 거래"
+max_lines_visible = 1
+text_overrun_behavior = 3
+
+[node name="BuyerLine" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "판매처"
+autowrap_mode = 2
+
+[node name="ProfitLabel" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.15, 0.47, 0.29, 1)
+text = "순이익 +0G"
+
+[node name="MoneyPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Grid" type="GridContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 2
+
+[node name="PurchaseCaption" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.45, 0.48, 0.53, 1)
+text = "매입"
+
+[node name="CostCaption" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.45, 0.48, 0.53, 1)
+text = "정보비"
+
+[node name="SaleCaption" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.45, 0.48, 0.53, 1)
+text = "판매"
+
+[node name="PurchaseValue" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "0G"
+
+[node name="CostValue" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "0G"
+
+[node name="SaleValue" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "0G"
+
+[node name="DecisionTitle" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "내 판단 복기"
+
+[node name="DecisionPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="DecisionText" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/DecisionPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "판단 복기"
+autowrap_mode = 2
+
+[node name="AnalysisPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="AnalysisText" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/AnalysisPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "거래 분석"
+autowrap_mode = 2
+
+[node name="TruthTitle" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "거래 뒤에 알게 된 것"
+
+[node name="TruthPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="TruthText" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/TruthPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "실제 물건"
+autowrap_mode = 2
+
+[node name="SellerReviewPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="SellerReviewText" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/SellerReviewPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "판매자 복기"
+autowrap_mode = 2
+
+[node name="AssetsLabel" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.36, 0.39, 0.43, 1)
+text = "현재 자산 0G"
+
+[node name="LegacySummary" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+visible = false
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+text = "기존 거래 기록"
+autowrap_mode = 2
 
 [node name="ResultSummary" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 120)
+visible = false
 layout_mode = 2
 text = "결과"
 autowrap_mode = 2
 
 [node name="ResultMarketButton" type="Button" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-autowrap_mode = 2
 text = "마켓 홈으로"
 
 [node name="ResultInventoryButton" type="Button" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-autowrap_mode = 2
 text = "남은 보유품 보기"
 
 [node name="ResetButton" type="Button" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "새 게임 시작"
-autowrap_mode = 3
 
 [node name="NavRow" type="HBoxContainer" parent="Margin/RootVBox"]
 layout_mode = 2
