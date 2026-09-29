@@ -3535,7 +3535,12 @@ func _read_save_dictionary(path: String) -> Dictionary:
 	var file = FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		return {}
-	var parsed = JSON.parse_string(file.get_as_text())
+	var raw_text = file.get_as_text()
+	file.close()
+	var parser = JSON.new()
+	if parser.parse(raw_text) != OK:
+		return {}
+	var parsed = parser.data
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return {}
 	return parsed
