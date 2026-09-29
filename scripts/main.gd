@@ -1803,6 +1803,130 @@ func _load_game() -> void:
 	current_stage = str(parsed.get("stage", "market"))
 	last_result_text = str(parsed.get("last_result_text", ""))
 	last_result_record = parsed.get("last_result_record", {})
+	if last_result_record.is_empty() and not last_result_text.is_empty():
+		last_result_record = _legacy_record_to_structured(last_result_text)
+
+
+func _number_from_record_line(line: String) -> int:
+	var token = ""
+	for ch in line:
+		if "0123456789+-".contains(ch):
+			token += ch
+	if token.is_empty() or token == "+" or token == "-":
+		return 0
+	return int(token)
+
+
+func _legacy_record_to_structured(text_value: String) -> Dictionary:
+	if text_value.strip_edges().is_empty():
+		return {}
+
+	var item_name = ""
+	var item_id = ""
+	var purchase_price = 0
+	var info_cost = 0
+	var sale_price = 0
+	var profit = 0
+	var actual_value = 0
+	var current_assets = gold
+	var buyer_name = "판매처"
+	var buyer_reason = "거래 완료"
+	var seller_observation = "-"
+	var seller_actual = "-"
+	var state = "-"
+	var rarity = "-"
+	var condition = "-"
+	var plan_feedback: Array = []
+	var analysis_lines: Array = []
+	var section = ""
+
+	for raw_line in text_value.split("\n", false):
+		var line = str(raw_line).strip_edges()
+		if line.is_empty():
+			continue
+		if line.begins_with("거래 완료 · "):
+			item_name = line.trim_prefix("거래 완료 · ").strip_edges()
+			continue
+		if line == "내 거래 계획 복기":
+			section = "plan"
+			continue
+		if line == "거래 분석":
+			section = "analysis"
+			continue
+		if line == "판매자 복기":
+			section = "seller"
+			continue
+		if line == "실제 물건":
+			section = "truth"
+			continue
+		if line.begins_with("매입가 "):
+			purchase_price = _number_from_record_line(line)
+			continue
+		if line.begins_with("검사/감정비 "):
+			info_cost = _number_from_record_line(line)
+			continue
+		if line.begins_with("판매가 "):
+			sale_price = _number_from_record_line(line)
+			continue
+		if line.begins_with("순이익 "):
+			profit = _number_from_record_line(line)
+			continue
+		if line.begins_with("현재 자산 "):
+			current_assets = _number_from_record_line(line)
+			continue
+		if line.begins_with("실제 가치 "):
+			actual_value = _number_from_record_line(line)
+			continue
+
+		if section == "plan":
+			plan_feedback.append(line)
+		elif section == "analysis":
+			analysis_lines.append(line)
+			if line.begins_with("• 판매처: "):
+				var buyer_text = line.trim_prefix("• 판매처: ")
+				var parts = buyer_text.split(" — ", true, 1)
+				buyer_name = str(parts[0]).strip_edges()
+				if parts.size() > 1:
+					buyer_reason = str(parts[1]).strip_edges()
+		elif section == "seller":
+			if line.begins_with("관찰 당시: "):
+				seller_observation = line.trim_prefix("관찰 당시: ").strip_edges()
+			elif line.begins_with("실제 성향: "):
+				seller_actual = line.trim_prefix("실제 성향: ").strip_edges()
+		elif section == "truth":
+			var truth_parts = line.split(" · ")
+			if truth_parts.size() >= 3:
+				state = str(truth_parts[0]).strip_edges()
+				rarity = str(truth_parts[1]).strip_edges()
+				condition = str(truth_parts[2]).strip_edges()
+
+	for listing in market_items:
+		if Art.item_name(listing) == item_name:
+			item_id = str(listing.get("item_id", ""))
+			break
+
+	if item_name.is_empty():
+		return {}
+
+	return {
+		"item_id":item_id,
+		"item_name":item_name,
+		"buyer_name":buyer_name,
+		"buyer_reason":buyer_reason,
+		"purchase_price":purchase_price,
+		"info_cost":info_cost,
+		"sale_price":sale_price,
+		"profit":profit,
+		"plan_feedback":plan_feedback,
+		"analysis_lines":analysis_lines,
+		"seller_observation":seller_observation,
+		"seller_actual":seller_actual,
+		"state":state,
+		"rarity":rarity,
+		"condition":condition,
+		"actual_value":actual_value,
+		"current_assets":current_assets
+	}
 
 
 func _signed_money(value: int) -> String:
