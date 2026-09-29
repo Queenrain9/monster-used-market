@@ -13,6 +13,8 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 	var tags: Array = []
 	if bool(listing.get("relationship_special", false)):
 		tags.append("단골 전용")
+	elif bool(listing.get("event_special", false)):
+		tags.append("소문 매물")
 	tags.append("가격 제안")
 
 	if not available:
@@ -34,7 +36,11 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 		"meta_text": "%s · %s · %s" % [Art.seller_name(seller), public_location_text(listing), public_age_text(listing)],
 		"tags_text": " · ".join(tags),
 		"clue_text": listing_story_text(listing),
-		"feature_text": "단골 전용 매물" if bool(listing.get("relationship_special", false)) and available else ("동네 인기 매물" if featured and available else ""),
+		"feature_text": (
+			"단골 전용 매물"
+			if bool(listing.get("relationship_special", false)) and available
+			else ("오늘 소문 매물" if bool(listing.get("event_special", false)) and available else ("동네 인기 매물" if featured and available else ""))
+		),
 		"action_text": ("다시 보기 ›" if viewed else "글 보기 ›") if available else "거래 완료",
 		"available": available
 	}
