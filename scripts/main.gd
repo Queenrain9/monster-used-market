@@ -3426,9 +3426,9 @@ func _configure_mobile_ui() -> void:
 		hud_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 		hud_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		hud_label.clip_text = true
-	day_label.custom_minimum_size.x = 54
-	reputation_label.custom_minimum_size.x = 52
-	rank_label.custom_minimum_size.x = 72
+	day_label.custom_minimum_size = Vector2(54, day_label.custom_minimum_size.y)
+	reputation_label.custom_minimum_size = Vector2(52, reputation_label.custom_minimum_size.y)
+	rank_label.custom_minimum_size = Vector2(72, rank_label.custom_minimum_size.y)
 	inventory_list.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 
