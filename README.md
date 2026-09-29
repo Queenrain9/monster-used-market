@@ -1,4 +1,4 @@
-# 괴물 중고마켓 v0.7.0 — Collection & Long-term Goals
+# 괴물 중고마켓 v0.8.0 — Dynamic Market & Events
 
 이번 버전은 기능 추가가 아니라 **구조 목업과 실제 Godot 홈 화면의 비율/밀도/정보 위계를 맞추는 패스**입니다.
 
@@ -1044,3 +1044,81 @@ seller_relationships 전체를 정식 저장한다.
 기존 저장:
 - 최근 완료 거래를 last_result_record에서 새 도감으로 자동 이관
 - rare_items의 기존 희귀 발견 기록도 가능한 범위에서 복구
+
+
+# v0.8.0 — P6 Dynamic Market & Events
+
+기존의 `오늘의 소문`을 flavor text가 아니라 실제 시장 규칙으로 승격했다.
+
+## Functional Rumor
+
+각 DAY event는 데이터로 다음을 가진다.
+
+- affected_tags
+- asking_multiplier
+- demand_multiplier
+- effect_text
+- volatile_special
+
+현재 이벤트:
+- 비 오는 야시장
+- 탑의 야간 개방
+- 부두 검문 강화
+- 묘지 축제 준비
+
+## 시장 공급
+
+오늘 소문의 affected tag가 붙은 아이템은 장터 생성 가중치가 높아진다.
+
+즉 같은 상권에서도 DAY event에 따라 눈에 띄는 물건 종류가 달라진다.
+
+## 판매자 등록가
+
+소문 영향 물건은 event의 asking multiplier로 실제 등록가가 바뀐다.
+
+숨은 진위/상태/실제 가치는 바꾸지 않는다.
+
+## 재판매 수요
+
+buyer_demand_multiplier가 전문 판매처와 고물상 견적 계산에 실제 적용된다.
+
+견적 이유에도:
+`오늘 수요 +N%`
+가 표시되어 플레이어가 왜 가격이 달라졌는지 알 수 있다.
+
+## 소문 매물
+
+한 장터 batch에서 최대 한 개:
+- affected tag
+- relationship-special이 아님
+- volatile_special event
+
+조건을 만족하는 물건을 `오늘 소문 매물`로 표시할 수 있다.
+
+내부 archetype은 risky / jackpot / trap 중 하나로 바뀌지만,
+홈 UI에서는 archetype 정답을 절대 공개하지 않는다.
+
+## UI
+
+동네:
+- 오늘의 소문
+- 설명
+- 실제 시장 영향
+
+장터:
+- 오늘 소문의 가격/수요 효과
+- 소문 매물 라벨
+
+상세:
+- 해당 매물이 소문의 영향을 받을 때 실제 effect 표시
+
+거래 복기:
+- 거래 당시 DAY rumor
+- 해당 market effect
+- 소문 특별 매물이었는지
+
+## Day History
+
+하루 마감 summary에 그날의 event title을 저장한다.
+
+따라서 DAY가 넘어가도 이전 장사를 어떤 시장 상황에서 했는지 복기할 수 있다.
