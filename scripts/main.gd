@@ -68,8 +68,8 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton1,
 	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton2,
 	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton3,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ActionRow/InspectButton4,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox/InspectButton5
+	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton4,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton5
 ]
 @onready var resale_option = $Margin/RootVBox/DetailPanel/Scroll/Box/ResaleOption
 @onready var max_buy_slider = $Margin/RootVBox/DetailPanel/Scroll/Box/MaxBuySlider
@@ -93,20 +93,21 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 
 @onready var appraisal_pre_view = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView
 @onready var appraisal_result_view = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView
-@onready var appraisal_title = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalTitle
-@onready var appraisal_info = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalInfo
-@onready var appraisal_clues = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalClues
-@onready var appraisal_state = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalState
+@onready var appraisal_gold_label = $Margin/RootVBox/AppraisalPanel/Scroll/Box/TopBar/GoldLabel
+@onready var appraisal_title = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/Info/AppraisalTitle
+@onready var appraisal_info = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/Info/AppraisalInfo
+@onready var appraisal_clues = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/KnownPanel/AppraisalClues
+@onready var appraisal_state = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/Info/AppraisalState
 @onready var post_buttons = [
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/PostInspectButton1,
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/PostInspectButton2,
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/PostInspectButton3
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/InspectRow/PostInspectButton1,
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/InspectRow/PostInspectButton2,
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/InspectRow/PostInspectButton3
 ]
 @onready var professional_appraise_button = $Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ProfessionalAppraiseButton
-@onready var appraisal_result_hero = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultHero
-@onready var appraisal_result_summary = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultItemSummary
-@onready var appraisal_result_metrics = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultMetrics
-@onready var appraisal_comment = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/AppraiserComment
+@onready var appraisal_result_hero = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultHero/Row/ResultImage
+@onready var appraisal_result_summary = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultHero/Row/SummaryColumn/ResultItemSummary
+@onready var appraisal_result_metrics = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/MetricsPanel/ResultMetrics
+@onready var appraisal_comment = $Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/CommentPanel/AppraiserComment
 
 @onready var sale_title = $Margin/RootVBox/SalePanel/Scroll/Box/SaleTitle
 @onready var sale_info = $Margin/RootVBox/SalePanel/Scroll/Box/SaleInfo
@@ -153,7 +154,7 @@ func _ready() -> void:
 	$Backdrop.texture = Art.texture_for("ui", "market")
 	$Margin/RootVBox/Header/Brand.texture = Art.texture_for("ui", "brand")
 	$Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Art.texture = Art.texture_for("ui", "market")
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraiserArt.texture = Art.texture_for("ui", "appraiser")
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/ItemArt.texture = Art.texture_for("ui", "appraiser")
 	_configure_mobile_ui()
 	_connect_buttons()
 	_setup_options()
@@ -201,7 +202,7 @@ func _connect_buttons() -> void:
 	$Margin/RootVBox/DetailPanel/Scroll/Box/TopBar/BackTopButton.pressed.connect(_go_market)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/ImageColumn/ImageExpandButton.pressed.connect(_open_image_preview)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.pressed.connect(_open_image_preview)
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ActionRow/NegotiationJumpButton.pressed.connect(_jump_to_trade_plan)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/NegotiationJumpButton.pressed.connect(_jump_to_trade_plan)
 	$ImagePreview/Box/CloseButton.pressed.connect(func(): $ImagePreview.hide())
 
 	offer_slider.value_changed.connect(_offer_slider_changed)
@@ -219,8 +220,9 @@ func _connect_buttons() -> void:
 	$Margin/RootVBox/InventoryPanel/Scroll/Box/InventoryMarketButton.pressed.connect(_go_market)
 
 	professional_appraise_button.pressed.connect(_professional_appraise)
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalInventoryButton.pressed.connect(_go_inventory)
-	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/AppraisalSaleButton.pressed.connect(_open_sale)
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/TopBar/BackButton.pressed.connect(_go_inventory)
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/SecondaryActions/AppraisalInventoryButton.pressed.connect(_go_inventory)
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/SecondaryActions/AppraisalSaleButton.pressed.connect(_open_sale)
 	$Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultActions/StoreResultButton.pressed.connect(_go_inventory)
 	$Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultActions/PrepareResaleButton.pressed.connect(_confirm_prepare_resale)
 	$ResaleConfirmation.confirmed.connect(_open_sale)
@@ -406,7 +408,9 @@ func _render_detail() -> void:
 	var used: Array = listing.get("inspected_actions", [])
 	for i in range(inspect_buttons.size()):
 		var option: Dictionary = options[i]
-		inspect_buttons[i].text = "%s%s" % [option["label"], " · 확인 완료" if used.has(option["id"]) else ""]
+		var short_labels = ["외형", "각인", "작동 상태", "출처 묻기", "시세 조사"]
+		inspect_buttons[i].text = "%s%s" % [short_labels[i], " ✓" if used.has(option["id"]) else ""]
+		inspect_buttons[i].tooltip_text = str(option["label"])
 		inspect_buttons[i].disabled = investigation_remaining <= 0 or used.has(option["id"])
 
 	_populate_suspect_options(listing)
@@ -783,16 +787,23 @@ func _render_appraisal() -> void:
 	if owned.is_empty():
 		_go_inventory()
 		return
+
 	var listing: Dictionary = owned["listing"]
 	var appraisal_data: Dictionary = owned.get("appraisal_data", {})
 	var has_result = not appraisal_data.is_empty()
 	appraisal_pre_view.visible = not has_result
 	appraisal_result_view.visible = has_result
+	appraisal_gold_label.text = "%s G" % _money(gold)
 
 	if has_result:
 		appraisal_result_hero.texture = Art.texture_for("items", str(listing.get("item_id", "")))
-		appraisal_result_summary.text = "%s\n구매가 %sG · 판매자 %s" % [Art.item_name(listing), _money(int(owned["purchase_price"])), Art.seller_name(listing["seller"])]
-		appraisal_result_metrics.text = "진품 여부  ·  %s\n마력 잔량  ·  %s\n저주 강도  ·  %s\n희귀도  ·  %s\n예상 시세  ·  %s~%sG" % [
+		appraisal_result_summary.text = "%s\n구매가 %sG\n%s · %s" % [
+			Art.item_name(listing),
+			_money(int(owned["purchase_price"])),
+			appraisal_data["rarity"],
+			appraisal_data["condition"]
+		]
+		appraisal_result_metrics.text = "진품 여부   %s\n마력 잔량   %s\n저주 강도   %s\n희귀도      %s\n예상 시세   %s~%sG" % [
 			_appraisal_auth_text(str(appraisal_data["state"])),
 			appraisal_data.get("magic_grade", "C"),
 			appraisal_data.get("curse_grade", "없음"),
@@ -803,25 +814,28 @@ func _render_appraisal() -> void:
 		appraisal_comment.text = str(appraisal_data.get("comment", "감정 결과를 확인했습니다."))
 		return
 
-	appraisal_title.text = "감정소 · %s" % Art.item_name(listing)
-	appraisal_info.text = "매입가 %sG · 검사비 누적 %sG · 전문 감정비 %sG" % [
+	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/ItemArt.texture = Art.texture_for("items", str(listing.get("item_id", "")))
+	appraisal_title.text = Art.item_name(listing)
+	appraisal_info.text = "매입가 %sG\n검사비 누적 %sG · 전문 감정 %sG" % [
 		_money(int(owned["purchase_price"])),
 		_money(int(owned["inspection_cost_total"])),
-		_money(int(owned["appraisal_cost"]))
+		_money(Content.PROFESSIONAL_APPRAISAL_COST)
 	]
-	appraisal_clues.text = "현재까지 아는 정보\n%s" % _format_discovered_clues(listing)
+	var known_text = _format_discovered_clues(listing)
+	appraisal_clues.text = known_text if not known_text.is_empty() else "구매 전에 확실하게 확인한 정보가 없습니다."
 	appraisal_state.text = "추가 검사 %d회 남음" % int(owned["inspection_remaining"])
 
 	var options = engine.post_inspection_options(listing)
 	var used: Array = listing.get("post_inspected_actions", [])
+	var short_labels = ["재질", "마력", "내부 구조"]
 	for i in range(post_buttons.size()):
 		var option: Dictionary = options[i]
-		post_buttons[i].text = "%s · %sG%s" % [option["label"], _money(int(option["cost"])), " · 완료" if used.has(option["id"]) else ""]
+		post_buttons[i].text = "%s\n%sG%s" % [short_labels[i], _money(int(option["cost"])), " ✓" if used.has(option["id"]) else ""]
+		post_buttons[i].tooltip_text = str(option["label"])
 		post_buttons[i].disabled = int(owned["inspection_remaining"]) <= 0 or used.has(option["id"]) or gold < int(option["cost"])
 
 	professional_appraise_button.text = "전문 감정 · %sG" % _money(Content.PROFESSIONAL_APPRAISAL_COST)
 	professional_appraise_button.disabled = gold < Content.PROFESSIONAL_APPRAISAL_COST
-
 
 func _appraisal_auth_text(state: String) -> String:
 	if state == "진품":
@@ -1071,10 +1085,10 @@ func _show_panel(target) -> void:
 	for panel in [market_panel, detail_panel, deal_panel, inventory_panel, appraisal_panel, sale_panel, result_panel]:
 		panel.visible = panel == target
 
-	var detail_mode = target == detail_panel
-	global_header.visible = not detail_mode
-	status_panel.visible = target != market_panel and not detail_mode
-	nav_row.visible = not detail_mode
+	var focus_mode = target == detail_panel or target == appraisal_panel
+	global_header.visible = not focus_mode
+	status_panel.visible = target != market_panel and not focus_mode
+	nav_row.visible = not focus_mode
 
 	market_nav_button.set_pressed_no_signal(current_stage in ["market", "detail", "deal"])
 	inventory_nav_button.set_pressed_no_signal(current_stage in ["inventory", "appraisal", "sale"])
@@ -1084,6 +1098,7 @@ func _show_panel(target) -> void:
 func _update_header() -> void:
 	gold_label.text = "%s G" % _money(gold)
 	detail_gold_label.text = "%s G" % _money(gold)
+	appraisal_gold_label.text = "%s G" % _money(gold)
 	inventory_count_label.text = "보유품 %d" % owned_items.size()
 	stats_label.text = "완료 거래 %d회 · 오늘 %d회\n최고 순이익 %s · 최대 손실 %s" % [
 		total_deals, today_deals, _signed_money(best_profit), _signed_money(worst_loss)
