@@ -99,6 +99,28 @@ func validate_content() -> Array:
 			if not seller_ids.has(str(seller_id)):
 				errors.append("%s 상권에 존재하지 않는 판매자 %s가 있습니다." % [district.get("id", "unknown"), seller_id])
 
+	var required_upgrades = ["storage", "notebook", "appraisal", "network", "routes"]
+	var found_upgrades = []
+	for upgrade in Content.UPGRADES:
+		var upgrade_id = str(upgrade.get("id", ""))
+		found_upgrades.append(upgrade_id)
+		var levels: Array = upgrade.get("levels", [])
+		if levels.is_empty():
+			errors.append("%s 업그레이드에 단계가 없습니다." % upgrade_id)
+		var previous_rep = -1
+		var previous_value = int(upgrade.get("base_value", 0))
+		for level in levels:
+			var rep_need = int(level.get("reputation", -1))
+			var cost = int(level.get("cost", 0))
+			var value = int(level.get("value", previous_value))
+			if rep_need < previous_rep or cost <= 0 or value <= previous_value:
+				errors.append("%s 업그레이드 단계 데이터가 증가 규칙을 어겼습니다." % upgrade_id)
+			previous_rep = rep_need
+			previous_value = value
+	for upgrade_id in required_upgrades:
+		if not found_upgrades.has(upgrade_id):
+			errors.append("필수 업그레이드 %s가 없습니다." % upgrade_id)
+
 	for profile_id in Content.PROFILE_CLUES.keys():
 		if not Content.INVESTIGATION_PROFILES.has(profile_id):
 			errors.append("단서 풀 %s에 대응하는 조사 프로필이 없습니다." % profile_id)
