@@ -75,11 +75,11 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var inquiry_title = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box/InquiryTitle
 @onready var inquiry_text = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box/InquiryText
 @onready var inspect_buttons = [
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton1,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton2,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton3,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton4,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid/InspectButton5
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton1,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton2,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton3,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton4,
+	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton5
 ]
 @onready var resale_option = $Margin/RootVBox/DetailPanel/Scroll/Box/ResaleOption
 @onready var max_buy_slider = $Margin/RootVBox/DetailPanel/Scroll/Box/MaxBuySlider
