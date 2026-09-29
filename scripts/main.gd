@@ -441,7 +441,7 @@ func _render_detail() -> void:
 	detail_tags.text = public_data["tags_text"]
 	detail_seller.text = "%s · %s · %s" % [Art.seller_name(seller), feed.public_location_text(listing), feed.public_age_text(listing)]
 	detail_description.text = feed.listing_post_text(listing)
-	detail_info.text = "📍 %s에서 직거래\n🕐 %s에 올림\n💬 가격 제안 가능" % [
+	detail_info.text = "직거래   %s\n올린 지   %s\n가격 제안 가능" % [
 		feed.public_meetup_text(listing),
 		feed.public_age_text(listing)
 	]
@@ -614,8 +614,12 @@ func _render_deal() -> void:
 	deal_item_art.texture = Art.texture_for("items", str(listing.get("item_id", "")))
 	deal_title.text = Art.item_name(listing)
 	deal_seller.text = "%s · %s" % [Art.seller_name(seller), feed.public_location_text(listing)]
-	deal_personality.text = "직거래 %s\n대화에서 느껴진 점 · %s" % [feed.public_meetup_text(listing), feed.seller_behavior_text(listing)]
-	deal_personality.tooltip_text = "판매자 성향은 직접 추론해야 합니다."
+	deal_personality.text = "직거래 · %s\n%s\n%s" % [
+		feed.public_meetup_text(listing),
+		feed.seller_activity_text(listing),
+		feed.seller_message_text(listing)
+	]
+	deal_personality.tooltip_text = "판매자의 실제 말과 행동을 보고 거래 성향을 직접 판단하세요."
 
 	deal_seller_price.text = "판매자가 올린 가격  %sG" % _money(current_price)
 	deal_max_buy.text = "내 최대 매입가  %sG" % _money(max_buy_price)
