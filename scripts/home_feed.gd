@@ -31,7 +31,7 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 		"seller_short_text": Art.seller_name(seller),
 		"meta_text": "%s · %s" % [public_location_text(listing), public_age_text(listing)],
 		"tags_text": " · ".join(tags),
-		"clue_text": str(listing.get("listing_story", "직접 보고 결정해주세요.")),
+		"clue_text": listing_story_text(listing),
 		"feature_text": "동네 인기 매물" if featured and available else "",
 		"action_text": ("다시 보기 ›" if viewed else "글 보기 ›") if available else "거래 완료",
 		"available": available
@@ -62,7 +62,7 @@ func matches_filter(listing: Dictionary, query: String, tab_id: String, category
 			Art.seller_name(seller),
 			str(listing.get("category", "")),
 			public_location_text(listing),
-			str(listing.get("listing_story", ""))
+			listing_story_text(listing)
 		]
 		if not haystack.to_lower().contains(q):
 			return false
@@ -100,23 +100,60 @@ func public_age_text(listing: Dictionary) -> String:
 	return "%d분 전" % minutes
 
 
+func _seller_content(seller: Dictionary) -> Dictionary:
+	var seller_id = str(seller.get("id", ""))
+	for entry in Content.SELLERS:
+		if str(entry.get("id", "")) == seller_id:
+			return entry
+	return {}
+
+
+func _item_content(listing: Dictionary) -> Dictionary:
+	var item_id = str(listing.get("item_id", ""))
+	for entry in Content.ITEMS:
+		if str(entry.get("id", "")) == item_id:
+			return entry
+	return {}
+
+
 func public_location_text(listing: Dictionary) -> String:
 	var seller: Dictionary = listing.get("seller", {})
-	return str(seller.get("neighborhood", "어둠마을"))
+	if seller.has("neighborhood"):
+		return str(seller["neighborhood"])
+	var canonical = _seller_content(seller)
+	return str(canonical.get("neighborhood", "어둠마을"))
 
 
 func public_meetup_text(listing: Dictionary) -> String:
 	var seller: Dictionary = listing.get("seller", {})
-	return str(seller.get("meetup", "%s 근처" % public_location_text(listing)))
+	if seller.has("meetup"):
+		return str(seller["meetup"])
+	var canonical = _seller_content(seller)
+	return str(canonical.get("meetup", "%s 근처" % public_location_text(listing)))
 
 
 func seller_profile_text(listing: Dictionary) -> String:
 	var seller: Dictionary = listing.get("seller", {})
-	return str(seller.get("profile", "근처에서 직거래를 선호하는 판매자입니다."))
+	if seller.has("profile"):
+		return str(seller["profile"])
+	var canonical = _seller_content(seller)
+	return str(canonical.get("profile", "근처에서 직거래를 선호하는 판매자입니다."))
+
+
+func listing_story_text(listing: Dictionary) -> String:
+	var saved_story = str(listing.get("listing_story", "")).strip_edges()
+	if not saved_story.is_empty():
+		return saved_story
+	var item = _item_content(listing)
+	var stories: Array = item.get("market_stories", [])
+	if stories.is_empty():
+		return "정리 중 나온 물건입니다. 직접 보고 결정해주세요."
+	var fingerprint = abs(int(str(listing.get("listing_id", listing.get("item_id", ""))).hash()))
+	return str(stories[fingerprint % stories.size()])
 
 
 func listing_post_text(listing: Dictionary) -> String:
-	var story = str(listing.get("listing_story", "정리 중 나온 물건입니다. 직접 보고 결정해주세요."))
+	var story = listing_story_text(listing)
 	var claim = str(listing.get("seller_claim", {}).get("text", "")).strip_edges()
 	if claim.is_empty():
 		return story
