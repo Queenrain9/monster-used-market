@@ -65,6 +65,58 @@ const SELLERS := [
 	{"id":"rook","name":"까마귀 루크","type":"urgent","neighborhood":"종탑 뒤편","meetup":"종탑 뒤 우편함 앞","profile":"오래 약속 잡는 건 싫어합니다. 가능하면 오늘 바로 거래해요."}
 ]
 
+const DAY_MARKET_VISITS = 3
+
+const DISTRICTS := [
+	{
+		"id":"night_market",
+		"name":"야시장권",
+		"neighborhoods":"야시장 북문 · 재봉골목",
+		"description":"잡화와 마법 물건이 가장 많이 섞이는 어둠마을의 중심 장터.",
+		"unlock_reputation":0,
+		"seller_ids":["myomyo","pipi"],
+		"preferred_tags":["마법","공예","재료","수집"],
+		"art_key":"district_night_market"
+	},
+	{
+		"id":"tower",
+		"name":"탑지구",
+		"neighborhoods":"별빛탑 아래 · 종탑 뒤편",
+		"description":"전문가의 물건과 급하게 나온 희귀품이 함께 섞이는 상권.",
+		"unlock_reputation":40,
+		"seller_ids":["blue","rook"],
+		"preferred_tags":["마법","고대","수집","별"],
+		"art_key":"district_tower"
+	},
+	{
+		"id":"dock",
+		"name":"부두권",
+		"neighborhoods":"고철부두 · 비늘골목",
+		"description":"기계 부품과 재료가 많고 가격을 세게 부르는 상인이 많은 곳.",
+		"unlock_reputation":100,
+		"seller_ids":["grizzle","krok"],
+		"preferred_tags":["기계","재료","고대","연금"],
+		"art_key":"district_dock"
+	},
+	{
+		"id":"grave",
+		"name":"묘지권",
+		"neighborhoods":"묘지길 · 뼈다리 광장",
+		"description":"저주품과 기묘한 수집품이 자주 나오지만 판단 난도가 높은 상권.",
+		"unlock_reputation":180,
+		"seller_ids":["morna","toto"],
+		"preferred_tags":["저주","영혼","음악","수집"],
+		"art_key":"district_grave"
+	}
+]
+
+const DAY_EVENTS := [
+	{"id":"rain_market","title":"비 오는 야시장","description":"젖은 천막 아래로 평소보다 오래된 물건들이 많이 나왔다는 소문이 돈다."},
+	{"id":"tower_open","title":"탑의 야간 개방","description":"탑 창고를 정리하는 날이라 오래 묵은 마도구가 동네로 흘러나오고 있다."},
+	{"id":"dock_check","title":"부두 검문 강화","description":"짐 검사가 길어져 급하게 처분하려는 상인들이 있다는 이야기가 들린다."},
+	{"id":"grave_festival","title":"묘지 축제 준비","description":"묘지 쪽 공연과 제례 준비로 기묘한 수집품 거래가 늘었다."}
+]
+
 const BUYERS := [
 	{"id":"collector","name":"기묘한 수집가","summary":"희귀하고 수집 가치가 높은 물건에 웃돈을 얹음","preferred_tags":["수집","고대"],"base_multiplier":0.86},
 	{"id":"mage","name":"탑의 마법사","summary":"마법·영혼 속성이 뚜렷한 물건을 비싸게 삼","preferred_tags":["마법","영혼"],"base_multiplier":0.84},
