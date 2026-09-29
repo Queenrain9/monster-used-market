@@ -11,7 +11,7 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 
 @onready var gold_label = $Margin/RootVBox/Header/GoldLabel
 @onready var inventory_count_label = $Margin/RootVBox/Header/InventoryCount
-@onready var stats_label = $Margin/RootVBox/ResultPanel/Scroll/Box/StatsLabel
+@onready var stats_label = $Margin/RootVBox/ResultPanel/Scroll/Box/StatsPanel/StatsLabel
 @onready var global_header = $Margin/RootVBox/Header
 @onready var status_panel = $Margin/RootVBox/StatusPanel
 @onready var status_label = $Margin/RootVBox/StatusPanel/StatusLabel
@@ -185,6 +185,28 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var sell_button = $Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box/SellButton
 
 @onready var result_summary = $Margin/RootVBox/ResultPanel/Scroll/Box/ResultSummary
+@onready var record_recent_title = $Margin/RootVBox/ResultPanel/Scroll/Box/RecentTitle
+@onready var record_hero = $Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero
+@onready var record_item_art = $Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row/ItemArt
+@onready var record_item_name = $Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row/Info/ItemName
+@onready var record_buyer_line = $Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row/Info/BuyerLine
+@onready var record_profit_label = $Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero/Row/Info/ProfitLabel
+@onready var record_money_panel = $Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel
+@onready var record_purchase_value = $Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid/PurchaseValue
+@onready var record_cost_value = $Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid/CostValue
+@onready var record_sale_value = $Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel/Grid/SaleValue
+@onready var record_decision_title = $Margin/RootVBox/ResultPanel/Scroll/Box/DecisionTitle
+@onready var record_decision_panel = $Margin/RootVBox/ResultPanel/Scroll/Box/DecisionPanel
+@onready var record_decision_text = $Margin/RootVBox/ResultPanel/Scroll/Box/DecisionPanel/DecisionText
+@onready var record_analysis_panel = $Margin/RootVBox/ResultPanel/Scroll/Box/AnalysisPanel
+@onready var record_analysis_text = $Margin/RootVBox/ResultPanel/Scroll/Box/AnalysisPanel/AnalysisText
+@onready var record_truth_title = $Margin/RootVBox/ResultPanel/Scroll/Box/TruthTitle
+@onready var record_truth_panel = $Margin/RootVBox/ResultPanel/Scroll/Box/TruthPanel
+@onready var record_truth_text = $Margin/RootVBox/ResultPanel/Scroll/Box/TruthPanel/TruthText
+@onready var record_seller_panel = $Margin/RootVBox/ResultPanel/Scroll/Box/SellerReviewPanel
+@onready var record_seller_text = $Margin/RootVBox/ResultPanel/Scroll/Box/SellerReviewPanel/SellerReviewText
+@onready var record_assets_label = $Margin/RootVBox/ResultPanel/Scroll/Box/AssetsLabel
+@onready var legacy_result_summary = $Margin/RootVBox/ResultPanel/Scroll/Box/LegacySummary
 
 var engine = MarketEngine.new()
 var feed = HomeFeed.new()
@@ -210,6 +232,7 @@ var owned_items = []
 var selected_owned_index = -1
 var current_stage = "market"
 var last_result_text = ""
+var last_result_record: Dictionary = {}
 
 
 func _ready() -> void:
@@ -1048,7 +1071,58 @@ func _go_records() -> void:
 
 func _render_records() -> void:
 	_update_header()
-	result_summary.text = last_result_text if not last_result_text.is_empty() else "아직 완료한 거래가 없습니다.\n구매한 물건을 판매하면 이곳에서 최근 거래의 손익과 판단을 다시 확인할 수 있습니다."
+	result_summary.text = last_result_text
+	var structured = not last_result_record.is_empty()
+	for control in [
+		record_hero, record_money_panel, record_decision_title, record_decision_panel,
+		record_analysis_panel, record_truth_title, record_truth_panel, record_seller_panel,
+		record_assets_label
+	]:
+		control.visible = structured
+
+	if structured:
+		legacy_result_summary.visible = false
+		record_recent_title.text = "최근 완료한 거래"
+		record_item_art.texture = Art.texture_for("items", str(last_result_record.get("item_id", "")))
+		record_item_name.text = str(last_result_record.get("item_name", "최근 거래"))
+		record_buyer_line.text = "%s에 판매 · %s" % [
+			str(last_result_record.get("buyer_name", "판매처")),
+			str(last_result_record.get("buyer_reason", "거래 완료"))
+		]
+		var profit = int(last_result_record.get("profit", 0))
+		record_profit_label.text = "순이익 %s" % _signed_money(profit)
+		record_profit_label.add_theme_color_override(
+			"font_color",
+			Color("267a4f") if profit >= 0 else Color("b34b4b")
+		)
+		record_purchase_value.text = "%sG" % _money(int(last_result_record.get("purchase_price", 0)))
+		record_cost_value.text = "%sG" % _money(int(last_result_record.get("info_cost", 0)))
+		record_sale_value.text = "%sG" % _money(int(last_result_record.get("sale_price", 0)))
+
+		var plan_lines: Array = last_result_record.get("plan_feedback", [])
+		record_decision_text.text = "\n".join(plan_lines) if not plan_lines.is_empty() else "거래 계획을 따로 세우지 않았습니다."
+		var analysis_lines: Array = last_result_record.get("analysis_lines", [])
+		record_analysis_text.text = "\n".join(analysis_lines) if not analysis_lines.is_empty() else "추가 분석이 없습니다."
+
+		record_truth_text.text = "%s · %s · %s\n실제 가치 %sG" % [
+			str(last_result_record.get("state", "-")),
+			str(last_result_record.get("rarity", "-")),
+			str(last_result_record.get("condition", "-")),
+			_money(int(last_result_record.get("actual_value", 0)))
+		]
+		record_seller_text.text = "판매자 관찰\n%s\n\n거래 후 공개된 실제 성향\n%s" % [
+			str(last_result_record.get("seller_observation", "-")),
+			str(last_result_record.get("seller_actual", "-"))
+		]
+		record_assets_label.text = "거래 후 자산  %sG" % _money(int(last_result_record.get("current_assets", gold)))
+	elif not last_result_text.is_empty():
+		legacy_result_summary.visible = true
+		record_recent_title.text = "최근 완료한 거래 · 이전 버전 기록"
+		legacy_result_summary.text = last_result_text
+	else:
+		legacy_result_summary.visible = true
+		record_recent_title.text = "최근 완료한 거래"
+		legacy_result_summary.text = "아직 완료한 거래가 없습니다.\n물건을 구매한 뒤 판매까지 마치면 손익과 판단 복기가 이곳에 기록됩니다."
 
 
 func _render_inventory() -> void:
