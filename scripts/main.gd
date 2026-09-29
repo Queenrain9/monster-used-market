@@ -5,9 +5,13 @@ const Content = preload("res://data/content.gd")
 const Art = preload("res://scripts/art_catalog.gd")
 const MarketTheme = preload("res://scripts/market_theme.gd")
 const HomeFeed = preload("res://scripts/home_feed.gd")
+const Presentation = preload("res://data/presentation_manifest.gd")
 
 const STARTING_GOLD = 50000
 const SAVE_PATH = "user://monster_used_market_save_v022.json"
+const SAVE_BACKUP_PATH = "user://monster_used_market_save_v022.backup.json"
+const SAVE_TEMP_PATH = "user://monster_used_market_save_v022.tmp.json"
+const SETTINGS_PATH = "user://monster_used_market_settings.json"
 
 @onready var gold_label = $Margin/RootVBox/Header/GoldLabel
 @onready var inventory_count_label = $Margin/RootVBox/Header/InventoryCount
@@ -36,6 +40,22 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var onboarding_title = $CommercialShell/Center/Card/OnboardingView/Title
 @onready var onboarding_body = $CommercialShell/Center/Card/OnboardingView/Body
 @onready var onboarding_next_button = $CommercialShell/Center/Card/OnboardingView/NextButton
+
+@onready var music_player = $MusicPlayer
+@onready var sfx_player = $SfxPlayer
+@onready var toast_panel = $PresentationLayer/ToastPanel
+@onready var toast_label = $PresentationLayer/ToastPanel/Label
+@onready var context_tip = $ContextTip
+@onready var context_tip_title = $ContextTip/Box/Title
+@onready var context_tip_body = $ContextTip/Box/Body
+@onready var settings_overlay = $SettingsOverlay
+@onready var settings_music_label = $SettingsOverlay/Center/Card/Box/MusicLabel
+@onready var settings_music_slider = $SettingsOverlay/Center/Card/Box/MusicSlider
+@onready var settings_sfx_label = $SettingsOverlay/Center/Card/Box/SfxLabel
+@onready var settings_sfx_slider = $SettingsOverlay/Center/Card/Box/SfxSlider
+@onready var settings_haptics_check = $SettingsOverlay/Center/Card/Box/HapticsCheck
+@onready var settings_reduced_motion_check = $SettingsOverlay/Center/Card/Box/ReducedMotionCheck
+@onready var settings_large_text_check = $SettingsOverlay/Center/Card/Box/LargeTextCheck
 
 @onready var town_panel = $Margin/RootVBox/TownPanel
 @onready var workshop_panel = $Margin/RootVBox/WorkshopPanel
@@ -404,6 +424,22 @@ var achievement_unlocks: Dictionary = {}
 var selected_collection_index = 0
 var last_collection_reward = ""
 
+var presentation_settings: Dictionary = {
+	"music_volume":0.70,
+	"sfx_volume":0.80,
+	"haptics":true,
+	"reduced_motion":false,
+	"large_text":false
+}
+var tutorial_flags: Dictionary = {}
+var active_context_tip = ""
+var current_bgm_state = ""
+var last_presentation_event = ""
+var save_recovery_notice = false
+var _base_font_sizes: Dictionary = {}
+var _syncing_settings = false
+var _toast_serial = 0
+
 
 func _ready() -> void:
 	theme = MarketTheme.build()
@@ -413,7 +449,11 @@ func _ready() -> void:
 	$Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary/Row/ItemArt.texture = Art.texture_for("ui", "appraiser")
 	$CommercialShell/Center/Card/TitleView/Brand.texture = Art.texture_for("ui", "brand")
 	$CommercialShell/Center/Card/OnboardingView/Art.texture = Art.texture_for("ui", "market")
+	_load_presentation_settings()
 	_configure_mobile_ui()
+	_capture_base_font_sizes()
+	_apply_accessibility_settings()
+	_apply_audio_settings()
 	_connect_buttons()
 	_setup_options()
 	_ensure_seller_relationships()
@@ -444,6 +484,15 @@ func _connect_buttons() -> void:
 	continue_button.pressed.connect(_continue_from_title)
 	new_game_button.pressed.connect(_new_game_from_title)
 	onboarding_next_button.pressed.connect(_advance_onboarding)
+	$CommercialShell/Center/Card/TitleView/SettingsButton.pressed.connect(_show_settings)
+	$Margin/RootVBox/TownPanel/Scroll/Box/SettingsButton.pressed.connect(_show_settings)
+	$SettingsOverlay/Center/Card/Box/TopRow/CloseButton.pressed.connect(_hide_settings)
+	$ContextTip/Box/DismissButton.pressed.connect(_dismiss_context_tip)
+	settings_music_slider.value_changed.connect(_on_music_volume_changed)
+	settings_sfx_slider.value_changed.connect(_on_sfx_volume_changed)
+	settings_haptics_check.toggled.connect(_on_haptics_toggled)
+	settings_reduced_motion_check.toggled.connect(_on_reduced_motion_toggled)
+	settings_large_text_check.toggled.connect(_on_large_text_toggled)
 
 	search_input.text_changed.connect(_on_home_search_changed)
 	recommend_tab_button.pressed.connect(_set_home_tab.bind("recommended"))
