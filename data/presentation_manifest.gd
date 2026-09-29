@@ -33,6 +33,17 @@ const SFX := {
 	"warning":"res://assets/audio/sfx/warning.ogg"
 }
 
+const VFX := {
+	"clue_reveal":"res://assets/art/vfx/clue_reveal.png",
+	"purchase":"res://assets/art/vfx/purchase.png",
+	"appraisal_reveal":"res://assets/art/vfx/appraisal_reveal.png",
+	"sale_complete":"res://assets/art/vfx/sale_complete.png",
+	"goal_complete":"res://assets/art/vfx/goal_complete.png",
+	"achievement":"res://assets/art/vfx/achievement.png",
+	"upgrade":"res://assets/art/vfx/upgrade.png",
+	"warning":"res://assets/art/vfx/warning.png"
+}
+
 const HAPTIC_MS := {
 	"light":18,
 	"medium":32,
