@@ -1,4 +1,4 @@
-# 괴물 중고마켓 v0.3.0 — Commercial Foundation
+# 괴물 중고마켓 v0.4.0 — World & Day Session
 
 이번 버전은 기능 추가가 아니라 **구조 목업과 실제 Godot 홈 화면의 비율/밀도/정보 위계를 맞추는 패스**입니다.
 
@@ -809,3 +809,96 @@ P2 — World & Session Structure:
 - 지역별 매물/판매자 성격
 - 하루 종료와 다음 날
 - 지역 사건/해금 scaffold
+
+
+# v0.4.0 — P2 World & Session Structure
+
+## 상용 루프 확장
+
+기존:
+`랜덤 매물 3개 → 새 장터 → 반복`
+
+현재:
+`DAY 시작 → 상권 선택 → 제한된 장터 방문 → 거래 → 하루 마감 → 다음 DAY`
+
+## 어둠마을 4상권
+
+- 야시장권 — 평판 0
+- 탑지구 — 평판 40
+- 부두권 — 평판 100
+- 묘지권 — 평판 180
+
+각 상권은:
+- 전용 seller pool
+- preferred item tags
+- 생활권 설명
+- stable art key
+- reputation unlock
+
+을 가진다.
+
+## District market
+
+`generate_market_for_district()`는:
+- 해당 상권 판매자만 사용
+- preferred tags가 있는 아이템을 더 자주 선택
+- listing에 district_id / district_name 유지
+
+기존 글로벌 generate_market API는 테스트/호환을 위해 유지한다.
+
+## Virtual day
+
+하루 기본 장터 방문:
+- 3회
+
+장터 새 batch 또는 다른 상권 진입:
+- 방문 기회 1회 소비
+
+방문 기회를 모두 쓰면:
+- 새 장터 생성 불가
+- 동네 화면에서 하루 마감 필요
+
+하루 마감:
+- DAY +1
+- 오늘 거래 수 reset
+- 일일 목표 reset
+- 장터 방문 3회 복구
+- 어제 거래 건수 / 자산 변화 summary 저장
+- 다음 day rumor/event slot 갱신
+
+## Bottom Navigation
+
+- 동네
+- 장터
+- 보유품
+- 거래 기록
+
+## Day event scaffold
+
+P2에서는 flavor/event slot만 구현한다.
+P6에서 실제 가격/카테고리 modifier로 확장한다.
+
+현재 event:
+- 비 오는 야시장
+- 탑의 야간 개방
+- 부두 검문 강화
+- 묘지 축제 준비
+
+## Save fields
+
+- current_district_id
+- market_visits_remaining
+- day_start_gold
+- last_day_summary
+- day_event_id
+
+v0.2/v0.3 save는 야시장권 + 방문 3회 상태로 안전하게 migration 된다.
+
+## 다음 단계
+
+P3 — Meta Progression:
+- reputation curve
+- 상인 등급 실제 해금
+- 보관함/조사/감정 업그레이드
+- 기능 unlock
+- progression reward screen
