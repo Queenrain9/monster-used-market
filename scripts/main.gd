@@ -22,6 +22,7 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 
 @onready var market_panel = $Margin/RootVBox/MarketPanel
 @onready var detail_panel = $Margin/RootVBox/DetailPanel
+@onready var seller_chat_panel = $Margin/RootVBox/SellerChatPanel
 @onready var deal_panel = $Margin/RootVBox/DealPanel
 @onready var inventory_panel = $Margin/RootVBox/InventoryPanel
 @onready var appraisal_panel = $Margin/RootVBox/AppraisalPanel
@@ -64,22 +65,28 @@ const SAVE_PATH = "user://monster_used_market_save_v022.json"
 @onready var seller_portrait = $Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard/SellerRow/SellerPortrait
 @onready var market_price_label = $Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox/MarketPriceLabel
 @onready var detail_budget = $Margin/RootVBox/DetailPanel/Scroll/Box/DetailBudget
-@onready var chat_seller_portrait = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header/Portrait
-@onready var chat_seller_name = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header/Info/SellerName
-@onready var chat_seller_status = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/Header/Info/SellerStatus
-@onready var chat_scroll = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/MessagesScroll
-@onready var chat_messages = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/MessagesScroll/Messages
-@onready var chat_choice_hint = $Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/ChoiceHint
+@onready var open_seller_chat_button = $Margin/RootVBox/DetailPanel/Scroll/Box/OpenSellerChatButton
+@onready var detail_memo_title = $Margin/RootVBox/DetailPanel/Scroll/Box/KnownTitle
 @onready var detail_clues = $Margin/RootVBox/DetailPanel/Scroll/Box/ClueList
+@onready var chat_seller_portrait = $Margin/RootVBox/SellerChatPanel/Root/TopBar/SellerPortrait
+@onready var chat_seller_name = $Margin/RootVBox/SellerChatPanel/Root/TopBar/SellerHead/SellerName
+@onready var chat_seller_status = $Margin/RootVBox/SellerChatPanel/Root/TopBar/SellerHead/SellerStatus
+@onready var chat_gold_label = $Margin/RootVBox/SellerChatPanel/Root/TopBar/GoldLabel
+@onready var chat_item_art = $Margin/RootVBox/SellerChatPanel/Root/ItemContext/Row/ItemArt
+@onready var chat_item_title = $Margin/RootVBox/SellerChatPanel/Root/ItemContext/Row/Info/ItemTitle
+@onready var chat_item_meta = $Margin/RootVBox/SellerChatPanel/Root/ItemContext/Row/Info/ItemMeta
+@onready var chat_scroll = $Margin/RootVBox/SellerChatPanel/Root/MessagesPanel/MessagesScroll
+@onready var chat_messages = $Margin/RootVBox/SellerChatPanel/Root/MessagesPanel/MessagesScroll/Messages
+@onready var chat_choice_hint = $Margin/RootVBox/SellerChatPanel/Root/Composer/ChoiceHint
 @onready var inquiry_panel = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel
 @onready var inquiry_title = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box/InquiryTitle
 @onready var inquiry_text = $Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel/Box/InquiryText
 @onready var inspect_buttons = [
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton1,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton2,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton3,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton4,
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid/InspectButton5
+	$Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid/InspectButton1,
+	$Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid/InspectButton2,
+	$Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid/InspectButton3,
+	$Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid/InspectButton4,
+	$Margin/RootVBox/SellerChatPanel/Root/Composer/SearchMarketButton
 ]
 @onready var resale_option = $Margin/RootVBox/DetailPanel/Scroll/Box/ResaleOption
 @onready var max_buy_slider = $Margin/RootVBox/DetailPanel/Scroll/Box/MaxBuySlider
@@ -258,7 +265,10 @@ func _connect_buttons() -> void:
 	$Margin/RootVBox/DetailPanel/Scroll/Box/TopBar/BackTopButton.pressed.connect(_go_market)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/ImageColumn/ImageExpandButton.pressed.connect(_open_image_preview)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.pressed.connect(_open_image_preview)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/OpenSellerChatButton.pressed.connect(_open_seller_chat)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/NegotiationJumpButton.pressed.connect(_jump_to_trade_plan)
+	$Margin/RootVBox/SellerChatPanel/Root/TopBar/BackButton.pressed.connect(_back_to_detail)
+	$Margin/RootVBox/SellerChatPanel/Root/BackToDetailButton.pressed.connect(_back_to_detail)
 	$ImagePreview/Box/CloseButton.pressed.connect(func(): $ImagePreview.hide())
 
 	offer_slider.value_changed.connect(_offer_slider_changed)
