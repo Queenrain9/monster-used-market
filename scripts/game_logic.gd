@@ -2,7 +2,7 @@ extends RefCounted
 
 const Content = preload("res://data/content.gd")
 
-var rng := RandomNumberGenerator.new()
+var rng = RandomNumberGenerator.new()
 
 
 func _init(seed_value: int = -1) -> void:
@@ -23,8 +23,8 @@ func content_summary() -> Dictionary:
 
 
 func validate_content() -> Array:
-	var errors := []
-	var summary := content_summary()
+	var errors = []
+	var summary = content_summary()
 	if int(summary["items"]) < 12:
 		errors.append("아이템이 12종보다 적습니다.")
 	if int(summary["seller_types"]) < 5:
@@ -39,10 +39,10 @@ func validate_content() -> Array:
 
 
 func generate_market(count: int = 3) -> Array:
-	var pool := Content.ITEMS.duplicate(true)
-	var result := []
+	var pool = Content.ITEMS.duplicate(true)
+	var result = []
 	while result.size() < count and not pool.is_empty():
-		var index := rng.randi_range(0, pool.size() - 1)
+		var index = rng.randi_range(0, pool.size() - 1)
 		var item: Dictionary = pool[index]
 		pool.remove_at(index)
 		result.append(generate_listing(item))
@@ -50,13 +50,13 @@ func generate_market(count: int = 3) -> Array:
 
 
 func generate_listing(item: Dictionary) -> Dictionary:
-	var state := _weighted_choice(item["state_weights"])
-	var condition := _choose_condition(state)
-	var rarity := _weighted_choice(item["rarity_weights"])
-	var rarity_mult := float(Content.RARITY_MULTIPLIERS.get(rarity, 1.0))
-	var state_mult := float(Content.STATE_MULTIPLIERS.get(state, 1.0))
-	var condition_mult := float(Content.CONDITION_MULTIPLIERS.get(condition, 1.0))
-	var actual_value := max(500, int(round(
+	var state = _weighted_choice(item["state_weights"])
+	var condition = _choose_condition(state)
+	var rarity = _weighted_choice(item["rarity_weights"])
+	var rarity_mult = float(Content.RARITY_MULTIPLIERS.get(rarity, 1.0))
+	var state_mult = float(Content.STATE_MULTIPLIERS.get(state, 1.0))
+	var condition_mult = float(Content.CONDITION_MULTIPLIERS.get(condition, 1.0))
+	var actual_value = max(500, int(round(
 		float(item["base_value"]) * rarity_mult * state_mult * condition_mult * rng.randf_range(0.93, 1.07)
 	)))
 
@@ -64,9 +64,9 @@ func generate_listing(item: Dictionary) -> Dictionary:
 	var personality: Dictionary = Content.SELLER_TYPES[seller["type"]].duplicate(true)
 	seller["personality"] = personality
 
-	var archetype := _choose_archetype()
-	var asking := _calculate_asking(actual_value, archetype, seller)
-	var clue_pack := _generate_clues(state, condition, seller)
+	var archetype = _choose_archetype()
+	var asking = _calculate_asking(actual_value, archetype, seller)
+	var clue_pack = _generate_clues(state, condition, seller)
 
 	return {
 		"listing_id": "%s_%d_%d" % [item["id"], int(Time.get_unix_time_from_system()), rng.randi_range(1000, 9999)],
@@ -100,7 +100,7 @@ func start_negotiation(listing: Dictionary) -> Dictionary:
 
 
 func negotiate(listing: Dictionary, state: Dictionary, action: String) -> Dictionary:
-	var updated := state.duplicate(true)
+	var updated = state.duplicate(true)
 	if bool(updated.get("closed", false)):
 		return {
 			"state": updated,
@@ -110,19 +110,19 @@ func negotiate(listing: Dictionary, state: Dictionary, action: String) -> Dictio
 		}
 
 	var personality: Dictionary = listing["seller"]["personality"]
-	var current_price := int(updated["current_price"])
-	var floor_price := int(round(float(listing["asking"]) * float(personality["floor_ratio"])))
-	var receptiveness := float(personality["discount_receptiveness"])
-	var mood := int(updated["mood"])
-	var accepted_price := 0
-	var speech := ""
-	var status := ""
-	var patience_cost := 0
+	var current_price = int(updated["current_price"])
+	var floor_price = int(round(float(listing["asking"]) * float(personality["floor_ratio"])))
+	var receptiveness = float(personality["discount_receptiveness"])
+	var mood = int(updated["mood"])
+	var accepted_price = 0
+	var speech = ""
+	var status = ""
+	var patience_cost = 0
 	updated["rounds"] = int(updated["rounds"]) + 1
 
 	if action == "quick":
-		var target := max(floor_price, int(round(float(current_price) * 0.86)))
-		var chance := 0.34 + receptiveness * 0.50 + float(mood) * 0.04
+		var target = max(floor_price, int(round(float(current_price) * 0.86)))
+		var chance = 0.34 + receptiveness * 0.50 + float(mood) * 0.04
 		if target <= floor_price:
 			chance -= 0.10
 		if rng.randf() <= clamp(chance, 0.08, 0.94):
@@ -138,11 +138,11 @@ func negotiate(listing: Dictionary, state: Dictionary, action: String) -> Dictio
 			status = "공격적인 제안이 거절됐습니다."
 
 	elif action == "condition":
-		var evidence := _count_negative_clues(listing)
-		var chance := 0.30 + receptiveness * 0.34 + min(evidence, 2) * 0.18 + float(mood) * 0.03
-		var reduction := 0.045 + min(evidence, 2) * 0.035
+		var evidence = _count_negative_clues(listing)
+		var chance = 0.30 + receptiveness * 0.34 + min(evidence, 2) * 0.18 + float(mood) * 0.03
+		var reduction = 0.045 + min(evidence, 2) * 0.035
 		if rng.randf() <= clamp(chance, 0.08, 0.92):
-			var new_price := max(floor_price, int(round(float(current_price) * (1.0 - reduction))))
+			var new_price = max(floor_price, int(round(float(current_price) * (1.0 - reduction))))
 			updated["current_price"] = new_price
 			updated["mood"] = mood + 1
 			speech = "“그 부분을 봤군… 그럼 %sG까지는 낮추지.”" % _money(new_price)
@@ -154,10 +154,10 @@ func negotiate(listing: Dictionary, state: Dictionary, action: String) -> Dictio
 			status = "단서 지적이 설득력을 얻지 못했습니다."
 
 	elif action == "soft":
-		var chance := 0.50 + receptiveness * 0.42 + float(mood) * 0.04
+		var chance = 0.50 + receptiveness * 0.42 + float(mood) * 0.04
 		if rng.randf() <= clamp(chance, 0.10, 0.95):
-			var reduction := rng.randf_range(0.04, 0.075)
-			var new_price := max(floor_price, int(round(float(current_price) * (1.0 - reduction))))
+			var reduction = rng.randf_range(0.04, 0.075)
+			var new_price = max(floor_price, int(round(float(current_price) * (1.0 - reduction))))
 			updated["current_price"] = new_price
 			updated["mood"] = mood + 1
 			speech = "“조금만이다. %sG이면 어때?”" % _money(new_price)
@@ -186,7 +186,7 @@ func negotiate(listing: Dictionary, state: Dictionary, action: String) -> Dictio
 
 
 func appraise(listing: Dictionary) -> Dictionary:
-	var features := []
+	var features = []
 	if listing["state"] == "진품":
 		features.append("제작 방식과 재질이 원본 규격과 일치")
 	elif listing["state"] == "모조품":
@@ -210,7 +210,7 @@ func appraise(listing: Dictionary) -> Dictionary:
 	else:
 		features.append("희소성 프리미엄은 크지 않음")
 
-	var feedback := []
+	var feedback = []
 	for clue in listing["public_clues"]:
 		if bool(clue.get("aligned", true)):
 			feedback.append("%s → %s" % [clue["text"], clue["reveal"]])
@@ -228,25 +228,25 @@ func appraise(listing: Dictionary) -> Dictionary:
 
 
 func make_buyer_offers(listing: Dictionary) -> Array:
-	var specialists := []
-	var scrap := {}
+	var specialists = []
+	var scrap = {}
 	for buyer in Content.BUYERS:
 		if buyer["id"] == "scrap":
 			scrap = buyer
 		else:
 			specialists.append(buyer)
 
-	var chosen := []
+	var chosen = []
 	while chosen.size() < 2 and not specialists.is_empty():
-		var idx := rng.randi_range(0, specialists.size() - 1)
+		var idx = rng.randi_range(0, specialists.size() - 1)
 		chosen.append(specialists[idx])
 		specialists.remove_at(idx)
 	chosen.append(scrap)
 
-	var offers := []
+	var offers = []
 	for buyer in chosen:
-		var multiplier := float(buyer["base_multiplier"])
-		var matches := 0
+		var multiplier = float(buyer["base_multiplier"])
+		var matches = 0
 		for tag in listing["tags"]:
 			if buyer["preferred_tags"].has(tag):
 				matches += 1
@@ -274,8 +274,8 @@ func make_buyer_offers(listing: Dictionary) -> Array:
 			multiplier *= 0.90
 
 		multiplier *= rng.randf_range(0.96, 1.05)
-		var price := max(1, int(round(float(listing["actual_value"]) * multiplier)))
-		var reason := "기본 시세 기준"
+		var price = max(1, int(round(float(listing["actual_value"]) * multiplier)))
+		var reason = "기본 시세 기준"
 		if matches > 0:
 			reason = "선호 속성 %d개 일치" % matches
 		elif buyer["id"] == "scrap":
@@ -303,9 +303,9 @@ func _choose_archetype() -> String:
 
 func _calculate_asking(actual_value: int, archetype: String, seller: Dictionary) -> int:
 	var band: Dictionary = Content.ARCHETYPES[archetype]
-	var ratio := rng.randf_range(float(band["min"]), float(band["max"]))
+	var ratio = rng.randf_range(float(band["min"]), float(band["max"]))
 	var personality: Dictionary = seller["personality"]
-	var type_id := str(seller["type"])
+	var type_id = str(seller["type"])
 
 	if type_id == "urgent":
 		ratio -= 0.10
@@ -316,7 +316,7 @@ func _calculate_asking(actual_value: int, archetype: String, seller: Dictionary)
 	elif type_id == "naive":
 		ratio += rng.randf_range(-0.20, 0.20)
 
-	var knowledge := float(personality["knowledge"])
+	var knowledge = float(personality["knowledge"])
 	if type_id == "expert":
 		ratio = lerp(ratio, 1.02, 0.64 * knowledge)
 	elif knowledge > 0.70:
@@ -326,17 +326,17 @@ func _calculate_asking(actual_value: int, archetype: String, seller: Dictionary)
 
 
 func _generate_clues(state: String, condition: String, seller: Dictionary) -> Dictionary:
-	var public := []
-	var hidden := []
+	var public = []
+	var hidden = []
 
-	var truth_signal := "genuine"
+	var truth_signal = "genuine"
 	if state == "모조품":
 		truth_signal = "imitation"
 	elif state == "결함품":
 		truth_signal = "defect"
 
-	var first_signal := truth_signal
-	var first_aligned := true
+	var first_signal = truth_signal
+	var first_aligned = true
 	if rng.randf() < 0.18:
 		first_aligned = false
 		if truth_signal == "genuine":
@@ -345,7 +345,7 @@ func _generate_clues(state: String, condition: String, seller: Dictionary) -> Di
 			first_signal = "genuine"
 	public.append(_pick_clue(first_signal, first_aligned))
 
-	var condition_signal := "neutral"
+	var condition_signal = "neutral"
 	if condition in ["최상", "양호"]:
 		condition_signal = "quality"
 	elif condition == "손상":
@@ -367,10 +367,10 @@ func _generate_clues(state: String, condition: String, seller: Dictionary) -> Di
 
 func _make_seller_claim(state: String, seller: Dictionary) -> Dictionary:
 	var personality: Dictionary = seller["personality"]
-	var honest := rng.randf() <= float(personality["claim_honesty"])
-	var text := ""
-	var reveal := ""
-	var aligned := honest
+	var honest = rng.randf() <= float(personality["claim_honesty"])
+	var text = ""
+	var reveal = ""
+	var aligned = honest
 
 	if honest:
 		if state == "진품":
@@ -401,7 +401,7 @@ func _make_seller_claim(state: String, seller: Dictionary) -> Dictionary:
 
 
 func _pick_clue(clue_signal: String, aligned: bool) -> Dictionary:
-	var candidates := []
+	var candidates = []
 	for clue in Content.CLUES:
 		if clue["signal"] == clue_signal:
 			candidates.append(clue)
@@ -416,7 +416,7 @@ func _pick_clue(clue_signal: String, aligned: bool) -> Dictionary:
 
 
 func _count_negative_clues(listing: Dictionary) -> int:
-	var count := 0
+	var count = 0
 	for clue in listing["public_clues"]:
 		if clue["kind"] == "부정적":
 			count += 1
@@ -424,11 +424,11 @@ func _count_negative_clues(listing: Dictionary) -> int:
 
 
 func _weighted_choice(weights: Dictionary) -> String:
-	var total := 0.0
+	var total = 0.0
 	for value in weights.values():
 		total += float(value)
-	var roll := rng.randf() * total
-	var cursor := 0.0
+	var roll = rng.randf() * total
+	var cursor = 0.0
 	for key in weights.keys():
 		cursor += float(weights[key])
 		if roll <= cursor:
@@ -437,8 +437,8 @@ func _weighted_choice(weights: Dictionary) -> String:
 
 
 func _money(value: int) -> String:
-	var source := str(abs(value))
-	var result := ""
+	var source = str(abs(value))
+	var result = ""
 	while source.length() > 3:
 		result = "," + source.substr(source.length() - 3, 3) + result
 		source = source.substr(0, source.length() - 3)
