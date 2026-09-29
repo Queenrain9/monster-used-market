@@ -249,7 +249,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.2.19.1: polished dedicated seller chat, coherent inquiries and full trade flow")
+	print("SMOKE OK v0.2.20: structured transaction records, polished chat and full trade flow")
 	quit(0)
 
 
