@@ -500,6 +500,7 @@ theme_override_font_sizes/font_size = 15
 text = "판매자와 대화"
 
 [node name="DetailBudget" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
 theme_override_font_sizes/font_size = 11
@@ -639,6 +640,7 @@ text = "아직 메모한 내용이 없습니다."
 autowrap_mode = 2
 
 [node name="MarketPricePanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
