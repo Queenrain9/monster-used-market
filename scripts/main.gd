@@ -3600,6 +3600,7 @@ func _load_game() -> void:
 		break
 	if parsed.is_empty():
 		return
+	var loaded_save_version = int(parsed.get("version", 22))
 	if load_path == SAVE_BACKUP_PATH:
 		save_recovery_notice = true
 		_skip_backup_on_next_save = true
@@ -3662,6 +3663,18 @@ func _load_game() -> void:
 	collection_goal_claimed = loaded_goals if typeof(loaded_goals) == TYPE_DICTIONARY else {}
 	var loaded_achievements = parsed.get("achievement_unlocks", {})
 	achievement_unlocks = loaded_achievements if typeof(loaded_achievements) == TYPE_DICTIONARY else {}
+
+	# P8 expands the commercial catalog from 12 to 24 items. Preserve rewards
+	# earned for the old complete catalog as the new midpoint, but never let an
+	# old 12/12 flag auto-complete the new 24/24 objective.
+	if loaded_save_version < 38:
+		if bool(collection_goal_claimed.get("catalog_all", false)):
+			collection_goal_claimed["catalog_12"] = true
+			collection_goal_claimed.erase("catalog_all")
+		if achievement_unlocks.has("all_items"):
+			achievement_unlocks["twelve_items"] = true
+			achievement_unlocks.erase("all_items")
+
 	selected_collection_index = clamp(
 		int(parsed.get("selected_collection_index", 0)),
 		0,
