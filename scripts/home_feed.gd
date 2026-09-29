@@ -7,7 +7,6 @@ const Content = preload("res://data/content.gd")
 
 func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary:
 	var seller: Dictionary = listing.get("seller", {})
-	var personality: Dictionary = seller.get("personality", {})
 	var status = str(listing.get("listing_status", "미확인"))
 	var available = status not in ["구매 완료", "판매 완료"]
 	var viewed = bool(listing.get("viewed", false)) or not listing.get("inspected_actions", []).is_empty()
@@ -41,7 +40,6 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 
 func seller_behavior_text(listing: Dictionary) -> String:
 	var seller: Dictionary = listing.get("seller", {})
-	var personality: Dictionary = seller.get("personality", {})
 	var cues: Array = personality.get("public_cues", [])
 	if cues.is_empty():
 		return "대화만으로는 어떤 성향인지 단정하기 어렵다."
