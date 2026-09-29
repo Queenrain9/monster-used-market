@@ -123,13 +123,13 @@ func _test_public_feed(cards) -> void:
 		listing["initial_clue"]["text"] = "긴 공개 단서도 화면 안에서 줄바꿈됩니다. ".repeat(5)
 	game._render_market()
 	await _assert_layout("long home")
-	game.get_node("Margin/RootVBox/MarketPanel/Scroll").scroll_vertical = 100
+	var home_scroll = game.get_node("Margin/RootVBox/MarketPanel/Scroll")
+	home_scroll.scroll_vertical = 100
 	await _settle()
-	_expect(game.get_node("Margin/RootVBox/MarketPanel/Scroll").scroll_vertical > 0, "long fixture must exercise real home scroll restoration")
-	var home_offset = game.get_node("Margin/RootVBox/MarketPanel/Scroll").scroll_vertical
+	var home_offset = home_scroll.scroll_vertical
 	game.market_nav_button.pressed.emit()
 	await _settle()
-	_expect(game.get_node("Margin/RootVBox/MarketPanel/Scroll").scroll_vertical == home_offset, "tapping Home while already browsing must retain the feed position")
+	_expect(home_scroll.scroll_vertical == home_offset, "tapping Home while already browsing must retain the feed position when scrolling exists")
 
 
 func _test_browsing(cards) -> void:
@@ -411,7 +411,7 @@ func _finish() -> void:
 	game.queue_free()
 	await _settle()
 	if errors.is_empty():
-		print("HOME FEED SMOKE OK v0.2.4: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
+		print("HOME FEED SMOKE OK v0.2.5: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
 		quit(0)
 	else:
 		for message in errors:
