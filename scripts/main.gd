@@ -1456,6 +1456,8 @@ func _open_seller_chat() -> void:
 	var listing = _current_market_listing()
 	if listing.is_empty():
 		return
+	listing = _append_unseen_story_messages(_apply_relationship_context(listing))
+	_sync_market_listing(listing)
 	current_stage = "chat"
 	_render_seller_chat()
 	_show_panel(seller_chat_panel)
@@ -1725,6 +1727,20 @@ func _investigate(option_index: int) -> void:
 		updated["chat_history"] = history
 		# Keep the previous field for old saves/tests, but the player-facing UX now uses the thread.
 		updated["last_inquiry"] = feed.investigation_interaction(listing, option, str(result["message"]))
+
+		var action_id = str(option.get("id", ""))
+		if action_id != "market":
+			var seller_id = str(updated.get("seller", {}).get("id", ""))
+			_add_seller_relationship(
+				seller_id,
+				1,
+				1,
+				0,
+				"DAY %d · %s에 대해 대화했다." % [merchant_day, str(option.get("short_label", option.get("label", "물건")))]
+			)
+			updated = _apply_relationship_context(updated)
+			updated = _append_unseen_story_messages(updated)
+
 		_sync_market_listing(updated)
 		_render_seller_chat()
 		_set_status("판매자와 대화를 이어갔습니다.")
@@ -1958,6 +1974,20 @@ func _complete_purchase(price: int) -> void:
 	gold -= price
 	listing["listing_status"] = "구매 완료"
 	listing["purchase_price"] = price
+
+	var seller_id = str(listing.get("seller", {}).get("id", ""))
+	var seller_state = _add_seller_relationship(
+		seller_id,
+		4,
+		0,
+		1,
+		"DAY %d · %s을(를) %sG에 직거래했다." % [merchant_day, Art.item_name(listing), _money(price)]
+	)
+	if bool(listing.get("relationship_special", false)):
+		seller_state["special_offer_ready"] = false
+		seller_state["special_offer_claimed"] = true
+		seller_relationships[seller_id] = seller_state
+	listing = _apply_relationship_context(listing)
 	_sync_market_listing(listing)
 
 	var owned = {
