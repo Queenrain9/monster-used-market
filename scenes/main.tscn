@@ -397,6 +397,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "수집 장부 · 도감과 장기 목표"
 
+[node name="SettingsButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "설정 · 사운드 / 접근성 / 피드백"
+
 [node name="EndDayButton" type="Button" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -3032,6 +3038,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "새 게임"
 
+[node name="SettingsButton" type="Button" parent="CommercialShell/Center/Card/TitleView"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "설정"
+
 [node name="BuildLabel" type="Label" parent="CommercialShell/Center/Card/TitleView"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 9
@@ -3078,6 +3090,184 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "다음"
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="SfxPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="PresentationLayer" type="Control" parent="."]
+z_index = 90
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ToastPanel" type="PanelContainer" parent="PresentationLayer"]
+visible = false
+layout_mode = 1
+anchor_left = 0.06
+anchor_top = 0.055
+anchor_right = 0.94
+anchor_bottom = 0.055
+offset_bottom = 64.0
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Label" type="Label" parent="PresentationLayer/ToastPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "알림"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ContextTip" type="PanelContainer" parent="."]
+visible = false
+z_index = 95
+layout_mode = 1
+anchor_left = 0.04
+anchor_top = 1.0
+anchor_right = 0.96
+anchor_bottom = 1.0
+offset_top = -196.0
+offset_bottom = -18.0
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="ContextTip"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="Title" type="Label" parent="ContextTip/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "처음 보는 기능"
+
+[node name="Body" type="Label" parent="ContextTip/Box"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 10
+text = "이 화면에서 알아둘 내용을 설명합니다."
+autowrap_mode = 2
+
+[node name="DismissButton" type="Button" parent="ContextTip/Box"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "알겠어요"
+
+[node name="SettingsOverlay" type="Control" parent="."]
+visible = false
+z_index = 120
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Backdrop" type="ColorRect" parent="SettingsOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.06, 0.72)
+
+[node name="Center" type="CenterContainer" parent="SettingsOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Card" type="PanelContainer" parent="SettingsOverlay/Center"]
+custom_minimum_size = Vector2(342, 590)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Box" type="VBoxContainer" parent="SettingsOverlay/Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TopRow" type="HBoxContainer" parent="SettingsOverlay/Center/Card/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="CloseButton" type="Button" parent="SettingsOverlay/Center/Card/Box/TopRow"]
+custom_minimum_size = Vector2(44, 40)
+layout_mode = 2
+text = "←"
+
+[node name="Title" type="Label" parent="SettingsOverlay/Center/Card/Box/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 19
+text = "설정"
+vertical_alignment = 1
+
+[node name="AudioTitle" type="Label" parent="SettingsOverlay/Center/Card/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "사운드"
+
+[node name="MusicLabel" type="Label" parent="SettingsOverlay/Center/Card/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "배경음악 70%"
+
+[node name="MusicSlider" type="HSlider" parent="SettingsOverlay/Center/Card/Box"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.7
+
+[node name="SfxLabel" type="Label" parent="SettingsOverlay/Center/Card/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "효과음 80%"
+
+[node name="SfxSlider" type="HSlider" parent="SettingsOverlay/Center/Card/Box"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.8
+
+[node name="FeedbackTitle" type="Label" parent="SettingsOverlay/Center/Card/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "피드백과 접근성"
+
+[node name="HapticsCheck" type="CheckButton" parent="SettingsOverlay/Center/Card/Box"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "햅틱 피드백"
+
+[node name="ReducedMotionCheck" type="CheckButton" parent="SettingsOverlay/Center/Card/Box"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "화면 전환 움직임 줄이기"
+
+[node name="LargeTextCheck" type="CheckButton" parent="SettingsOverlay/Center/Card/Box"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "조금 더 큰 글씨"
+
+[node name="Spacer" type="Control" parent="SettingsOverlay/Center/Card/Box"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SaveInfo" type="Label" parent="SettingsOverlay/Center/Card/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "플레이는 자동 저장됩니다. 저장 파일에 문제가 생기면 이전 정상 저장으로 복구합니다."
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="ImagePreview" type="PopupPanel" parent="."]
 
