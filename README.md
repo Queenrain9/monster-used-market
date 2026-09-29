@@ -1,4 +1,4 @@
-# 괴물 중고마켓 MVP v0.2.19.1 — Chat Polish
+# 괴물 중고마켓 MVP v0.2.20 — Trade Record Fidelity Pass
 
 이번 버전은 기능 추가가 아니라 **구조 목업과 실제 Godot 홈 화면의 비율/밀도/정보 위계를 맞추는 패스**입니다.
 
@@ -664,3 +664,56 @@ v0.2.18의 채팅은 말풍선과 누적 대화를 사용했지만 여전히 매
 `직접 조사 · 비슷한 매물 찾아보기`
 
 로 표시한다.
+
+
+## v0.2.20 — Trade Record Fidelity Pass
+
+거래 기록 화면의 긴 텍스트 로그를 구조화된 복기 화면으로 교체했다.
+
+### 최근 거래 카드
+
+최근 완료한 거래는 다음 순서로 읽힌다.
+
+- 아이템 이미지 / 이름
+- 판매처
+- 순이익
+- 매입가 / 정보비 / 판매가
+- 내 판단 복기
+- 거래 분석
+- 거래 뒤에 알게 된 실제 물건 정보
+- 판매자 관찰 vs 실제 성향
+- 거래 후 자산
+
+### 구조화된 저장
+
+신규 거래는 `last_result_record` Dictionary로 저장한다.
+
+포함 정보:
+
+- item_id / item_name
+- buyer_name / buyer_reason
+- purchase_price / info_cost / sale_price / profit
+- plan_feedback
+- analysis_lines
+- seller_observation / seller_actual
+- state / rarity / condition / actual_value
+- current_assets
+
+기존 `last_result_text`는 저장 호환을 위해 유지한다.
+
+### 이전 저장 호환
+
+옛 저장 파일처럼 `last_result_record`가 없고 `last_result_text`만 있으면,
+새 카드 UI를 억지로 채우지 않고 기존 텍스트를 읽기 쉬운 fallback 영역에 표시한다.
+
+### UI 목표
+
+거래 기록을:
+
+> 시스템 로그
+
+가 아니라:
+
+> 이번 거래에서 얼마 벌었고, 어떤 판단을 맞췄고, 무엇을 놓쳤는지 복기하는 화면
+
+으로 바꾼다.
