@@ -261,10 +261,46 @@ const UPGRADES := [
 ]
 
 const DAY_EVENTS := [
-	{"id":"rain_market","title":"비 오는 야시장","description":"젖은 천막 아래로 평소보다 오래된 물건들이 많이 나왔다는 소문이 돈다."},
-	{"id":"tower_open","title":"탑의 야간 개방","description":"탑 창고를 정리하는 날이라 오래 묵은 마도구가 동네로 흘러나오고 있다."},
-	{"id":"dock_check","title":"부두 검문 강화","description":"짐 검사가 길어져 급하게 처분하려는 상인들이 있다는 이야기가 들린다."},
-	{"id":"grave_festival","title":"묘지 축제 준비","description":"묘지 쪽 공연과 제례 준비로 기묘한 수집품 거래가 늘었다."}
+	{
+		"id":"rain_market",
+		"title":"비 오는 야시장",
+		"description":"젖은 천막 아래로 평소보다 오래된 물건들이 많이 나왔다는 소문이 돈다.",
+		"affected_tags":["수집","마법"],
+		"asking_multiplier":0.95,
+		"demand_multiplier":1.08,
+		"effect_text":"수집·마법 물건 등록가 약 -5% · 재판매 수요 +8%",
+		"volatile_special":true
+	},
+	{
+		"id":"tower_open",
+		"title":"탑의 야간 개방",
+		"description":"탑 창고를 정리하는 날이라 오래 묵은 마도구가 동네로 흘러나오고 있다.",
+		"affected_tags":["마법","고대"],
+		"asking_multiplier":0.88,
+		"demand_multiplier":1.00,
+		"effect_text":"마법·고대 물건 공급 증가 · 등록가 약 -12%",
+		"volatile_special":true
+	},
+	{
+		"id":"dock_check",
+		"title":"부두 검문 강화",
+		"description":"짐 검사가 길어져 급하게 처분하려는 상인들이 있다는 이야기가 들린다.",
+		"affected_tags":["기계","재료"],
+		"asking_multiplier":0.90,
+		"demand_multiplier":1.06,
+		"effect_text":"기계·재료 급매 증가 · 등록가 약 -10% · 재판매 수요 +6%",
+		"volatile_special":true
+	},
+	{
+		"id":"grave_festival",
+		"title":"묘지 축제 준비",
+		"description":"묘지 쪽 공연과 제례 준비로 기묘한 수집품 거래가 늘었다.",
+		"affected_tags":["저주","영혼","음악"],
+		"asking_multiplier":1.08,
+		"demand_multiplier":1.20,
+		"effect_text":"저주·영혼·음악 물건 등록가 +8% · 재판매 수요 +20%",
+		"volatile_special":true
+	}
 ]
 
 const COLLECTION_SETS := [
