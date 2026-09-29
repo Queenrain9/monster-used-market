@@ -595,26 +595,26 @@ func trade_plan_complete(listing: Dictionary) -> bool:
 
 
 func evaluate_trade_plan(listing: Dictionary, purchase_price: int, sale_price: int) -> Array:
+	# Legacy name kept for save/test compatibility. The player no longer fills out
+	# an explicit resale/max-buy worksheet; review what they actually learned and did.
 	var feedback = []
-	var plan: Dictionary = listing.get("trade_plan", {})
-	if plan.is_empty():
-		return ["△ 구매 전 거래 계획 기록 없음"]
+	var clue_count = listing.get("discovered_clues", []).size()
+	feedback.append("• 구매 전 확인한 단서 %d개" % clue_count)
 
-	var value_band = str(plan.get("value_band", ""))
-	if _value_band_contains(value_band, sale_price):
-		feedback.append("✓ 예상 재판매가 범위 안에서 판매")
+	var asking = int(listing.get("asking", purchase_price))
+	if purchase_price < asking:
+		feedback.append("✓ 판매 희망가보다 %sG 낮게 구매" % _money(asking - purchase_price))
+	elif purchase_price == asking:
+		feedback.append("• 판매 희망가 그대로 구매")
 	else:
-		feedback.append("△ 실제 판매가가 예상 범위를 벗어남")
+		feedback.append("△ 판매 희망가보다 %sG 높게 구매" % _money(purchase_price - asking))
 
-	var max_buy_price = int(plan.get("max_buy_price", 0))
-	if purchase_price <= max_buy_price:
-		feedback.append("✓ 내가 정한 최대 매입가 이하로 구매")
+	if sale_price > purchase_price:
+		feedback.append("✓ 매입가보다 %sG 높은 가격에 판매" % _money(sale_price - purchase_price))
+	elif sale_price == purchase_price:
+		feedback.append("• 매입가와 같은 가격에 판매")
 	else:
-		feedback.append("△ 최대 매입가보다 %sG 더 비싸게 구매" % _money(purchase_price - max_buy_price))
-
-	var suspect_text = str(plan.get("suspect_text", ""))
-	if not suspect_text.is_empty():
-		feedback.append("• 구매 전 가장 신경 쓴 단서: %s" % suspect_text)
+		feedback.append("△ 매입가보다 %sG 낮은 가격에 판매" % _money(purchase_price - sale_price))
 	return feedback
 
 
