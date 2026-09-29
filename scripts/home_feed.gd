@@ -29,7 +29,7 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 		"price_text": "%sG" % _money(int(listing.get("asking", 0))),
 		"seller_text": "판매자: %s" % Art.seller_name(seller),
 		"seller_short_text": Art.seller_name(seller),
-		"meta_text": "%s · %s" % [public_location_text(listing), public_age_text(listing)],
+		"meta_text": "%s · %s · %s" % [Art.seller_name(seller), public_location_text(listing), public_age_text(listing)],
 		"tags_text": " · ".join(tags),
 		"clue_text": listing_story_text(listing),
 		"feature_text": "동네 인기 매물" if featured and available else "",
@@ -49,6 +49,80 @@ func seller_behavior_text(listing: Dictionary) -> String:
 		return "대화만으로는 어떤 성향인지 단정하기 어렵다."
 	var fingerprint = abs(int(("%s_%s" % [listing.get("listing_id", ""), seller.get("id", "")]).hash()))
 	return str(cues[fingerprint % cues.size()])
+
+
+func investigation_button_text(option: Dictionary) -> String:
+	var action_id = str(option.get("id", ""))
+	var subject = str(option.get("short_label", option.get("label", "확인")))
+	match action_id:
+		"exterior":
+			return "%s 사진 보기" % subject
+		"mark":
+			return "%s 사진 요청" % subject
+		"function":
+			return "%s 확인" % subject
+		"origin":
+			return "어디서 얻었는지 묻기"
+		"market":
+			return "비슷한 매물 찾아보기"
+		_:
+			return subject
+
+
+func investigation_interaction(listing: Dictionary, option: Dictionary, result_message: String) -> Dictionary:
+	var action_id = str(option.get("id", ""))
+	var seller: Dictionary = listing.get("seller", {})
+	var seller_name = Art.seller_name(seller)
+	var subject = str(option.get("short_label", option.get("label", "물건")))
+	match action_id:
+		"origin":
+			return {
+				"kind":"chat",
+				"title":"판매자에게 물어봄",
+				"text":"나: “이거 어디서 얻으셨어요?”\n%s: “%s”" % [seller_name, result_message]
+			}
+		"market":
+			return {
+				"kind":"search",
+				"title":"비슷한 매물을 찾아봄",
+				"text":"중고장터와 상점 기록을 비교해봤다.\n%s" % result_message
+			}
+		"exterior", "mark":
+			return {
+				"kind":"photo",
+				"title":"사진을 더 확인함",
+				"text":"나: “%s 쪽을 좀 더 볼 수 있을까요?”\n%s: “네, 잠깐만요.”\n사진에서 확인: %s" % [subject, seller_name, result_message]
+			}
+		"function":
+			return {
+				"kind":"onsite",
+				"title":"직거래 전 확인",
+				"text":"%s을(를) 직접 확인해봤다.\n%s" % [subject, result_message]
+			}
+		_:
+			return {
+				"kind":"check",
+				"title":"추가로 확인함",
+				"text":result_message
+			}
+
+
+func seller_activity_text(listing: Dictionary) -> String:
+	var seller: Dictionary = listing.get("seller", {})
+	var seller_type = str(seller.get("type", ""))
+	match seller_type:
+		"urgent":
+			return "방금 답장함 · 오늘 거래 선호"
+		"greedy":
+			return "최근 접속 · 가격 제안은 신중히 봄"
+		"bluffer":
+			return "조금 전 접속 · 설명이 길어지는 편"
+		"naive":
+			return "최근 접속 · 물건 사연을 많이 말해줌"
+		"expert":
+			return "최근 접속 · 질문에 짧게 답함"
+		_:
+			return "최근 접속"
 
 
 func matches_filter(listing: Dictionary, query: String, tab_id: String, category_id: String) -> bool:
