@@ -965,7 +965,7 @@ func _render_sale() -> void:
 			_money(high)
 		]
 
-	quote_state.text = "전문 견적 요청 %d회 남음 · 전문 판매처 가격은 요청하기 전까지 비공개 · 고물상은 즉시가 공개" % quote_remaining
+	quote_state.text = "전문 견적 %d회 남음 · 요청한 곳만 가격 공개 · 고물상은 즉시가" % quote_remaining
 
 	for i in range(buyer_buttons.size()):
 		var offer: Dictionary = offers[i]
@@ -974,14 +974,14 @@ func _render_sale() -> void:
 		buyer_summary_labels[i].text = str(offer["summary"])
 
 		if str(offer["buyer_id"]) == "scrap":
-			buyer_status_labels[i].text = "즉시 매입"
+			buyer_status_labels[i].text = "즉시가"
 			buyer_reason_labels[i].text = "%sG · %s" % [_money(int(offer["price"])), str(offer["reason"])]
 		elif bool(offer["revealed"]):
-			buyer_status_labels[i].text = "견적 확인 완료"
+			buyer_status_labels[i].text = "%sG" % _money(int(offer["price"]))
 			buyer_reason_labels[i].text = "%sG · %s" % [_money(int(offer["price"])), str(offer["reason"])]
 		else:
-			buyer_status_labels[i].text = "견적 미확인"
-			buyer_reason_labels[i].text = "가격은 견적 요청 후 공개됩니다."
+			buyer_status_labels[i].text = "미확인"
+			buyer_reason_labels[i].text = "견적 요청 후 가격 공개"
 
 		buyer_buttons[i].text = "선택됨" if is_selected else ("고물상 선택" if str(offer["buyer_id"]) == "scrap" else "이 판매처 선택")
 		buyer_buttons[i].disabled = is_selected
@@ -995,10 +995,10 @@ func _render_sale() -> void:
 		can_sell = bool(selected["revealed"])
 
 		if can_sell:
-			sale_selected_label.text = "%s 선택 · 확인된 제안 %sG" % [selected_name, _money(int(selected["price"]))]
+			sale_selected_label.text = "%s · 확인된 제안 %sG" % [selected_name, _money(int(selected["price"]))]
 			sell_button.text = "%s에게 %sG에 판매" % [selected_name, _money(int(selected["price"]))]
 		else:
-			sale_selected_label.text = "%s 선택 · 아직 가격을 확인하지 않았습니다." % selected_name
+			sale_selected_label.text = "%s · 아직 견적 미확인" % selected_name
 			sell_button.text = "견적 확인 후 판매 가능"
 
 		if can_quote:
@@ -1010,7 +1010,7 @@ func _render_sale() -> void:
 		else:
 			quote_button.text = "전문 견적 요청 기회를 모두 사용했습니다."
 	else:
-		sale_selected_label.text = "판매처를 선택하세요. 성향을 보고 먼저 물어볼 두 곳을 정하는 것이 핵심입니다."
+		sale_selected_label.text = "판매처를 선택하세요 · 전문 판매처는 두 곳만 견적 가능"
 		quote_button.text = "선택한 전문 판매처에 견적 요청"
 		sell_button.text = "판매처를 먼저 선택하세요"
 
