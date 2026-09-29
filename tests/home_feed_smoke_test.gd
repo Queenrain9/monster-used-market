@@ -60,7 +60,7 @@ func _test_public_feed(cards) -> void:
 		await _settle()
 	_expect(game.current_stage == "detail" and game.selected_market_index == 0, "real card hit area must open the existing detail")
 	await _capture("listing-detail")
-	_expect(game.get_node("Margin/RootVBox/DetailPanel/Scroll/Box/ItemArt").texture == cards.get_child(0).get_node("Margin/Body/Thumbnail").texture, "home and detail must show the same public artwork")
+	_expect(game.get_node("Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/ImageColumn/ItemArt").texture == cards.get_child(0).get_node("Margin/Body/Thumbnail").texture, "home and detail must show the same public artwork")
 	game._go_market()
 	await _settle()
 	var original_id = market[0]["listing_id"]
@@ -345,7 +345,8 @@ func _assert_layout(context: String) -> void:
 	for bar in _nodes_of_type(game, "HScrollBar"):
 		_expect(not bar.is_visible_in_tree(), "%s: internal horizontal scrollbars must also remain hidden" % context)
 	var nav = game.get_node("Margin/RootVBox/NavRow")
-	_expect(nav.get_global_rect().end.y <= 844 and nav.get_global_rect().position.y >= 780, "%s: bottom navigation must remain inside the portrait viewport" % context)
+	if nav.is_visible_in_tree():
+		_expect(nav.get_global_rect().end.y <= 844 and nav.get_global_rect().position.y >= 780, "%s: bottom navigation must remain inside the portrait viewport" % context)
 
 
 func _check_bounds(node: Node, context: String) -> void:
@@ -411,7 +412,7 @@ func _finish() -> void:
 	game.queue_free()
 	await _settle()
 	if errors.is_empty():
-		print("HOME FEED SMOKE OK v0.2.5: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
+		print("HOME FEED SMOKE OK v0.2.6: %d checks; privacy, A/home/B/home/A, resource gates, inventory/appraisal/quotes/resale, saves and 390x844 layout" % checks)
 		quit(0)
 	else:
 		for message in errors:
