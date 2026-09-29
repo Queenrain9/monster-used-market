@@ -556,41 +556,41 @@ theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
 text = "무엇을 물어볼까요?"
 
-[node name="InvestigationGrid" type="GridContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+[node name="InvestigationGrid" type="GridContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box"]
 layout_mode = 2
 columns = 2
 theme_override_constants/h_separation = 5
 theme_override_constants/v_separation = 5
 
-[node name="InspectButton1" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
+[node name="InspectButton1" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "외형"
 
-[node name="InspectButton2" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
+[node name="InspectButton2" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "각인"
 
-[node name="InspectButton3" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
+[node name="InspectButton3" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "작동 상태"
 
-[node name="InspectButton4" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
+[node name="InspectButton4" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "출처 묻기"
 
-[node name="InspectButton5" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
+[node name="InspectButton5" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel/Box/InvestigationGrid"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
