@@ -12,16 +12,7 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 	var available = status not in ["구매 완료", "판매 완료"]
 	var viewed = bool(listing.get("viewed", false)) or not listing.get("inspected_actions", []).is_empty()
 	var tags: Array = []
-	if str(seller.get("type", "")) == "urgent":
-		tags.append("급처")
-	elif float(personality.get("discount_receptiveness", 0.0)) >= 0.6:
-		tags.append("흥정 여지 있음")
-	elif str(seller.get("type", "")) == "expert":
-		tags.append("시세에 밝음")
-	elif str(seller.get("type", "")) == "greedy":
-		tags.append("가격 고수")
-	else:
-		tags.append("설명 적극적")
+	tags.append("가격 협의")
 
 	if not available:
 		tags.append(status)
@@ -48,6 +39,16 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 	}
 
 
+func seller_behavior_text(listing: Dictionary) -> String:
+	var seller: Dictionary = listing.get("seller", {})
+	var personality: Dictionary = seller.get("personality", {})
+	var cues: Array = personality.get("public_cues", [])
+	if cues.is_empty():
+		return "대화만으로는 어떤 성향인지 단정하기 어렵다."
+	var fingerprint = abs(int(("%s_%s" % [listing.get("listing_id", ""), seller.get("id", "")]).hash()))
+	return str(cues[fingerprint % cues.size()])
+
+
 func matches_filter(listing: Dictionary, query: String, tab_id: String, category_id: String) -> bool:
 	var seller: Dictionary = listing.get("seller", {})
 	var personality: Dictionary = seller.get("personality", {})
@@ -64,7 +65,7 @@ func matches_filter(listing: Dictionary, query: String, tab_id: String, category
 			return false
 
 	if tab_id == "negotiable":
-		if str(seller.get("type", "")) != "urgent" and float(personality.get("discount_receptiveness", 0.0)) < 0.6:
+		if str(listing.get("listing_status", "미확인")) in ["구매 완료", "판매 완료"]:
 			return false
 	elif tab_id == "viewed":
 		if not viewed:
