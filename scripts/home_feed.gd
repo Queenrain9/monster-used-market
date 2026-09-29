@@ -76,10 +76,13 @@ func investigation_interaction(listing: Dictionary, option: Dictionary, result_m
 	var subject = str(option.get("short_label", option.get("label", "물건")))
 	match action_id:
 		"origin":
+			var claim = str(listing.get("seller_claim", {}).get("text", "")).strip_edges()
+			if claim.is_empty():
+				claim = "정확한 건 저도 잘 모르겠어요. 가지고 있던 경로는 말씀드릴게요."
 			return {
 				"kind":"chat",
 				"title":"판매자에게 물어봄",
-				"text":"나: “이거 어디서 얻으셨어요?”\n%s: “%s”" % [seller_name, result_message]
+				"text":"나: “이거 어디서 얻으셨어요?”\n%s: %s\n대화하며 확인: %s" % [seller_name, claim, result_message]
 			}
 		"market":
 			return {
@@ -123,6 +126,21 @@ func seller_activity_text(listing: Dictionary) -> String:
 			return "최근 접속 · 질문에 짧게 답함"
 		_:
 			return "최근 접속"
+
+
+func seller_message_text(listing: Dictionary) -> String:
+	var seller: Dictionary = listing.get("seller", {})
+	var seller_type = str(seller.get("type", ""))
+	var messages := {
+		"urgent":["“가능하면 오늘 바로 거래하고 싶어요.”","“시간 맞으면 오늘 저녁에도 가능합니다.”"],
+		"greedy":["“가격은 물건 보시면 납득하실 거예요.”","“너무 낮은 제안은 조금 어려워요.”"],
+		"bluffer":["“이런 물건은 흔하게 나오는 게 아니에요.”","“아는 분들은 보면 바로 알아보실 겁니다.”"],
+		"naive":["“저도 정확한 시세는 잘 모르겠어요.”","“필요한 분이 가져가시면 좋겠어요.”"],
+		"expert":["“궁금한 부분 있으면 구체적으로 물어보세요.”","“상태는 직접 확인하고 결정하시는 게 좋습니다.”"]
+	}
+	var pool: Array = messages.get(seller_type, ["“궁금한 부분 있으면 물어보세요.”"])
+	var fingerprint = abs(int(("%s_message" % listing.get("listing_id", "")).hash()))
+	return str(pool[fingerprint % pool.size()])
 
 
 func matches_filter(listing: Dictionary, query: String, tab_id: String, category_id: String) -> bool:
