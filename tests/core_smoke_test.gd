@@ -30,6 +30,50 @@ func _init() -> void:
 				_fail("district listing lost its district identity")
 				return
 
+	# P6 dynamic market: rumor modifiers must affect supply/asking/demand
+	# without changing hidden truth or relationship-only promises.
+	var event = Content.DAY_EVENTS[0]
+	var event_probe = engine.generate_listing(Content.ITEMS[0])
+	var event_before_value = int(event_probe["actual_value"])
+	var event_before_state = str(event_probe["state"])
+	var event_before_asking = int(event_probe["asking"])
+	var affected = engine.apply_day_event_to_listing(event_probe, event, true)
+	if str(affected.get("market_event_id", "")) != str(event["id"]):
+		_fail("day event identity was not stored on listing")
+		return
+	if bool(affected.get("event_affected", false)):
+		if int(affected["actual_value"]) != event_before_value or str(affected["state"]) != event_before_state:
+			_fail("public market event leaked into hidden truth")
+			return
+		if int(affected["asking"]) == event_before_asking and abs(float(event.get("asking_multiplier", 1.0)) - 1.0) > 0.001:
+			_fail("affected day-event listing did not change seller asking price")
+			return
+		if abs(float(affected.get("buyer_demand_multiplier", 1.0)) - float(event["demand_multiplier"])) > 0.001:
+			_fail("affected day-event listing did not carry resale demand modifier")
+			return
+		if bool(event.get("volatile_special", false)) and not bool(affected.get("event_special", false)):
+			_fail("featured affected rumor listing did not become a volatile special")
+			return
+		if bool(affected.get("event_special", false)) and str(affected.get("archetype", "")) not in ["risky", "jackpot", "trap"]:
+			_fail("rumor special used a non-volatile archetype")
+			return
+
+	var demand_listing = engine.generate_listing(Content.ITEMS[0])
+	demand_listing["buyer_demand_multiplier"] = 1.20
+	var base_engine = MarketEngine.new(4401)
+	var demand_engine = MarketEngine.new(4401)
+	var base_listing = demand_listing.duplicate(true)
+	base_listing["buyer_demand_multiplier"] = 1.0
+	var base_offers = base_engine.make_buyer_offers(base_listing)
+	var demand_offers = demand_engine.make_buyer_offers(demand_listing)
+	for i in range(base_offers.size()):
+		if int(demand_offers[i]["price"]) <= int(base_offers[i]["price"]):
+			_fail("positive rumor demand must raise every otherwise-identical buyer quote")
+			return
+		if not str(demand_offers[i]["reason"]).contains("오늘 수요 +20%"):
+			_fail("buyer quote did not explain its rumor demand modifier")
+			return
+
 	var signatures = {}
 	var trade_plan_checks = 0
 	var quote_checks = 0
