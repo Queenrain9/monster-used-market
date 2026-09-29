@@ -497,7 +497,7 @@ autowrap_mode = 2
 [node name="InvestigationTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "판매자와 대화"
+text = "판매자에게 더 물어보기"
 
 [node name="DetailBudget" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 visible = false
@@ -507,6 +507,7 @@ theme_override_font_sizes/font_size = 11
 text = "질문하거나 확인할 수 있음 4번"
 
 [node name="ChatPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+visible = false
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
@@ -605,6 +606,12 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "시세 조사"
 
+[node name="OpenSellerChatButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "판매자에게 채팅하기"
+
 [node name="NegotiationJumpButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
@@ -637,10 +644,10 @@ autowrap_mode = 2
 [node name="KnownTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "거래 메모"
+text = "거래 메모 0개"
 
 [node name="ClueList" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.32, 0.35, 0.39, 1)
@@ -704,6 +711,171 @@ text = "판매자에게 가격 제안"
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "다른 매물 보기"
+
+[node name="SellerChatPanel" type="PanelContainer" parent="Margin/RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Root" type="VBoxContainer" parent="Margin/RootVBox/SellerChatPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="TopBar" type="HBoxContainer" parent="Margin/RootVBox/SellerChatPanel/Root"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar"]
+custom_minimum_size = Vector2(46, 40)
+layout_mode = 2
+text = "←"
+
+[node name="SellerPortrait" type="TextureRect" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SellerHead" type="VBoxContainer" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="SellerName" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar/SellerHead"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "판매자"
+max_lines_visible = 1
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="SellerStatus" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar/SellerHead"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
+text = "최근 접속"
+max_lines_visible = 1
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="GoldLabel" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar"]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "50,000 G"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ItemContext" type="PanelContainer" parent="Margin/RootVBox/SellerChatPanel/Root"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Row" type="HBoxContainer" parent="Margin/RootVBox/SellerChatPanel/Root/ItemContext"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ItemArt" type="TextureRect" parent="Margin/RootVBox/SellerChatPanel/Root/ItemContext/Row"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/RootVBox/SellerChatPanel/Root/ItemContext/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="ItemTitle" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/ItemContext/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "매물"
+max_lines_visible = 1
+text_overrun_behavior = 3
+
+[node name="ItemMeta" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/ItemContext/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.38, 0.41, 0.45, 1)
+text = "가격 · 직거래"
+autowrap_mode = 2
+
+[node name="MessagesPanel" type="PanelContainer" parent="Margin/RootVBox/SellerChatPanel/Root"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="MessagesScroll" type="ScrollContainer" parent="Margin/RootVBox/SellerChatPanel/Root/MessagesPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Messages" type="VBoxContainer" parent="Margin/RootVBox/SellerChatPanel/Root/MessagesPanel/MessagesScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Composer" type="VBoxContainer" parent="Margin/RootVBox/SellerChatPanel/Root"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="ChoiceHint" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/Composer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
+text = "뭐라고 물어볼까? · 남은 기회 4번"
+
+[node name="ReplyGrid" type="GridContainer" parent="Margin/RootVBox/SellerChatPanel/Root/Composer"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+
+[node name="InspectButton1" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "사진 조금 더 볼게요"
+
+[node name="InspectButton2" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "가까이 찍어줄 수 있어요?"
+
+[node name="InspectButton3" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "직접 확인해봐도 돼요?"
+
+[node name="InspectButton4" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "이거 어디서 얻으셨어요?"
+
+[node name="SearchMarketButton" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "내가 직접 비슷한 매물 찾아보기"
+
+[node name="BackToDetailButton" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "← 매물로 돌아가기"
+
 
 [node name="DealPanel" type="PanelContainer" parent="Margin/RootVBox"]
 visible = false
