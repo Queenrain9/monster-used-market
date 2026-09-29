@@ -30,6 +30,7 @@ func _run() -> void:
 		return
 	await _test_commercial_shell()
 	await _test_world_session()
+	await _test_dynamic_market_events()
 	await _test_relationship_progression()
 	await _test_collection_progression()
 	await _test_public_feed(cards)
@@ -106,8 +107,55 @@ func _test_world_session() -> void:
 	_expect(game.market_visits_remaining == Content.DAY_MARKET_VISITS and game.market_items.is_empty(), "new day must restore the visit budget and clear yesterday's live market")
 	_expect(game.daily_goal_progress == 0 and not game.daily_goal_claimed, "new day must reset the daily objective")
 	_expect(not game.last_day_summary.is_empty() and int(game.last_day_summary["deals"]) == 1, "day close must preserve a summary of the finished day")
-	_expect(game.town_event_text.text.contains("오늘의 소문"), "each day must expose an event/rumor slot")
+	_expect(game.town_event_text.text.contains("오늘의 소문") and game.town_event_text.text.contains("시장 영향"), "each day must expose both the rumor and its functional market effect")
+	_expect(str(game.last_day_summary.get("event_title", "")).length() > 0, "day close must preserve the rumor that shaped that day")
 	await _assert_layout("world and day session")
+
+
+func _test_dynamic_market_events() -> void:
+	game._reset_core_progress()
+	game.game_started = true
+	game.onboarding_complete = true
+	game.merchant_reputation = 300
+	game.merchant_day = 4
+	game.day_event_id = "grave_festival"
+	game.current_district_id = "grave"
+	game.market_visits_remaining = Content.DAY_MARKET_VISITS
+	game._create_new_market(true, false, false)
+	await _settle()
+
+	var event: Dictionary = game._day_event()
+	_expect(game.market_info_label.text.contains(str(event["effect_text"])), "live market banner must explain today's functional rumor")
+	var special_count = 0
+	for listing in game.market_items:
+		_expect(str(listing.get("market_event_id", "")) == "grave_festival", "every live listing must retain today's rumor identity")
+		if bool(listing.get("event_special", false)):
+			special_count += 1
+			var public_data = game.feed.describe_listing(listing, true)
+			_expect(str(public_data["tags_text"]).contains("소문 매물"), "rumor-special listing must be visibly labeled on the public feed")
+			_expect(not str(public_data).contains(str(listing.get("archetype", ""))), "public rumor label must never reveal hidden jackpot/trap archetype")
+	_expect(special_count <= 1, "one market batch may expose at most one rumor-special listing")
+
+	# Force one known affected listing through the detail and resale presentation.
+	var affected_index = -1
+	for i in range(game.market_items.size()):
+		if bool(game.market_items[i].get("event_affected", false)):
+			affected_index = i
+			break
+	if affected_index >= 0:
+		game._open_listing(affected_index)
+		await _settle()
+		_expect(game.detail_info.text.contains("오늘 소문") and game.detail_info.text.contains(str(event["effect_text"])), "affected listing detail must explain the current rumor effect")
+		var probe_listing: Dictionary = game.market_items[affected_index].duplicate(true)
+		var offers = game.engine.make_buyer_offers(probe_listing)
+		var found_reason = false
+		for offer in offers:
+			if str(offer.get("reason", "")).contains("오늘 수요"):
+				found_reason = true
+		_expect(found_reason, "resale offers for rumor-affected goods must explain today's demand modifier")
+		game._go_market()
+
+	await _assert_layout("dynamic market event")
 
 
 func _test_relationship_progression() -> void:
