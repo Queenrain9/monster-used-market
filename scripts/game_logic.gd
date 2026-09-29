@@ -946,7 +946,6 @@ func make_buyer_offers(listing: Dictionary) -> Array:
 			reason = "선호 속성 %d개 일치" % matches
 		elif buyer["id"] == "scrap":
 			reason = "즉시 매입 가능, 대신 낮은 가격"
-		var event_demand = float(listing.get("buyer_demand_multiplier", 1.0))
 		if abs(event_demand - 1.0) > 0.001:
 			var demand_percent = int(round((event_demand - 1.0) * 100.0))
 			reason += " · 오늘 수요 %s%d%%" % ["+" if demand_percent >= 0 else "", demand_percent]
