@@ -24,7 +24,8 @@ func content_summary() -> Dictionary:
 		"clues": Content.CLUES.size(),
 		"profile_clues": profile_clue_count,
 		"investigation_profiles": Content.INVESTIGATION_PROFILES.size(),
-		"districts": Content.DISTRICTS.size()
+		"districts": Content.DISTRICTS.size(),
+		"seller_stories": Content.SELLER_STORIES.size()
 	}
 
 
@@ -85,8 +86,48 @@ func validate_content() -> Array:
 				errors.append("%s 판매자의 %s 정보가 없습니다." % [seller_id, field])
 
 	var seller_ids = []
+	var item_ids = []
+	for item in Content.ITEMS:
+		item_ids.append(str(item.get("id", "")))
 	for seller in Content.SELLERS:
-		seller_ids.append(str(seller.get("id", "")))
+		var seller_id = str(seller.get("id", ""))
+		seller_ids.append(seller_id)
+		if not Content.SELLER_STORIES.has(seller_id):
+			errors.append("%s 판매자 개인 스토리가 없습니다." % seller_id)
+			continue
+		var story: Dictionary = Content.SELLER_STORIES[seller_id]
+		if str(story.get("title", "")).is_empty():
+			errors.append("%s 판매자 스토리 제목이 없습니다." % seller_id)
+		var signature_item = str(story.get("signature_item", ""))
+		if not item_ids.has(signature_item):
+			errors.append("%s 판매자 전용 매물 %s가 존재하지 않습니다." % [seller_id, signature_item])
+		if str(story.get("special_post", "")).is_empty():
+			errors.append("%s 판매자 특별 매물 글이 없습니다." % seller_id)
+		var beats: Array = story.get("beats", [])
+		if beats.size() != 3:
+			errors.append("%s 판매자 스토리는 정확히 3개 beat여야 합니다." % seller_id)
+		else:
+			var previous_threshold = -1
+			for beat in beats:
+				var threshold = int(beat.get("threshold", -1))
+				if threshold <= previous_threshold:
+					errors.append("%s 판매자 스토리 threshold가 증가하지 않습니다." % seller_id)
+				if str(beat.get("title", "")).is_empty() or str(beat.get("message", "")).is_empty():
+					errors.append("%s 판매자 스토리 beat 내용이 비어 있습니다." % seller_id)
+				previous_threshold = threshold
+
+	if Content.SELLER_RELATIONSHIP_THRESHOLDS.size() != 4:
+		errors.append("판매자 관계 단계는 4개여야 합니다.")
+	else:
+		var previous_points = -1
+		for stage in Content.SELLER_RELATIONSHIP_THRESHOLDS:
+			var points = int(stage.get("points", -1))
+			if points <= previous_points:
+				errors.append("판매자 관계 단계 threshold가 증가하지 않습니다.")
+			if str(stage.get("name", "")).is_empty():
+				errors.append("판매자 관계 단계 이름이 비어 있습니다.")
+			previous_points = points
+
 	if Content.DISTRICTS.size() < 4:
 		errors.append("상용 월드 상권이 4개보다 적습니다.")
 	for district in Content.DISTRICTS:
