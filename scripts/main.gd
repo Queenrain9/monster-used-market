@@ -618,7 +618,7 @@ func _render_deal() -> void:
 	deal_round_label.text = "협상 %d / %d" % [rounds, max_rounds]
 	var filled = clamp(patience, 0, initial_patience)
 	var patience_dots = "●".repeat(filled) + "○".repeat(max(0, initial_patience - filled))
-	deal_patience_label.text = "인내도 %s" % patience_dots
+	deal_patience_label.text = "인내 %s" % patience_dots
 
 	evidence_option.clear()
 	evidence_option.add_item("근거 없이 가격만 제안")
