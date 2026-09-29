@@ -11,11 +11,38 @@ Target: `v1.0.0-rc1`
 - P5 Collection / Long-term Goals: PASS
 - P6 Dynamic Market: PASS
 - P7 Commercial UX / Presentation: PASS
-- P8 Content / Release Completion: IN PROGRESS
+- P8 Content / Release Completion: **PASS**
 
-## P8 State
+## RC Gate Result
 
-### Content
+Gameplay / code / data / automated QA are closed for RC.
+
+Verified gate basis:
+
+- source HEAD: `596c8a28ed5a3217fc6b50a7ef9fb3051db5fd41`
+- GitHub Actions run: `36626554665`
+- conclusion: **SUCCESS**
+
+Successful gates:
+
+- content syntax
+- game-logic syntax
+- main syntax
+- main scene boot
+- core gameplay smoke
+- deterministic 960-listing release balance simulation
+- full 390×844 transaction regression
+- 375×812 / 390×844 / 430×932 release layout gate
+- expanded-catalog save migration
+- corrupted-primary backup recovery coverage
+- artwork/final-slot integrity
+- placeholder fallback contract
+- stable UI skin/workshop/VFX slots
+
+Repository scan also found no code-search `TODO` / `FIXME` release flow markers.
+
+## Content Complete
+
 - Tradable item types: 24
 - Sellers: 8
 - Districts: 4
@@ -24,34 +51,42 @@ Target: `v1.0.0-rc1`
 - Stable item final-image slots: 24
 - Stable seller final-image slots: 8
 - Stable district final-image slots: 4
+- Commercial/onboarding art slots: fixed
+- UI 9-slice skin slots: fixed
+- Event VFX slots: fixed
+- BGM/SFX event slots: fixed
 
-### Automated gates
+## Gameplay Freeze
 
-- Core syntax / boot: awaiting final P8 HEAD run
-- Core smoke: awaiting final P8 HEAD run
-- Long-run balance: implemented; deterministic 960-listing simulation
-- Full 390×844 flow: awaiting final P8 HEAD run
-- Multi-device layout: implemented for 375×812 / 390×844 / 430×932
-- Expanded-catalog migration: implemented
-- Backup recovery: implemented and previously green
-- Asset contract: implemented
+Version: **v1.0.0-rc1**
 
-## Remaining before RC tag
+No new gameplay systems are planned before release.
+Only reproducible release blockers may change gameplay code.
 
-1. Final P8 CI must be entirely green.
-2. Any release-gate failures must be fixed, not waived.
-3. Master Plan / README version must move to `v1.0.0-rc1`.
-4. P8 must be marked PASS.
+## Remaining Production
 
-## After RC
+These are intentionally outside gameplay completion:
 
-Remaining production is asset/store work:
+### Final assets
+- final item art
+- seller portraits
+- district art
+- title/onboarding art
+- workshop/UI skin/icon polish
+- optional VFX textures
+- BGM/SFX source files
 
-- final item/seller/location art
-- UI skin/icons/VFX
-- final BGM/SFX
-- store screenshots/icon/promo
-- real-device release QA
-- signing/store submission
+### Device / store
+- real iPhone QA
+- signing/provisioning
+- TestFlight/internal build
+- app icon / splash
+- store screenshots / promo
+- privacy/support/store metadata
+- final archive validation
 
-Gameplay feature design is frozen after RC except release blockers.
+## Definition
+
+The repository has reached the requested **asset-only finish** state:
+
+> final visual/audio assets can be placed into the documented stable slots without redesigning gameplay, save schema, screen hierarchy, or interaction flow.
