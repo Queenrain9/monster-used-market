@@ -134,7 +134,7 @@ Gate:
 Gate:
 같은 콘텐츠도 매 세션 다른 판단을 요구한다.
 
-## P7 — Commercial UX & Presentation Hooks
+## P7 — Commercial UX & Presentation Hooks ✅ IMPLEMENTED v0.9.0
 
 - 화면 전환
 - 튜토리얼 highlight
