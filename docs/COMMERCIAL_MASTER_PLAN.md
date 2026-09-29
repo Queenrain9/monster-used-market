@@ -107,7 +107,7 @@ Gate:
 Gate:
 판매자가 랜덤 데이터 공급원이 아니라 기억되는 캐릭터가 된다.
 
-## P5 — Collection & Long-term Goals
+## P5 — Collection & Long-term Goals ✅ IMPLEMENTED v0.7.0
 
 - 물건 도감
 - 발견 기록
