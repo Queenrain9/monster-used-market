@@ -1,8 +1,8 @@
 extends Control
 
 const MarketEngine = preload("res://scripts/game_logic.gd")
-const STARTING_GOLD := 50000
-const SAVE_PATH := "user://monster_used_market_save_v02.json"
+const STARTING_GOLD = 50000
+const SAVE_PATH = "user://monster_used_market_save_v02.json"
 
 @onready var gold_label = $Margin/RootVBox/Header/GoldLabel
 @onready var stats_label = $Margin/RootVBox/StatsLabel
@@ -14,7 +14,7 @@ const SAVE_PATH := "user://monster_used_market_save_v02.json"
 @onready var sale_panel = $Margin/RootVBox/SalePanel
 @onready var result_panel = $Margin/RootVBox/ResultPanel
 
-@onready var market_buttons := [
+@onready var market_buttons = [
 	$Margin/RootVBox/MarketPanel/MarketBox/ItemButton1,
 	$Margin/RootVBox/MarketPanel/MarketBox/ItemButton2,
 	$Margin/RootVBox/MarketPanel/MarketBox/ItemButton3
@@ -33,7 +33,7 @@ const SAVE_PATH := "user://monster_used_market_save_v02.json"
 @onready var mystery_label = $Margin/RootVBox/AppraisalPanel/AppraisalBox/MysteryLabel
 @onready var appraisal_result = $Margin/RootVBox/SalePanel/SaleBox/AppraisalResult
 @onready var buyer_offer_label = $Margin/RootVBox/SalePanel/SaleBox/BuyerOfferLabel
-@onready var buyer_buttons := [
+@onready var buyer_buttons = [
 	$Margin/RootVBox/SalePanel/SaleBox/BuyerButton1,
 	$Margin/RootVBox/SalePanel/SaleBox/BuyerButton2,
 	$Margin/RootVBox/SalePanel/SaleBox/BuyerButton3
@@ -42,26 +42,26 @@ const SAVE_PATH := "user://monster_used_market_save_v02.json"
 
 var engine = MarketEngine.new()
 
-var gold := STARTING_GOLD
-var total_deals := 0
-var today_deals := 0
-var today_date := ""
-var best_profit := 0
-var worst_loss := 0
-var rare_items := []
+var gold = STARTING_GOLD
+var total_deals = 0
+var today_deals = 0
+var today_date = ""
+var best_profit = 0
+var worst_loss = 0
+var rare_items = []
 
-var market_items := []
-var selected_item := {}
-var negotiation_state := {}
-var purchased_price := 0
-var appraisal_data := {}
-var buyer_offers := []
-var current_stage := "market"
+var market_items = []
+var selected_item = {}
+var negotiation_state = {}
+var purchased_price = 0
+var appraisal_data = {}
+var buyer_offers = []
+var current_stage = "market"
 
 
 func _ready() -> void:
 	_connect_buttons()
-	var validation_errors := engine.validate_content()
+	var validation_errors = engine.validate_content()
 	for error in validation_errors:
 		push_error("v0.2 content validation: %s" % error)
 
@@ -117,8 +117,8 @@ func _render_market() -> void:
 		var seller: Dictionary = listing["seller"]
 		var personality: Dictionary = seller["personality"]
 		var clues: Array = listing["public_clues"]
-		var clue_a := str(clues[0]["text"]) if clues.size() > 0 else "단서 없음"
-		var clue_b := str(clues[1]["text"]) if clues.size() > 1 else ""
+		var clue_a = str(clues[0]["text"]) if clues.size() > 0 else "단서 없음"
+		var clue_b = str(clues[1]["text"]) if clues.size() > 1 else ""
 		market_buttons[i].text = "%s · %sG\n%s · %s\n• %s\n• %s" % [
 			listing["name"],
 			_money(int(listing["asking"])),
@@ -153,7 +153,7 @@ func _render_deal() -> void:
 	var seller: Dictionary = selected_item["seller"]
 	var personality: Dictionary = seller["personality"]
 	var clues: Array = selected_item["public_clues"]
-	var clue_lines := ""
+	var clue_lines = ""
 	for clue in clues:
 		clue_lines += "• [%s] %s\n" % [clue["kind"], clue["text"]]
 
@@ -168,10 +168,10 @@ func _render_deal() -> void:
 		clue_lines.strip_edges()
 	]
 
-	var current_price := int(negotiation_state["current_price"])
-	var rounds := int(negotiation_state["rounds"])
-	var max_rounds := int(negotiation_state["max_rounds"])
-	var patience := int(negotiation_state["patience"])
+	var current_price = int(negotiation_state["current_price"])
+	var rounds = int(negotiation_state["rounds"])
+	var max_rounds = int(negotiation_state["max_rounds"])
+	var patience = int(negotiation_state["patience"])
 	negotiation_state_label.text = "현재가 %sG · 흥정 %d/%d · 인내도 %d" % [
 		_money(current_price), rounds, max_rounds, patience
 	]
@@ -179,7 +179,7 @@ func _render_deal() -> void:
 	buy_full_button.text = "현재가 %sG에 구매" % _money(current_price)
 	buy_full_button.disabled = gold < current_price
 
-	var closed := bool(negotiation_state.get("closed", false))
+	var closed = bool(negotiation_state.get("closed", false))
 	quick_offer_button.disabled = closed
 	condition_button.disabled = closed
 	soft_offer_button.disabled = closed
@@ -198,7 +198,7 @@ func _bargain(action: String) -> void:
 	seller_speech.text = str(result["speech"])
 	_set_status(str(result["status"]))
 
-	var accepted_price := int(result.get("accepted_price", 0))
+	var accepted_price = int(result.get("accepted_price", 0))
 	if accepted_price > 0:
 		_complete_purchase(accepted_price)
 		return
@@ -226,7 +226,7 @@ func _complete_purchase(price: int) -> void:
 	current_stage = "appraisal"
 	_update_header()
 
-	var clue_lines := ""
+	var clue_lines = ""
 	for clue in selected_item["public_clues"]:
 		clue_lines += "• [%s] %s\n" % [clue["kind"], clue["text"]]
 
@@ -250,7 +250,7 @@ func _appraise() -> void:
 	current_stage = "sale"
 
 	if str(appraisal_data["rarity"]) in ["희귀", "영웅", "전설"]:
-		var discovery := "%s · %s" % [selected_item["name"], appraisal_data["rarity"]]
+		var discovery = "%s · %s" % [selected_item["name"], appraisal_data["rarity"]]
 		if not rare_items.has(discovery):
 			rare_items.append(discovery)
 
@@ -265,11 +265,11 @@ func _render_sale() -> void:
 	if appraisal_data.is_empty():
 		return
 
-	var feature_lines := ""
+	var feature_lines = ""
 	for feature in appraisal_data["features"]:
 		feature_lines += "• %s\n" % feature
 
-	var feedback_lines := ""
+	var feedback_lines = ""
 	for feedback in appraisal_data["clue_feedback"]:
 		feedback_lines += "• %s\n" % feedback
 
@@ -303,12 +303,12 @@ func _sell_to_buyer(index: int) -> void:
 		return
 
 	var offer: Dictionary = buyer_offers[index]
-	var sale_price := int(offer["price"])
+	var sale_price = int(offer["price"])
 	gold += sale_price
 	total_deals += 1
 	today_deals += 1
 
-	var profit := sale_price - purchased_price
+	var profit = sale_price - purchased_price
 	if profit > best_profit:
 		best_profit = profit
 	if profit < worst_loss:
@@ -316,7 +316,7 @@ func _sell_to_buyer(index: int) -> void:
 
 	_update_header()
 
-	var profit_text := _signed_money(profit)
+	var profit_text = _signed_money(profit)
 	result_summary.text = "%s 판매 완료\n\n구매자   %s\n매입가   %sG\n판매가   %sG\n순손익   %s\n\n오늘 %d회 · 누적 %d회\n최고 단일 수익 %s · 최고 손실 %s\n현재 자산 %sG" % [
 		selected_item["name"],
 		offer["name"],
@@ -360,7 +360,7 @@ func _restore_stage() -> void:
 		_show_panel(deal_panel)
 		_set_status("중단했던 흥정을 이어갑니다.")
 	elif current_stage == "appraisal" and not selected_item.is_empty() and purchased_price > 0:
-		var clue_lines := ""
+		var clue_lines = ""
 		for clue in selected_item["public_clues"]:
 			clue_lines += "• [%s] %s\n" % [clue["kind"], clue["text"]]
 		mystery_label.text = "%s\n\n구매가 %sG\n\n구매 전에 본 단서\n%s" % [
@@ -401,7 +401,7 @@ func _reset_save() -> void:
 
 
 func _roll_daily_counter_if_needed() -> void:
-	var now := Time.get_date_string_from_system()
+	var now = Time.get_date_string_from_system()
 	if today_date != now:
 		today_date = now
 		today_deals = 0
@@ -491,9 +491,9 @@ func _signed_money(value: int) -> String:
 
 
 func _money(value: int) -> String:
-	var negative := value < 0
-	var source := str(abs(value))
-	var result := ""
+	var negative = value < 0
+	var source = str(abs(value))
+	var result = ""
 	while source.length() > 3:
 		result = "," + source.substr(source.length() - 3, 3) + result
 		source = source.substr(0, source.length() - 3)
