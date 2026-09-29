@@ -57,5 +57,11 @@ jobs:
           MONSTER_SMOKE_DATA_ROOT: ${{ runner.temp }}/monster-smoke-data
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/home_feed_smoke_test.gd
 
+      - name: Run multi-device release layout gate
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/monster-release-layout-data
+          MONSTER_SMOKE_DATA_ROOT: ${{ runner.temp }}/monster-release-layout-data
+        run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/release_layout_test.gd
+
       - name: Verify artwork catalog and replacements
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/art_smoke_test.gd
