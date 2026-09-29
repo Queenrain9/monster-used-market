@@ -524,25 +524,30 @@ func _add_chat_message(message: Dictionary, seller_name: String) -> void:
 	row.add_theme_constant_override("separation", 6)
 
 	var left_spacer = Control.new()
-	left_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var right_spacer = Control.new()
-	right_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_spacer.custom_minimum_size = Vector2(24, 0)
+	right_spacer.custom_minimum_size = Vector2(24, 0)
 
 	var bubble = PanelContainer.new()
-	bubble.custom_minimum_size = Vector2(250, 0)
+	bubble.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bubble.clip_contents = true
 	if speaker == "buyer":
 		bubble.add_theme_stylebox_override("panel", _chat_bubble_style(Color("edf4ff"), Color("c4d9f2")))
 	elif speaker == "seller":
 		bubble.add_theme_stylebox_override("panel", _chat_bubble_style(Color("f7f7f5"), Color("d9d9d4")))
 	else:
-		bubble.custom_minimum_size = Vector2(280, 0)
 		bubble.add_theme_stylebox_override("panel", _chat_bubble_style(Color("faf7ee"), Color("e1d8be")))
 
 	var box = VBoxContainer.new()
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_theme_constant_override("separation", 2)
+
 	var who = Label.new()
+	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	who.add_theme_font_size_override("font_size", 9)
 	who.add_theme_color_override("font_color", Color("6b7078"))
+	who.clip_text = true
+	who.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	if speaker == "buyer":
 		who.text = "나"
 	elif speaker == "seller":
@@ -551,7 +556,7 @@ func _add_chat_message(message: Dictionary, seller_name: String) -> void:
 		who.text = "거래 메모"
 
 	var body = Label.new()
-	body.custom_minimum_size = Vector2(228 if speaker != "note" else 258, 0)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_font_size_override("font_size", 10)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.text = str(message.get("text", ""))
@@ -564,9 +569,7 @@ func _add_chat_message(message: Dictionary, seller_name: String) -> void:
 		row.add_child(left_spacer)
 		row.add_child(bubble)
 	elif speaker == "note":
-		row.add_child(left_spacer)
 		row.add_child(bubble)
-		row.add_child(right_spacer)
 	else:
 		row.add_child(bubble)
 		row.add_child(right_spacer)
