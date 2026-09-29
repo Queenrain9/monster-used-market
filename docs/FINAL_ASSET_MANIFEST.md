@@ -183,6 +183,32 @@ P7에서 path 고정 완료.
 
 ---
 
+## 7. Event VFX
+
+선택형 PNG 효과 슬롯. 파일이 없으면 연출만 생략되고 gameplay는 동일하다.
+
+권장:
+- PNG transparent
+- 512×512 또는 1024×1024
+- 화면 중앙 180×180 논리 영역에 표시될 것을 고려
+- 텍스트를 이미지에 직접 넣지 않음
+
+Final paths:
+
+- `res://assets/art/vfx/clue_reveal.png`
+- `res://assets/art/vfx/purchase.png`
+- `res://assets/art/vfx/appraisal_reveal.png`
+- `res://assets/art/vfx/sale_complete.png`
+- `res://assets/art/vfx/goal_complete.png`
+- `res://assets/art/vfx/achievement.png`
+- `res://assets/art/vfx/upgrade.png`
+- `res://assets/art/vfx/warning.png`
+
+파일이 존재하면 해당 presentation event에서 자동 표시되고,
+`reduced motion`에서는 scale animation 없이 짧게 표시된다.
+
+---
+
 # Asset-only Finish Rule
 
 최종 제작자는:
