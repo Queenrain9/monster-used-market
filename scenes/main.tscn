@@ -128,8 +128,81 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
 
+[node name="SearchInput" type="LineEdit" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+placeholder_text = "수상한 물건을 검색해보세요..."
+clear_button_enabled = true
+
+[node name="TabRow" type="HBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="RecommendTabButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/TabRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "추천"
+
+[node name="NegotiableTabButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/TabRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "흥정 가능"
+
+[node name="ViewedTabButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/TabRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "확인한 매물"
+
+[node name="CategoryTabButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/TabRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "카테고리"
+
+[node name="CategoryGrid" type="GridContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+layout_mode = 2
+columns = 4
+
+[node name="AllCategoryButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid"]
+layout_mode = 2
+toggle_mode = true
+text = "전체"
+
+[node name="AccessoryCategoryButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid"]
+layout_mode = 2
+toggle_mode = true
+text = "장신구"
+
+[node name="MaterialCategoryButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid"]
+layout_mode = 2
+toggle_mode = true
+text = "재료"
+
+[node name="RelicCategoryButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid"]
+layout_mode = 2
+toggle_mode = true
+text = "유물"
+
+[node name="MagicToolCategoryButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid"]
+layout_mode = 2
+toggle_mode = true
+text = "마도구"
+
+[node name="MiscCategoryButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid"]
+layout_mode = 2
+toggle_mode = true
+text = "잡화"
+
+[node name="OtherCategoryButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box/CategoryGrid"]
+layout_mode = 2
+toggle_mode = true
+text = "기타"
+
 [node name="MarketBanner" type="PanelContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 128)
+custom_minimum_size = Vector2(0, 108)
 layout_mode = 2
 clip_contents = true
 
@@ -148,38 +221,35 @@ color = Color(0.035, 0.02, 0.06, 0.68)
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
 
 [node name="MarketState" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="MarketTitle" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 17
 text = "어둠마을 야시장"
-autowrap_mode = 3
 
 [node name="MarketIntro" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "오늘도 수상한 물건들이 올라와 있습니다."
 autowrap_mode = 3
 
 [node name="MarketInfo" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box/MarketBanner/Inset/MarketState"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.77, 0.7, 0.9, 1)
-text = "새 매물 3 · 거래 가능 3
-더 자세히 확인 가능 4회"
+text = "새 매물 3 · 거래 가능 3 · 더 자세히 확인 4회"
 autowrap_mode = 3
 
 [node name="FeedTitle" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "오늘 올라온 물건"
-autowrap_mode = 3
+theme_override_font_sizes/font_size = 13
+text = "매물 목록"
 
 [node name="FeedCards" type="VBoxContainer" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
 layout_mode = 2
@@ -194,15 +264,23 @@ layout_mode = 2
 [node name="ListingCard3" parent="Margin/RootVBox/MarketPanel/Scroll/Box/FeedCards" instance=ExtResource("2_card")]
 layout_mode = 2
 
+[node name="EmptyState" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
+visible = false
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+text = "조건에 맞는 매물이 없습니다.\n검색어 또는 필터를 바꿔보세요."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
 [node name="NextMarketButton" type="Button" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "다음 장터 보기"
-autowrap_mode = 3
 
 [node name="NextMarketHint" type="Label" parent="Margin/RootVBox/MarketPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.7, 0.66, 0.75, 1)
 text = "남은 확인 기회를 모두 쓰거나 구매하면 다음 장터가 열립니다."
 autowrap_mode = 3
@@ -221,33 +299,150 @@ horizontal_scroll_mode = 0
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 7
+
+[node name="TopBar" type="HBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+
+[node name="BackTopButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/TopBar"]
+custom_minimum_size = Vector2(48, 40)
+layout_mode = 2
+text = "←"
+
+[node name="PageTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "매물 상세"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopSpacer" type="Control" parent="Margin/RootVBox/DetailPanel/Scroll/Box/TopBar"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
 
 [node name="ItemArt" type="TextureRect" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 116)
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="ImageExpandButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+text = "대표 이미지 크게 보기"
+
+[node name="ThumbnailRow" type="HBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Thumb1" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow"]
+custom_minimum_size = Vector2(64, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "1"
+
+[node name="Thumb2" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow"]
+custom_minimum_size = Vector2(64, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "2"
+disabled = true
+
+[node name="Thumb3" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow"]
+custom_minimum_size = Vector2(64, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "3"
+disabled = true
+
+[node name="Thumb4" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow"]
+custom_minimum_size = Vector2(64, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "4"
+disabled = true
+
 [node name="DetailTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
-text = "매물 상세"
+theme_override_font_sizes/font_size = 20
+text = "매물 이름 · 0G"
 autowrap_mode = 2
 
-[node name="ArtNote" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+[node name="DetailTags" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.73, 0.67, 0.6, 1)
-text = "대표 이미지입니다. 실제 상태와 진위는 조사로 확인하세요."
-autowrap_mode = 3
+text = "거래 가능"
+autowrap_mode = 2
 
 [node name="SellerInfo" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 12
 text = "판매자"
 autowrap_mode = 2
+
+[node name="DescriptionPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+
+[node name="ItemDescription" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/DescriptionPanel"]
+layout_mode = 2
+text = "상품 설명"
+autowrap_mode = 2
+
+[node name="DetailInfoTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "상세 정보"
+
+[node name="DetailInfo" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+text = "상세 정보"
+autowrap_mode = 2
+
+[node name="SellerCard" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+
+[node name="SellerCardText" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard"]
+layout_mode = 2
+text = "판매자 정보"
+autowrap_mode = 2
+
+[node name="ActionRow" type="GridContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+columns = 3
+
+[node name="InspectButton4" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ActionRow"]
+layout_mode = 2
+text = "판매자에게 묻기"
+
+[node name="NegotiationJumpButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ActionRow"]
+layout_mode = 2
+text = "흥정 준비"
+
+[node name="AppraisalLaterButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ActionRow"]
+layout_mode = 2
+text = "감정은 구매 후"
+disabled = true
+
+[node name="MarketPriceTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "시장 시세 참고"
+
+[node name="MarketPricePanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+
+[node name="PriceBox" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel"]
+layout_mode = 2
+
+[node name="MarketPriceLabel" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox"]
+layout_mode = 2
+text = "아직 시세를 확인하지 않았습니다."
+autowrap_mode = 2
+
+[node name="InspectButton5" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel/PriceBox"]
+layout_mode = 2
+text = "동종품 시세 확인"
 
 [node name="DetailBudget" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
@@ -261,34 +456,31 @@ theme_override_font_sizes/font_size = 11
 text = "확인한 정보"
 autowrap_mode = 2
 
-[node name="InspectButton1" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+[node name="InvestigationTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
-autowrap_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "상태 더 확인하기"
+
+[node name="InvestigationGrid" type="GridContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+layout_mode = 2
+columns = 3
+
+[node name="InspectButton1" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
+layout_mode = 2
 text = "외형 자세히 보기"
 
-[node name="InspectButton2" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+[node name="InspectButton2" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
 layout_mode = 2
-autowrap_mode = 2
 text = "각인 확인"
 
-[node name="InspectButton3" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
+[node name="InspectButton3" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InvestigationGrid"]
 layout_mode = 2
-autowrap_mode = 2
 text = "작동 확인"
-
-[node name="InspectButton4" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
-layout_mode = 2
-autowrap_mode = 2
-text = "출처 묻기"
-
-[node name="InspectButton5" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
-layout_mode = 2
-autowrap_mode = 2
-text = "동종품 시세 확인"
 
 [node name="PlanTitle" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.83, 0.67, 1)
+theme_override_font_sizes/font_size = 14
 text = "내 거래 계획"
 
 [node name="ResaleOption" type="OptionButton" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
@@ -310,13 +502,11 @@ fit_to_longest_item = false
 [node name="StartDealButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-autowrap_mode = 2
-text = "판매자와 가격 협상"
+text = "이 계획으로 판매자와 가격 협상"
 
 [node name="BackMarketButton" type="Button" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-autowrap_mode = 2
 text = "뒤로 · 다른 매물 보기"
 
 [node name="DealPanel" type="PanelContainer" parent="Margin/RootVBox"]
@@ -490,60 +680,122 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 7
 
-[node name="AppraiserArt" type="TextureRect" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 88)
+[node name="PreView" type="VBoxContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="AppraiserArt" type="TextureRect" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="AppraisalTitle" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="AppraisalTitle" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "감정소"
 
-[node name="AppraisalInfo" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="AppraisalInfo" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
 text = "비용"
 
-[node name="AppraisalClues" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="AppraisalClues" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 text = "정보"
 autowrap_mode = 2
 
-[node name="AppraisalState" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="AppraisalState" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.83, 0.67, 1)
 text = "추가 검사"
 
-[node name="PostInspectButton1" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="PostInspectButton1" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
 text = "재질 검사"
 
-[node name="PostInspectButton2" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="PostInspectButton2" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
 text = "마력/반응 검사"
 
-[node name="PostInspectButton3" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="PostInspectButton3" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
 text = "내부 구조 확인"
 
-[node name="ProfessionalAppraiseButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="ProfessionalAppraiseButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-autowrap_mode = 2
 text = "전문 감정"
 
-[node name="AppraisalSaleButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="AppraisalSaleButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
-autowrap_mode = 2
-text = "판매처 찾아보기"
+text = "감정 없이 판매처 찾아보기"
 
-[node name="AppraisalInventoryButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+[node name="AppraisalInventoryButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
-autowrap_mode = 2
 text = "보유품으로"
+
+[node name="ResultView" type="VBoxContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResultTitle" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "감정 결과"
+
+[node name="ResultHero" type="TextureRect" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ResultItemSummary" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "아이템 요약"
+autowrap_mode = 2
+
+[node name="ResultSectionTitle" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "감정 결과"
+
+[node name="ResultMetrics" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "진품 여부\n마력 잔량\n저주 강도\n희귀도\n예상 시세"
+autowrap_mode = 2
+
+[node name="CommentTitle" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "감정사의 한마디"
+
+[node name="AppraiserComment" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
+custom_minimum_size = Vector2(0, 84)
+layout_mode = 2
+text = "감정 결과에 대한 코멘트"
+autowrap_mode = 2
+
+[node name="ResultActions" type="HBoxContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StoreResultButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultActions"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "보관하기"
+
+[node name="PrepareResaleButton" type="Button" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultActions"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "재판매 준비"
 
 [node name="SalePanel" type="PanelContainer" parent="Margin/RootVBox"]
 visible = false
@@ -703,6 +955,30 @@ size_flags_horizontal = 3
 toggle_mode = true
 text = "거래 기록"
 autowrap_mode = 3
+
+[node name="ImagePreview" type="PopupPanel" parent="."]
+
+[node name="Box" type="VBoxContainer" parent="ImagePreview"]
+custom_minimum_size = Vector2(330, 430)
+layout_mode = 2
+
+[node name="PreviewImage" type="TextureRect" parent="ImagePreview/Box"]
+custom_minimum_size = Vector2(320, 360)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CloseButton" type="Button" parent="ImagePreview/Box"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "닫기"
+
+[node name="ResaleConfirmation" type="ConfirmationDialog" parent="."]
+title = "재판매 준비"
+dialog_text = "감정 결과를 바탕으로 판매처를 찾아볼까요?"
+dialog_autowrap = true
+ok_button_text = "판매처 보기"
+cancel_button_text = "취소"
 
 [node name="ResetConfirmation" type="ConfirmationDialog" parent="."]
 title = "새 게임 시작"
