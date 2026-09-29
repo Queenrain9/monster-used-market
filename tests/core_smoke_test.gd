@@ -56,6 +56,9 @@ func _init() -> void:
 			if int(appraisal["value"]) != before_value:
 				_fail("appraisal rerolled value")
 				return
+			if not appraisal.has("magic_grade") or not appraisal.has("curse_grade") or not appraisal.has("value_low") or not appraisal.has("value_high"):
+				_fail("appraisal result UI fields are missing")
+				return
 
 			var offers = engine.make_buyer_offers(listing)
 			if offers.size() != 4:
@@ -105,7 +108,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.2.3: 20 markets / 60 listings, trade plans, clue-based negotiation and 3-of-4 resale discovery")
+	print("SMOKE OK v0.2.4: 20 markets / 60 listings, trade plans, clue-based negotiation and 3-of-4 resale discovery")
 	quit(0)
 
 
