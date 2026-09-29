@@ -1,4 +1,4 @@
-# 괴물 중고마켓 MVP v0.2.20.1 — Trade Record Layout Hotfix
+# 괴물 중고마켓 v0.3.0 — Commercial Foundation
 
 이번 버전은 기능 추가가 아니라 **구조 목업과 실제 Godot 홈 화면의 비율/밀도/정보 위계를 맞추는 패스**입니다.
 
@@ -732,3 +732,80 @@ v0.2.18의 채팅은 말풍선과 누적 대화를 사용했지만 여전히 매
 - 숫자/캡션 한 줄 고정
 - 중앙 정렬
 - 390×844 회귀 테스트에서 각 셀 실제 폭/높이와 autowrap 비활성 상태를 직접 검증
+
+
+# v0.3.0 — Commercial Foundation / P1
+
+v0.3.0부터 프로젝트의 목표는 MVP 기능 검증이 아니라 **상용 게임 완성**이다.
+
+Source of Truth:
+- `docs/COMMERCIAL_MASTER_PLAN.md`
+
+## P1 구현
+
+### Commercial Title
+- 게임 타이틀
+- 제품 판타지 소개
+- 이어하기
+- 새 게임
+- 기존 저장 여부에 따른 Continue 상태
+
+### First-session onboarding
+3단계:
+1. 어둠마을과 괴물 중고장터 소개
+2. 플레이어 역할: 신참 물건상 / 시작 자금 50,000G
+3. 첫 거래 목표와 전체 거래 흐름 설명
+
+최종 CTA:
+- `장터 열기`
+
+### Persistent commercial progression scaffold
+저장되는 신규 필드:
+- game_started
+- onboarding_complete
+- merchant_day
+- merchant_reputation
+- daily_goal_progress
+- daily_goal_claimed
+
+### Meta HUD
+일반 화면 상단:
+- DAY
+- 상인 등급
+- 평판
+- 오늘 목표
+
+상인 등급 scaffold:
+- 견습 물건상
+- 동네 감정꾼
+- 골목 상인
+- 기묘품 중개상
+- 어둠마을 상인
+
+P3에서 실제 해금 시스템과 연결한다.
+
+### First objective
+첫 완료 거래:
+- 기본 거래 평판 보상
+- 수익/조사 품질에 따른 추가 평판
+- 첫 거래 목표 보상 500G + 평판 10
+
+목표 보상은 한 번만 지급된다.
+
+### Save migration
+기존 v0.2.x 저장:
+- game_started=true
+- onboarding_complete=true
+- merchant_day=1
+- 기존 거래 횟수 기반 안전한 초기 평판
+
+따라서 기존 플레이어에게 첫 튜토리얼을 강제로 다시 보여주지 않는다.
+
+## 다음 Production Gate
+
+P2 — World & Session Structure:
+- 어둠마을 구역
+- 하루 단위 장터 lifecycle
+- 지역별 매물/판매자 성격
+- 하루 종료와 다음 날
+- 지역 사건/해금 scaffold
