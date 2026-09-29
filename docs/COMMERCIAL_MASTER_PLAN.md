@@ -95,7 +95,7 @@ Gate:
 Gate:
 플레이어가 5~10회 거래 뒤에도 다음 해금 목표를 가진다.
 
-## P4 — Seller Relationship & Story Arcs
+## P4 — Seller Relationship & Story Arcs ✅ IMPLEMENTED v0.6.0
 
 - 판매자별 관계값
 - 신뢰 / 경계
