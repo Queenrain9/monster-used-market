@@ -129,6 +129,97 @@ const INVESTIGATION_ACTIONS = [
 	{"id":"market","label":"동종품 시세 조사"}
 ]
 
+
+# v0.2.12 Item-Specific Investigation
+# Stable IDs preserve older saves, while each item exposes different player-facing
+# investigation points and can map those actions to different clue slots.
+const ITEM_INVESTIGATION_PROFILES := {
+	"moon_ring": [
+		{"id":"exterior","short_label":"보석 결","label":"보석 안쪽 결을 빛에 비춰 본다","clue_slot":0},
+		{"id":"mark","short_label":"안쪽 각인","label":"반지 안쪽의 제작 각인을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"마력 맥동","label":"달빛에 비춰 마력 맥동을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"전 주인","label":"판매자에게 이전 소유자와 입수 경로를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"반지 시세","label":"비슷한 고대 마법 반지의 최근 거래가를 확인한다","market":true}
+	],
+	"dragon_tooth": [
+		{"id":"exterior","short_label":"성장결","label":"표면의 성장결과 자연 마모를 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"뿌리 단면","label":"뿌리 쪽 절단면과 층을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"밀도·무게","label":"들어 보며 밀도와 무게 균형을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"채취 경로","label":"판매자에게 어디서 채취된 이빨인지 묻는다","clue_slot":3},
+		{"id":"market","short_label":"용재료 시세","label":"용 계열 연금 재료의 최근 거래가를 확인한다","market":true}
+	],
+	"cursed_mirror": [
+		{"id":"exterior","short_label":"은막 균열","label":"거울 은막과 가장자리 균열을 비스듬히 본다","clue_slot":0},
+		{"id":"mark","short_label":"뒷면 문양","label":"뒷판의 문양과 제작 흔적을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"반사 반응","label":"얼굴과 촛불을 비춰 반사 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"소유 이력","label":"판매자에게 이전 소유자와 사고 이력을 묻는다","clue_slot":3},
+		{"id":"market","short_label":"저주유물 시세","label":"비슷한 저주 유물의 거래 범위를 확인한다","market":true}
+	],
+	"soul_lantern": [
+		{"id":"exterior","short_label":"유리 그을음","label":"유리 안쪽의 그을음과 사용 흔적을 본다","clue_slot":0},
+		{"id":"mark","short_label":"프레임 각인","label":"금속 프레임과 바닥의 제작 각인을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"심지 반응","label":"심지에 약한 마력을 대어 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"사용 이력","label":"판매자에게 어디에서 쓰이던 랜턴인지 묻는다","clue_slot":3},
+		{"id":"market","short_label":"영혼도구 시세","label":"영혼 계열 마도구의 최근 거래가를 확인한다","market":true}
+	],
+	"witch_thimble": [
+		{"id":"exterior","short_label":"바늘 자국","label":"표면의 바늘 자국과 마모 방향을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"안쪽 표식","label":"골무 안쪽의 공방 표식과 마감을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"마력 잔향","label":"손가락에 끼워 남은 마력 잔향을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"공방 출처","label":"판매자에게 어느 마녀 공방 물건인지 묻는다","clue_slot":3},
+		{"id":"market","short_label":"골무 시세","label":"마녀 공예품과 은골무의 최근 거래가를 확인한다","market":true}
+	],
+	"goblin_watch": [
+		{"id":"exterior","short_label":"케이스 마모","label":"케이스의 찍힘과 손때 방향을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"무브먼트 각인","label":"뒷뚜껑을 열어 내부 각인과 부품 표식을 본다","clue_slot":1},
+		{"id":"function","short_label":"태엽 작동","label":"태엽을 감아 초침과 톱니 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"수리 이력","label":"판매자에게 수리·부품 교체 이력을 묻는다","clue_slot":3},
+		{"id":"market","short_label":"시계 시세","label":"고블린 기계식 회중시계의 거래가를 확인한다","market":true}
+	],
+	"bone_flute": [
+		{"id":"exterior","short_label":"골질 표면","label":"뼈 표면의 결, 균열, 마모를 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"마디 각인","label":"마디와 취구 주변의 새김 흔적을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"음정·공명","label":"짧게 불어 음정과 공명이 끊기는지 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"연주자 출처","label":"판매자에게 이전 연주자와 입수 경로를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"저주악기 시세","label":"저주 계열 악기와 뼈피리의 최근 거래가를 확인한다","market":true}
+	],
+	"meteor_coin": [
+		{"id":"exterior","short_label":"테두리 마모","label":"동전 테두리의 마모와 충격 흔적을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"주조 문양","label":"앞뒷면 문양의 깊이와 주조 흔적을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"자성·밀도","label":"자석 반응과 손에 느껴지는 밀도를 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"발견 경로","label":"판매자에게 운석과 함께 발견된 물건인지 묻는다","clue_slot":3},
+		{"id":"market","short_label":"운석동전 시세","label":"운석 금속 수집품의 최근 거래가를 확인한다","market":true}
+	],
+	"phoenix_feather": [
+		{"id":"exterior","short_label":"깃결·광택","label":"깃가지의 결, 색 변화, 자연 광택을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"깃대 단면","label":"깃대 단면의 층과 인공 접합 흔적을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"열 반응","label":"약한 열을 가까이 대어 색과 마력 반응을 본다","clue_slot":2},
+		{"id":"origin","short_label":"채집 경로","label":"판매자에게 어디에서 얻은 깃털인지 묻는다","clue_slot":3},
+		{"id":"market","short_label":"연금재료 시세","label":"희귀 연금 재료와 불사조 깃털 거래가를 확인한다","market":true}
+	],
+	"mimic_key": [
+		{"id":"exterior","short_label":"톱니 마모","label":"열쇠 톱니의 마모와 사용 방향을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"손잡이 각인","label":"황동 손잡이의 각인과 접합부를 확인한다","clue_slot":1},
+		{"id":"function","short_label":"잠금 반응","label":"시험 자물쇠에 넣어 걸림과 마력 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"획득 경로","label":"판매자에게 미믹과 관련된 입수 경로를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"고대열쇠 시세","label":"고대·마법 열쇠류의 최근 거래가를 확인한다","market":true}
+	],
+	"mermaid_pearl": [
+		{"id":"exterior","short_label":"표면 결","label":"진주층의 결, 광택, 작은 흠을 빛에 비춰 본다","clue_slot":0},
+		{"id":"mark","short_label":"천공 흔적","label":"구멍과 밑면의 가공 흔적을 확대해 본다","clue_slot":1},
+		{"id":"function","short_label":"수분·마력","label":"물방울을 대어 색과 마력 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"채취 해역","label":"판매자에게 어느 해역에서 나온 진주인지 묻는다","clue_slot":3},
+		{"id":"market","short_label":"진주 시세","label":"심해 진주와 마법 보석의 최근 거래가를 확인한다","market":true}
+	],
+	"frost_vial": [
+		{"id":"exterior","short_label":"병목 봉인","label":"병목의 봉인 상태와 서리 자국을 살펴본다","clue_slot":0},
+		{"id":"mark","short_label":"바닥 표식","label":"병 바닥의 제조 표식과 유리 가공을 확인한다","clue_slot":1},
+		{"id":"function","short_label":"냉기 반응","label":"병을 기울여 냉기와 내용물 반응을 확인한다","clue_slot":2},
+		{"id":"origin","short_label":"제조 경로","label":"판매자에게 제조자와 보관 경로를 묻는다","clue_slot":3},
+		{"id":"market","short_label":"정수 시세","label":"빙결 정수와 연금 용액의 최근 거래가를 확인한다","market":true}
+	]
+}
+
 const POST_INSPECTIONS = [
 	{"id":"material","label":"재질 검사","cost":120},
 	{"id":"magic","label":"마력 / 반응 검사","cost":160},
