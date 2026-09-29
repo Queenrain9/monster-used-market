@@ -139,6 +139,37 @@ const INVESTIGATION_ACTIONS = [
 ]
 
 
+# v0.2.17 Conversation Coherence
+# Pre-purchase actions use semantic clue channels so the answer always matches
+# what the player asked to inspect. Polarity stays hidden in the UI.
+const INVESTIGATION_ACTION_CLUES := {
+	"exterior":{
+		"genuine":{"text":"표면의 마모가 손이 닿는 자리와 가장자리에 자연스럽게 몰려 있다.","reveal":"오랜 사용에서 생긴 자연스러운 마모 패턴이었다."},
+		"imitation":{"text":"낡은 흔적이 손이 닿지 않는 부분까지 지나치게 고르게 퍼져 있다.","reveal":"최근 인위적으로 낡게 만든 표면 처리였다."},
+		"defect":{"text":"겉의 작은 손상이 가장자리 안쪽까지 이어져 있다.","reveal":"표면 흠집처럼 보였지만 실제 구조 손상이었다."},
+		"neutral":{"text":"표면에 오래 보관한 먼지와 희미한 냄새가 남아 있다.","reveal":"보관 환경의 흔적으로 진위와 직접 관계는 없었다."}
+	},
+	"mark":{
+		"genuine":{"text":"제작 표식의 닳은 정도와 주변 재질의 노화가 자연스럽게 이어진다.","reveal":"표식과 본체가 같은 시기에 만들어진 흔적이었다."},
+		"imitation":{"text":"제작 표식의 홈 안쪽만 주변보다 유난히 날카롭고 새것 같다.","reveal":"오래된 본체에 표식을 나중에 새긴 흔적이었다."},
+		"defect":{"text":"표식 근처의 접합부가 미세하게 벌어져 있다.","reveal":"제작부 주변의 실제 손상으로 가치가 내려갔다."},
+		"neutral":{"text":"제작 표식 일부가 닳아 글자나 문양을 완전히 읽기는 어렵다.","reveal":"노화 흔적은 맞지만 진위 판단을 확정할 정보는 아니었다."}
+	},
+	"function":{
+		"genuine":{"text":"작동이나 마력 반응이 한 부분에만 몰리지 않고 구조 전체에서 일정하게 이어진다.","reveal":"실제 제작 구조에서 나오는 자연스러운 반응이었다."},
+		"imitation":{"text":"반응이 겉의 장식 부분에서만 나타나고 안쪽으로는 이어지지 않는다.","reveal":"기능을 흉내 낸 표면 처리에 가까웠다."},
+		"defect":{"text":"특정 구간에서 작동이나 반응이 반복적으로 끊긴다.","reveal":"핵심 기능부의 손상이 실제로 확인됐다."},
+		"neutral":{"text":"반응 자체는 있지만 이것만으로 오래된 진품인지 판단하기는 어렵다.","reveal":"재질 특성으로도 나타날 수 있는 반응이었다."}
+	},
+	"origin":{
+		"genuine":{"text":"판매자가 말한 입수 시기와 물건에 남은 사용·보관 흔적이 크게 모순되지 않는다.","reveal":"출처 설명과 물건의 실제 흔적이 대체로 일치했다."},
+		"imitation":{"text":"판매자가 말한 입수 시기와 포장·가공 흔적의 시기가 서로 잘 맞지 않는다.","reveal":"출처 설명과 실제 제작 시점 사이에 모순이 있었다."},
+		"defect":{"text":"판매자가 이야기를 이어가다 예전에 수리하거나 문제가 있었던 적을 뒤늦게 언급한다.","reveal":"판매 전 설명에서 빠져 있던 수리·결함 이력이 실제로 있었다."},
+		"neutral":{"text":"판매자는 전 주인이나 정확한 구매처까지는 기억하지 못한다고 한다.","reveal":"출처를 확정할 수 없는 정보라 진위 판단의 결정적 근거는 아니었다."}
+	}
+}
+
+
 # v0.2.13 Content Scalability
 # New items normally choose one reusable profile and only override exceptional actions.
 # The stable action IDs preserve old saves and gameplay logic.
