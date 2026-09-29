@@ -106,7 +106,6 @@ autowrap_mode = 3
 
 [node name="MetaStrip" type="PanelContainer" parent="Margin/RootVBox"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/MetaStrip"]
 layout_mode = 2
@@ -142,7 +141,6 @@ autowrap_mode = 2
 
 [node name="StatusPanel" type="PanelContainer" parent="Margin/RootVBox"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="StatusLabel" type="Label" parent="Margin/RootVBox/StatusPanel"]
 layout_mode = 2
@@ -154,7 +152,6 @@ autowrap_mode = 2
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/TownPanel"]
 layout_mode = 2
@@ -183,7 +180,6 @@ horizontal_alignment = 2
 
 [node name="EventPanel" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="EventText" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/EventPanel"]
 layout_mode = 2
@@ -194,7 +190,6 @@ autowrap_mode = 2
 [node name="LastDayPanel" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box"]
 visible = false
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="LastDayText" type="Label" parent="Margin/RootVBox/TownPanel/Scroll/Box/LastDayPanel"]
 layout_mode = 2
@@ -213,7 +208,6 @@ theme_override_constants/separation = 6
 
 [node name="DistrictCard1" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard1"]
 layout_mode = 2
@@ -255,7 +249,6 @@ text = "장터 보기"
 
 [node name="DistrictCard2" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard2"]
 layout_mode = 2
@@ -297,7 +290,6 @@ text = "장터 보기"
 
 [node name="DistrictCard3" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard3"]
 layout_mode = 2
@@ -339,7 +331,6 @@ text = "장터 보기"
 
 [node name="DistrictCard4" type="PanelContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/TownPanel/Scroll/Box/DistrictList/DistrictCard4"]
 layout_mode = 2
@@ -421,7 +412,6 @@ autowrap_mode = 2
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/WorkshopPanel"]
 layout_mode = 2
@@ -456,7 +446,6 @@ horizontal_alignment = 2
 
 [node name="RankPanel" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/RankPanel"]
 layout_mode = 2
@@ -492,7 +481,6 @@ theme_override_constants/separation = 6
 
 [node name="UpgradeCard1" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard1"]
 layout_mode = 2
@@ -539,7 +527,6 @@ text = "업그레이드"
 
 [node name="UpgradeCard2" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard2"]
 layout_mode = 2
@@ -586,7 +573,6 @@ text = "업그레이드"
 
 [node name="UpgradeCard3" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard3"]
 layout_mode = 2
@@ -633,7 +619,6 @@ text = "업그레이드"
 
 [node name="UpgradeCard4" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard4"]
 layout_mode = 2
@@ -680,7 +665,6 @@ text = "업그레이드"
 
 [node name="UpgradeCard5" type="PanelContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/WorkshopPanel/Scroll/Box/UpgradeList/UpgradeCard5"]
 layout_mode = 2
@@ -729,7 +713,6 @@ text = "업그레이드"
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/RelationshipsPanel"]
 layout_mode = 2
@@ -773,7 +756,6 @@ text_overrun_behavior = 3
 
 [node name="ProfilePanel" type="PanelContainer" parent="Margin/RootVBox/RelationshipsPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/RelationshipsPanel/Scroll/Box/ProfilePanel"]
 layout_mode = 2
@@ -858,7 +840,6 @@ text = "이 판매자 동네 보기"
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/CollectionPanel"]
 layout_mode = 2
@@ -893,7 +874,6 @@ horizontal_alignment = 2
 
 [node name="SummaryPanel" type="PanelContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="SummaryText" type="Label" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/SummaryPanel"]
 layout_mode = 2
@@ -916,7 +896,6 @@ text_overrun_behavior = 3
 
 [node name="DetailPanel" type="PanelContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/CollectionPanel/Scroll/Box/DetailPanel"]
 layout_mode = 2
@@ -992,7 +971,6 @@ autowrap_mode = 2
 [node name="MarketPanel" type="PanelContainer" parent="Margin/RootVBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/MarketPanel"]
 layout_mode = 2
@@ -1190,7 +1168,6 @@ autowrap_mode = 3
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/DetailPanel"]
 layout_mode = 2
@@ -1288,7 +1265,6 @@ text = "판매글"
 [node name="DescriptionPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="ItemDescription" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/SummaryColumn/DescriptionPanel"]
 layout_mode = 2
@@ -1335,7 +1311,6 @@ text = "직거래"
 
 [node name="DetailInfoPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="DetailInfo" type="Label" parent="Margin/RootVBox/DetailPanel/Scroll/Box/DetailInfoPanel"]
 layout_mode = 2
@@ -1350,7 +1325,6 @@ text = "판매자"
 
 [node name="SellerCard" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="SellerRow" type="HBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/SellerCard"]
 layout_mode = 2
@@ -1384,7 +1358,6 @@ text = "질문하거나 확인할 수 있음 4번"
 [node name="ChatPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 visible = false
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/ChatPanel"]
 layout_mode = 2
@@ -1497,7 +1470,6 @@ text = "이 물건, 얼마까지 낼지 정하기"
 [node name="InquiryPanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 visible = false
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/InquiryPanel"]
 layout_mode = 2
@@ -1532,7 +1504,6 @@ autowrap_mode = 2
 [node name="MarketPricePanel" type="PanelContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box"]
 visible = false
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="PriceBox" type="VBoxContainer" parent="Margin/RootVBox/DetailPanel/Scroll/Box/MarketPricePanel"]
 layout_mode = 2
@@ -1591,7 +1562,6 @@ text = "다른 매물 보기"
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Root" type="VBoxContainer" parent="Margin/RootVBox/SellerChatPanel"]
 layout_mode = 2
@@ -1654,7 +1624,6 @@ vertical_alignment = 1
 [node name="ItemContext" type="PanelContainer" parent="Margin/RootVBox/SellerChatPanel/Root"]
 custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/SellerChatPanel/Root/ItemContext"]
 layout_mode = 2
@@ -1688,7 +1657,6 @@ autowrap_mode = 2
 [node name="MessagesPanel" type="PanelContainer" parent="Margin/RootVBox/SellerChatPanel/Root"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="MessagesScroll" type="ScrollContainer" parent="Margin/RootVBox/SellerChatPanel/Root/MessagesPanel"]
 layout_mode = 2
@@ -1760,7 +1728,6 @@ text = "← 매물로 돌아가기"
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/DealPanel"]
 layout_mode = 2
@@ -1800,7 +1767,6 @@ vertical_alignment = 1
 [node name="ItemSellerSummary" type="PanelContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 94)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box/ItemSellerSummary"]
 layout_mode = 2
@@ -1840,7 +1806,6 @@ autowrap_mode = 2
 
 [node name="PriceComparison" type="PanelContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box/PriceComparison"]
 layout_mode = 2
@@ -1871,7 +1836,6 @@ autowrap_mode = 2
 
 [node name="NegotiationStatus" type="PanelContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="VBoxContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box/NegotiationStatus"]
 layout_mode = 2
@@ -1905,7 +1869,6 @@ fit_to_longest_item = false
 
 [node name="OfferSection" type="PanelContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box/OfferSection"]
 layout_mode = 2
@@ -1959,7 +1922,6 @@ text = "이 가격과 근거로 제안"
 
 [node name="SellerResponsePanel" type="PanelContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/DealPanel/Scroll/Box/SellerResponsePanel"]
 layout_mode = 2
@@ -2017,7 +1979,6 @@ text = "거래 보류"
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/InventoryPanel"]
 layout_mode = 2
@@ -2042,7 +2003,6 @@ autowrap_mode = 2
 [node name="PurchaseHandoffPanel" type="PanelContainer" parent="Margin/RootVBox/InventoryPanel/Scroll/Box"]
 visible = false
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/InventoryPanel/Scroll/Box/PurchaseHandoffPanel"]
 layout_mode = 2
@@ -2103,7 +2063,6 @@ text = "마켓 홈으로"
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/AppraisalPanel"]
 layout_mode = 2
@@ -2146,7 +2105,6 @@ theme_override_constants/separation = 8
 
 [node name="ItemSummary" type="PanelContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/ItemSummary"]
 layout_mode = 2
@@ -2188,7 +2146,6 @@ text = "현재까지 아는 정보"
 
 [node name="KnownPanel" type="PanelContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="AppraisalClues" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/PreView/KnownPanel"]
 custom_minimum_size = Vector2(0, 92)
@@ -2262,7 +2219,6 @@ theme_override_constants/separation = 8
 
 [node name="ResultHero" type="PanelContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/ResultHero"]
 layout_mode = 2
@@ -2299,7 +2255,6 @@ text = "감정 결과"
 
 [node name="MetricsPanel" type="PanelContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="ResultMetrics" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/MetricsPanel"]
 layout_mode = 2
@@ -2314,7 +2269,6 @@ text = "감정사의 한마디"
 
 [node name="CommentPanel" type="PanelContainer" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="AppraiserComment" type="Label" parent="Margin/RootVBox/AppraisalPanel/Scroll/Box/ResultView/CommentPanel"]
 custom_minimum_size = Vector2(0, 72)
@@ -2344,7 +2298,6 @@ text = "재판매 준비"
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/SalePanel"]
 layout_mode = 2
@@ -2384,7 +2337,6 @@ vertical_alignment = 1
 [node name="ItemSummary" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary"]
 layout_mode = 2
@@ -2420,7 +2372,6 @@ text_overrun_behavior = 3
 
 [node name="QuoteStatePanel" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="QuoteState" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/QuoteStatePanel"]
 layout_mode = 2
@@ -2441,7 +2392,6 @@ theme_override_constants/separation = 5
 [node name="BuyerCard1" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList"]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Body" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1"]
 layout_mode = 2
@@ -2493,7 +2443,6 @@ text = "이 판매처 선택"
 [node name="BuyerCard2" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList"]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Body" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2"]
 layout_mode = 2
@@ -2545,7 +2494,6 @@ text = "이 판매처 선택"
 [node name="BuyerCard3" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList"]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Body" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3"]
 layout_mode = 2
@@ -2602,7 +2550,6 @@ text = "즉시 판매"
 [node name="BuyerCard4" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Body" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4"]
 layout_mode = 2
@@ -2653,7 +2600,6 @@ text = "고물상 선택"
 
 [node name="ActionPanel" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel"]
 layout_mode = 2
@@ -2690,7 +2636,6 @@ text = "아직 팔지 않고 보유품으로"
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/ResultPanel"]
 layout_mode = 2
@@ -2709,7 +2654,6 @@ text = "거래 기록"
 
 [node name="StatsPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="StatsLabel" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/StatsPanel"]
 layout_mode = 2
@@ -2724,7 +2668,6 @@ text = "최근 완료한 거래"
 
 [node name="RecordHero" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box/RecordHero"]
 layout_mode = 2
@@ -2763,7 +2706,6 @@ text = "순이익 +0G"
 
 [node name="MoneyPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Grid" type="GridContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box/MoneyPanel"]
 layout_mode = 2
@@ -2835,7 +2777,6 @@ text = "내 판단 복기"
 
 [node name="DecisionPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="DecisionText" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/DecisionPanel"]
 layout_mode = 2
@@ -2845,7 +2786,6 @@ autowrap_mode = 2
 
 [node name="AnalysisPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="AnalysisText" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/AnalysisPanel"]
 layout_mode = 2
@@ -2860,7 +2800,6 @@ text = "거래 뒤에 알게 된 것"
 
 [node name="TruthPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="TruthText" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/TruthPanel"]
 layout_mode = 2
@@ -2870,7 +2809,6 @@ autowrap_mode = 2
 
 [node name="SellerReviewPanel" type="PanelContainer" parent="Margin/RootVBox/ResultPanel/Scroll/Box"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="SellerReviewText" type="Label" parent="Margin/RootVBox/ResultPanel/Scroll/Box/SellerReviewPanel"]
 layout_mode = 2
@@ -2995,7 +2933,6 @@ grow_vertical = 2
 [node name="Card" type="PanelContainer" parent="CommercialShell/Center"]
 custom_minimum_size = Vector2(342, 620)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="TitleView" type="VBoxContainer" parent="CommercialShell/Center/Card"]
 layout_mode = 2
@@ -3125,7 +3062,6 @@ anchor_top = 0.055
 anchor_right = 0.94
 anchor_bottom = 0.055
 offset_bottom = 64.0
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Label" type="Label" parent="PresentationLayer/ToastPanel"]
 layout_mode = 2
@@ -3145,7 +3081,6 @@ anchor_right = 0.96
 anchor_bottom = 1.0
 offset_top = -196.0
 offset_bottom = -18.0
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="ContextTip"]
 layout_mode = 2
@@ -3198,7 +3133,6 @@ grow_vertical = 2
 [node name="Card" type="PanelContainer" parent="SettingsOverlay/Center"]
 custom_minimum_size = Vector2(342, 590)
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="SettingsOverlay/Center/Card"]
 layout_mode = 2
