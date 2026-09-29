@@ -14,6 +14,25 @@ func _init() -> void:
 	var signatures = {}
 	var trade_plan_checks = 0
 	var quote_checks = 0
+	var investigation_profile_signatures = {}
+	for item in Content.ITEMS:
+		var probe = engine.generate_listing(item)
+		var options = engine.investigation_options(probe)
+		if options.size() != 5:
+			_fail("%s must expose exactly five investigation choices" % item["id"])
+			return
+		var stable_ids = []
+		var labels = []
+		for option in options:
+			stable_ids.append(str(option["id"]))
+			labels.append(str(option.get("short_label", "")))
+		if stable_ids != ["exterior", "mark", "function", "origin", "market"]:
+			_fail("%s investigation IDs changed and would break older saves" % item["id"])
+			return
+		investigation_profile_signatures["|".join(labels)] = true
+	if investigation_profile_signatures.size() < 10:
+		_fail("item investigation profiles are not distinct enough")
+		return
 
 	for market_index in range(20):
 		var market = engine.generate_market(3)
@@ -28,11 +47,24 @@ func _init() -> void:
 				return
 			ids[listing["item_id"]] = true
 
-			var investigation = engine.investigate(listing, "exterior")
+			var item_options = engine.investigation_options(listing)
+			var first_action = str(item_options[0]["id"])
+			var before_clues = listing.get("discovered_clues", []).size()
+			var investigation = engine.investigate(listing, first_action)
 			if not bool(investigation["consumed"]):
-				_fail("investigation did not consume")
+				_fail("item-specific investigation did not consume")
+				return
+			if str(investigation.get("action_label", "")).is_empty():
+				_fail("item-specific investigation did not report its action label")
 				return
 			listing = investigation["listing"]
+			if listing.get("discovered_clues", []).size() <= before_clues:
+				_fail("item-specific investigation did not reveal a clue")
+				return
+			var repeated = engine.investigate(listing, first_action)
+			if bool(repeated["consumed"]):
+				_fail("repeating the same item-specific investigation spent another opportunity")
+				return
 
 			listing = engine.save_trade_plan(listing, "5,000~15,000G", max(1000, int(listing["asking"]) - 500), "")
 			if not engine.trade_plan_complete(listing):
@@ -108,7 +140,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.2.4: 20 markets / 60 listings, trade plans, clue-based negotiation and 3-of-4 resale discovery")
+	print("SMOKE OK v0.2.12: 12 item-specific investigation profiles, 20 markets / 60 listings, trade plans, clue-based negotiation and 3-of-4 resale discovery")
 	quit(0)
 
 
