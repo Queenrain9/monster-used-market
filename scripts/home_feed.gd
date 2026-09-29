@@ -40,6 +40,7 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 
 func seller_behavior_text(listing: Dictionary) -> String:
 	var seller: Dictionary = listing.get("seller", {})
+	var personality: Dictionary = seller.get("personality", {})
 	var cues: Array = personality.get("public_cues", [])
 	if cues.is_empty():
 		return "대화만으로는 어떤 성향인지 단정하기 어렵다."
@@ -49,7 +50,6 @@ func seller_behavior_text(listing: Dictionary) -> String:
 
 func matches_filter(listing: Dictionary, query: String, tab_id: String, category_id: String) -> bool:
 	var seller: Dictionary = listing.get("seller", {})
-	var personality: Dictionary = seller.get("personality", {})
 	var viewed = bool(listing.get("viewed", false)) or not listing.get("inspected_actions", []).is_empty()
 	var q = query.strip_edges().to_lower()
 
