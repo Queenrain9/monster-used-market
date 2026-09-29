@@ -199,7 +199,7 @@ func _connect_buttons() -> void:
 	$Margin/RootVBox/DetailPanel/Scroll/Box/StartDealButton.pressed.connect(_start_deal)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/BackMarketButton.pressed.connect(_go_market)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/TopBar/BackTopButton.pressed.connect(_go_market)
-	$Margin/RootVBox/DetailPanel/Scroll/Box/ImageExpandButton.pressed.connect(_open_image_preview)
+	$Margin/RootVBox/DetailPanel/Scroll/Box/HeroRow/ImageColumn/ImageExpandButton.pressed.connect(_open_image_preview)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/ThumbnailRow/Thumb1.pressed.connect(_open_image_preview)
 	$Margin/RootVBox/DetailPanel/Scroll/Box/ActionRow/NegotiationJumpButton.pressed.connect(_jump_to_trade_plan)
 	$ImagePreview/Box/CloseButton.pressed.connect(func(): $ImagePreview.hide())
