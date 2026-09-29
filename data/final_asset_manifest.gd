@@ -30,11 +30,11 @@ const REQUIRED_UI_KEYS := [
 	"skin_button_pressed",
 	"skin_button_disabled",
 	"skin_input",
+	"workshop",
 	"fallback"
 ]
 
 const OPTIONAL_UI_KEYS := [
-	"workshop",
 	"relationships",
 	"collection"
 ]
