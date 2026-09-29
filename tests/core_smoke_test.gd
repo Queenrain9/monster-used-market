@@ -235,7 +235,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.2.15: monster local-marketplace stories, seller locality, scalable economy and full trade flow")
+	print("SMOKE OK v0.2.16: conversational investigations, local seller behavior, scalable economy and full trade flow")
 	quit(0)
 
 
