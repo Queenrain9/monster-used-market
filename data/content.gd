@@ -110,6 +110,66 @@ const DISTRICTS := [
 	}
 ]
 
+const UPGRADES := [
+	{
+		"id":"storage",
+		"name":"보관 선반",
+		"description":"동시에 보관할 수 있는 물건 수를 늘립니다.",
+		"base_value":2,
+		"unit":"칸",
+		"levels":[
+			{"cost":6000,"reputation":0,"value":3},
+			{"cost":12000,"reputation":60,"value":4},
+			{"cost":25000,"reputation":150,"value":6}
+		]
+	},
+	{
+		"id":"notebook",
+		"name":"현장 수첩",
+		"description":"장터에서 더 많은 질문과 확인을 할 수 있습니다.",
+		"base_value":4,
+		"unit":"회",
+		"levels":[
+			{"cost":7500,"reputation":40,"value":5},
+			{"cost":16000,"reputation":100,"value":6}
+		]
+	},
+	{
+		"id":"appraisal",
+		"name":"감정소 계약",
+		"description":"전문 감정 비용을 할인받습니다.",
+		"base_value":0,
+		"unit":"%",
+		"levels":[
+			{"cost":8000,"reputation":40,"value":10},
+			{"cost":18000,"reputation":150,"value":20},
+			{"cost":35000,"reputation":300,"value":30}
+		]
+	},
+	{
+		"id":"network",
+		"name":"구매자 연락망",
+		"description":"한 물건에서 확인할 수 있는 전문 견적 수를 늘립니다.",
+		"base_value":2,
+		"unit":"곳",
+		"levels":[
+			{"cost":12000,"reputation":100,"value":3},
+			{"cost":30000,"reputation":300,"value":4}
+		]
+	},
+	{
+		"id":"routes",
+		"name":"장터 동선 장부",
+		"description":"하루에 둘러볼 수 있는 장터 수를 늘립니다.",
+		"base_value":3,
+		"unit":"회",
+		"levels":[
+			{"cost":10000,"reputation":60,"value":4},
+			{"cost":22000,"reputation":180,"value":5}
+		]
+	}
+]
+
 const DAY_EVENTS := [
 	{"id":"rain_market","title":"비 오는 야시장","description":"젖은 천막 아래로 평소보다 오래된 물건들이 많이 나왔다는 소문이 돈다."},
 	{"id":"tower_open","title":"탑의 야간 개방","description":"탑 창고를 정리하는 날이라 오래 묵은 마도구가 동네로 흘러나오고 있다."},
