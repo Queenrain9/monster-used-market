@@ -138,9 +138,9 @@ func _connect_buttons() -> void:
 	$Margin/RootVBox/InspectPanel/InspectBox/AbandonButton.pressed.connect(_abandon_listing)
 
 	offer_slider.value_changed.connect(_offer_slider_changed)
-	$Margin/RootVBox/DealPanel/DealBox/Preset5Button.pressed.connect(_set_offer_discount.bind(0.05))
-	$Margin/RootVBox/DealPanel/DealBox/Preset10Button.pressed.connect(_set_offer_discount.bind(0.10))
-	$Margin/RootVBox/DealPanel/DealBox/Preset20Button.pressed.connect(_set_offer_discount.bind(0.20))
+	$Margin/RootVBox/DealPanel/DealBox/PresetRow/Preset5Button.pressed.connect(_set_offer_discount.bind(0.05))
+	$Margin/RootVBox/DealPanel/DealBox/PresetRow/Preset10Button.pressed.connect(_set_offer_discount.bind(0.10))
+	$Margin/RootVBox/DealPanel/DealBox/PresetRow/Preset20Button.pressed.connect(_set_offer_discount.bind(0.20))
 	$Margin/RootVBox/DealPanel/DealBox/SubmitOfferButton.pressed.connect(_submit_offer)
 	buy_current_button.pressed.connect(_buy_current_price)
 	$Margin/RootVBox/DealPanel/DealBox/DealBackButton.pressed.connect(_back_to_market)

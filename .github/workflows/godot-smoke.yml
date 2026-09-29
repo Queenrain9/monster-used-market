@@ -29,7 +29,17 @@ jobs:
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/main.gd
 
       - name: Boot main scene
-        run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . --quit-after 2
+        run: |
+          set +e
+          OUTPUT=$(./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . --quit-after 2 2>&1)
+          CODE=$?
+          echo "$OUTPUT"
+          if [ $CODE -ne 0 ]; then
+            exit $CODE
+          fi
+          if echo "$OUTPUT" | grep -Eq "SCRIPT ERROR|ERROR:"; then
+            exit 1
+          fi
 
       - name: Run core smoke test
         run: ./.godot-bin/Godot_v4.5.1-stable_linux.x86_64 --headless --path . -s res://tests/core_smoke_test.gd

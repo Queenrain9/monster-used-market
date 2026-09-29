@@ -168,7 +168,20 @@ func investigate(listing: Dictionary, action_id: String) -> Dictionary:
 	}
 	var clue_index = int(mapping.get(action_id, 0))
 	var clues: Array = updated["investigation_clues"]
-	var clue: Dictionary = clues[clamp(clue_index, 0, clues.size() - 1)].duplicate(true)
+	var preferred_index = clamp(clue_index, 0, clues.size() - 1)
+	var clue = {}
+	for offset in range(clues.size()):
+		var candidate_index = (preferred_index + offset) % clues.size()
+		var candidate: Dictionary = clues[candidate_index].duplicate(true)
+		if not _clue_discovered(updated, candidate):
+			clue = candidate
+			break
+
+	if clue.is_empty():
+		clue = clues[preferred_index].duplicate(true)
+		clue["id"] = "%s_%s_repeat" % [clue.get("id", "clue"), action_id]
+		clue["text"] = "%s 같은 징후가 다른 조사에서도 다시 확인됐다." % clue["text"]
+
 	_add_discovered_clue(updated, clue)
 	return {
 		"listing": updated,
@@ -576,6 +589,14 @@ func _make_seller_claim(state: String, seller: Dictionary) -> Dictionary:
 		"reveal":reveal,
 		"aligned":aligned
 	}
+
+
+func _clue_discovered(listing: Dictionary, clue: Dictionary) -> bool:
+	var discovered: Array = listing.get("discovered_clues", [])
+	for known in discovered:
+		if str(known.get("id", "")) == str(clue.get("id", "")) and str(known.get("text", "")) == str(clue.get("text", "")):
+			return true
+	return false
 
 
 func _add_discovered_clue(listing: Dictionary, clue: Dictionary) -> void:
