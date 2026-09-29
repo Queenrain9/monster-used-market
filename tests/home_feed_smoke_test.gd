@@ -756,6 +756,8 @@ func _test_save_compatibility() -> void:
 	file.store_string(JSON.stringify(legacy))
 	file.close()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(game.SAVE_PATH))
+	if FileAccess.file_exists(game.SAVE_BACKUP_PATH):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(game.SAVE_BACKUP_PATH))
 	game.queue_free()
 	await _settle()
 	game = MainScene.instantiate()
