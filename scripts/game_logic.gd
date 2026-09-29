@@ -108,7 +108,8 @@ func generate_listing(item: Dictionary) -> Dictionary:
 		"post_clues": post_clues,
 		"inspected_actions": [],
 		"post_inspected_actions": [],
-		"hypothesis": {}
+		"hypothesis": {},
+		"trade_plan": {}
 	}
 
 
@@ -235,6 +236,50 @@ func evaluate_hypothesis(listing: Dictionary) -> Array:
 	var value_band = str(hypothesis.get("value_band", ""))
 	var value_hit = _value_band_contains(value_band, int(listing["actual_value"]))
 	feedback.append("✓ 예상 가치 범위 적중" if value_hit else "✕ 예상 가치 범위를 벗어남")
+	return feedback
+
+
+func save_trade_plan(listing: Dictionary, value_band: String, max_buy_price: int, suspect_text: String = "") -> Dictionary:
+	var updated = listing.duplicate(true)
+	updated["trade_plan"] = {
+		"value_band": value_band,
+		"max_buy_price": max(0, max_buy_price),
+		"suspect_text": suspect_text
+	}
+	if updated["listing_status"] == "미확인":
+		updated["listing_status"] = "조사 중"
+	return updated
+
+
+func trade_plan_complete(listing: Dictionary) -> bool:
+	var plan: Dictionary = listing.get("trade_plan", {})
+	return (
+		not str(plan.get("value_band", "")).is_empty()
+		and int(plan.get("max_buy_price", 0)) > 0
+	)
+
+
+func evaluate_trade_plan(listing: Dictionary, purchase_price: int, sale_price: int) -> Array:
+	var feedback = []
+	var plan: Dictionary = listing.get("trade_plan", {})
+	if plan.is_empty():
+		return ["△ 구매 전 거래 계획 기록 없음"]
+
+	var value_band = str(plan.get("value_band", ""))
+	if _value_band_contains(value_band, sale_price):
+		feedback.append("✓ 예상 재판매가 범위 안에서 판매")
+	else:
+		feedback.append("△ 실제 판매가가 예상 범위를 벗어남")
+
+	var max_buy_price = int(plan.get("max_buy_price", 0))
+	if purchase_price <= max_buy_price:
+		feedback.append("✓ 내가 정한 최대 매입가 이하로 구매")
+	else:
+		feedback.append("△ 최대 매입가보다 %sG 더 비싸게 구매" % _money(purchase_price - max_buy_price))
+
+	var suspect_text = str(plan.get("suspect_text", ""))
+	if not suspect_text.is_empty():
+		feedback.append("• 구매 전 가장 신경 쓴 단서: %s" % suspect_text)
 	return feedback
 
 
@@ -454,7 +499,7 @@ func make_buyer_offers(listing: Dictionary) -> Array:
 			specialists.append(buyer)
 
 	var chosen = []
-	while chosen.size() < 2 and not specialists.is_empty():
+	while chosen.size() < 3 and not specialists.is_empty():
 		var idx = rng.randi_range(0, specialists.size() - 1)
 		chosen.append(specialists[idx])
 		specialists.remove_at(idx)

@@ -1,10 +1,9 @@
 ; Engine configuration file.
-; Monster Used Market MVP v0.2.1
 config_version=5
 
 [application]
 
-config/name="괴물 중고마켓 MVP v0.2.1"
+config/name="괴물 중고마켓 MVP v0.2.2"
 run/main_scene="res://scenes/main.tscn"
 
 [display]
