@@ -741,11 +741,13 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="SellerHead" type="VBoxContainer" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar"]
+custom_minimum_size = Vector2(132, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
 [node name="SellerName" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar/SellerHead"]
+custom_minimum_size = Vector2(0, 21)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 14
@@ -755,6 +757,7 @@ text_overrun_behavior = 3
 clip_text = true
 
 [node name="SellerStatus" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar/SellerHead"]
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 9
@@ -765,7 +768,7 @@ text_overrun_behavior = 3
 clip_text = true
 
 [node name="GoldLabel" type="Label" parent="Margin/RootVBox/SellerChatPanel/Root/TopBar"]
-custom_minimum_size = Vector2(72, 0)
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "50,000 G"
@@ -833,33 +836,33 @@ text = "뭐라고 물어볼까? · 남은 기회 4번"
 
 [node name="ReplyGrid" type="GridContainer" parent="Margin/RootVBox/SellerChatPanel/Root/Composer"]
 layout_mode = 2
-columns = 2
+columns = 1
 theme_override_constants/h_separation = 5
 theme_override_constants/v_separation = 5
 
 [node name="InspectButton1" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "사진 조금 더 볼게요"
 
 [node name="InspectButton2" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "가까이 찍어줄 수 있어요?"
 
 [node name="InspectButton3" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
 text = "직접 확인해봐도 돼요?"
 
 [node name="InspectButton4" type="Button" parent="Margin/RootVBox/SellerChatPanel/Root/Composer/ReplyGrid"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
