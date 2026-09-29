@@ -84,7 +84,8 @@ func _test_public_feed(cards) -> void:
 	_expect(str(public_data["tags_text"]).contains("가격 제안"), "public feed should communicate local price-offer trading without revealing seller archetype")
 	_expect(not str(public_data).contains("급한 판매자"), "public feed must not reveal the hidden urgent seller archetype")
 	_expect(public_data["clue_text"] == "서랍 정리하다 나온 물건이라 올려요.", "home card must read like the seller's post rather than a system clue")
-	_expect(str(public_data["meta_text"]).contains(str(card["seller"]["name"])) and str(public_data["meta_text"]).contains(presenter.public_location_text(card)), "home card must visibly identify the monster seller and neighborhood")
+	var art = load("res://scripts/art_catalog.gd")
+	_expect(str(public_data["meta_text"]).contains(art.seller_name(card["seller"])) and str(public_data["meta_text"]).contains(presenter.public_location_text(card)), "home card must visibly identify the displayed monster seller and neighborhood")
 	var hidden_changed = card.duplicate(true)
 	hidden_changed["state"] = "모조품"
 	hidden_changed["condition"] = "손상"
