@@ -23,7 +23,8 @@ func content_summary() -> Dictionary:
 		"buyers": Content.BUYERS.size(),
 		"clues": Content.CLUES.size(),
 		"profile_clues": profile_clue_count,
-		"investigation_profiles": Content.INVESTIGATION_PROFILES.size()
+		"investigation_profiles": Content.INVESTIGATION_PROFILES.size(),
+		"districts": Content.DISTRICTS.size()
 	}
 
 
@@ -83,10 +84,32 @@ func validate_content() -> Array:
 			if str(seller.get(field, "")).strip_edges().is_empty():
 				errors.append("%s 판매자의 %s 정보가 없습니다." % [seller_id, field])
 
+	var seller_ids = []
+	for seller in Content.SELLERS:
+		seller_ids.append(str(seller.get("id", "")))
+	if Content.DISTRICTS.size() < 4:
+		errors.append("상용 월드 상권이 4개보다 적습니다.")
+	for district in Content.DISTRICTS:
+		if str(district.get("id", "")).is_empty() or str(district.get("name", "")).is_empty():
+			errors.append("상권 id/name이 비어 있습니다.")
+		var district_sellers: Array = district.get("seller_ids", [])
+		if district_sellers.is_empty():
+			errors.append("%s 상권에 판매자가 없습니다." % district.get("id", "unknown"))
+		for seller_id in district_sellers:
+			if not seller_ids.has(str(seller_id)):
+				errors.append("%s 상권에 존재하지 않는 판매자 %s가 있습니다." % [district.get("id", "unknown"), seller_id])
+
 	for profile_id in Content.PROFILE_CLUES.keys():
 		if not Content.INVESTIGATION_PROFILES.has(profile_id):
 			errors.append("단서 풀 %s에 대응하는 조사 프로필이 없습니다." % profile_id)
 	return errors
+
+func district_definition(district_id: String) -> Dictionary:
+	for district in Content.DISTRICTS:
+		if str(district.get("id", "")) == district_id:
+			return district
+	return {}
+
 
 func generate_market(count: int = 3) -> Array:
 	var pool = Content.ITEMS.duplicate(true)
@@ -99,7 +122,48 @@ func generate_market(count: int = 3) -> Array:
 	return result
 
 
-func generate_listing(item: Dictionary) -> Dictionary:
+func generate_market_for_district(district_id: String, count: int = 3) -> Array:
+	var district = district_definition(district_id)
+	if district.is_empty():
+		return generate_market(count)
+
+	var pool = Content.ITEMS.duplicate(true)
+	var result = []
+	var preferred_tags: Array = district.get("preferred_tags", [])
+	var seller_ids: Array = district.get("seller_ids", [])
+	while result.size() < count and not pool.is_empty():
+		var index = _weighted_district_item_index(pool, preferred_tags)
+		var item: Dictionary = pool[index]
+		pool.remove_at(index)
+		var listing = generate_listing(item, seller_ids)
+		listing["district_id"] = district_id
+		listing["district_name"] = str(district.get("name", ""))
+		result.append(listing)
+	return result
+
+
+func _weighted_district_item_index(pool: Array, preferred_tags: Array) -> int:
+	if pool.size() <= 1:
+		return 0
+	var weights = []
+	var total = 0.0
+	for item in pool:
+		var score = 1.0
+		for tag in item.get("tags", []):
+			if preferred_tags.has(tag):
+				score += 1.4
+		weights.append(score)
+		total += score
+	var roll = rng.randf() * total
+	var cursor = 0.0
+	for i in range(weights.size()):
+		cursor += float(weights[i])
+		if roll <= cursor:
+			return i
+	return weights.size() - 1
+
+
+func generate_listing(item: Dictionary, seller_ids: Array = []) -> Dictionary:
 	var state = _weighted_choice(item["state_weights"])
 	var condition = _choose_condition(state)
 	var rarity = _weighted_choice(item["rarity_weights"])
@@ -110,7 +174,15 @@ func generate_listing(item: Dictionary) -> Dictionary:
 		float(item["base_value"]) * rarity_mult * state_mult * condition_mult * rng.randf_range(0.93, 1.07)
 	)))
 
-	var seller: Dictionary = Content.SELLERS[rng.randi_range(0, Content.SELLERS.size() - 1)].duplicate(true)
+	var seller_pool = Content.SELLERS
+	if not seller_ids.is_empty():
+		seller_pool = []
+		for candidate in Content.SELLERS:
+			if seller_ids.has(str(candidate.get("id", ""))):
+				seller_pool.append(candidate)
+	if seller_pool.is_empty():
+		seller_pool = Content.SELLERS
+	var seller: Dictionary = seller_pool[rng.randi_range(0, seller_pool.size() - 1)].duplicate(true)
 	var personality: Dictionary = Content.SELLER_TYPES[seller["type"]].duplicate(true)
 	seller["personality"] = personality
 
