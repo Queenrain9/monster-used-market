@@ -471,8 +471,46 @@ func negotiate_offer(listing: Dictionary, state: Dictionary, offer_price: int, e
 	}
 
 
+func _information_reference_price(listing: Dictionary) -> int:
+	var purchase_price = int(listing.get("purchase_price", 0))
+	if purchase_price > 0:
+		return purchase_price
+	var asking = int(listing.get("asking", 0))
+	if asking > 0:
+		return asking
+	return max(1, int(listing.get("base_value", 1)))
+
+
+func _scaled_information_cost(listing: Dictionary, ratio: float, minimum: int, maximum: int) -> int:
+	var reference = _information_reference_price(listing)
+	var raw = float(reference) * ratio
+	var step = max(1, int(Content.INFORMATION_COST_ROUND_TO))
+	var rounded = int(round(raw / float(step))) * step
+	return clamp(rounded, minimum, maximum)
+
+
 func post_inspection_options(listing: Dictionary) -> Array:
-	return Content.POST_INSPECTIONS.duplicate(true)
+	var result = []
+	for option in Content.POST_INSPECTIONS:
+		var computed: Dictionary = option.duplicate(true)
+		computed["cost"] = _scaled_information_cost(
+			listing,
+			float(option["ratio"]),
+			int(option["min"]),
+			int(option["max"])
+		)
+		result.append(computed)
+	return result
+
+
+func professional_appraisal_cost(listing: Dictionary) -> int:
+	var rule: Dictionary = Content.PROFESSIONAL_APPRAISAL_COST_RULE
+	return _scaled_information_cost(
+		listing,
+		float(rule["ratio"]),
+		int(rule["min"]),
+		int(rule["max"])
+	)
 
 
 func run_post_inspection(listing: Dictionary, action_id: String) -> Dictionary:
@@ -481,7 +519,7 @@ func run_post_inspection(listing: Dictionary, action_id: String) -> Dictionary:
 	if used.has(action_id):
 		return {"listing":updated, "consumed":false, "cost":0, "message":"이미 진행한 검사입니다."}
 
-	var options: Array = Content.POST_INSPECTIONS
+	var options: Array = post_inspection_options(updated)
 	var found = false
 	var option_cost = 0
 	for option in options:
