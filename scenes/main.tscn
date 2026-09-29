@@ -1016,15 +1016,15 @@ horizontal_scroll_mode = 0
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="TopBar" type="HBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="BackButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/TopBar"]
-custom_minimum_size = Vector2(46, 40)
+custom_minimum_size = Vector2(44, 38)
 layout_mode = 2
 text = "←"
 
@@ -1036,23 +1036,24 @@ text = "재판매"
 vertical_alignment = 1
 
 [node name="GoldLabel" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/TopBar"]
-custom_minimum_size = Vector2(82, 0)
+custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "50,000 G"
 horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="ItemSummary" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
 [node name="Row" type="HBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="ItemArt" type="TextureRect" parent="Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary/Row"]
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
@@ -1061,20 +1062,23 @@ stretch_mode = 5
 [node name="Info" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary/Row"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 
 [node name="SaleTitle" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary/Row/Info"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "아이템"
-autowrap_mode = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="SaleInfo" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/ItemSummary/Row/Info"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.36, 0.39, 0.43, 1)
 text = "매입가 / 감정 상태"
 autowrap_mode = 2
+max_lines_visible = 3
+text_overrun_behavior = 3
 
 [node name="QuoteStatePanel" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 layout_mode = 2
@@ -1082,198 +1086,231 @@ theme_override_styles/panel = SubResource("Panel")
 
 [node name="QuoteState" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/QuoteStatePanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
-text = "전문 견적 요청 2회 남음"
+text = "전문 견적 2회 남음"
 autowrap_mode = 2
 
 [node name="SpecialistTitle" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "전문 판매처"
-
-[node name="SpecialistHelp" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.45, 0.48, 0.53, 1)
-text = "세 곳 중 최대 두 곳에만 확정 견적을 요청할 수 있습니다."
-autowrap_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "전문 판매처 · 3곳 중 최대 2곳 견적"
 
 [node name="BuyerList" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 5
 
 [node name="BuyerCard1" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList"]
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
 [node name="Body" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="NameRow" type="HBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="BuyerName" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body/NameRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "전문 판매처 1"
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Status" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body/NameRow"]
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
-text = "견적 미확인"
+text = "미확인"
+horizontal_alignment = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Summary" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 text = "구매자 성향"
-autowrap_mode = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Reason" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
-text = "가격은 견적 요청 후 공개"
-autowrap_mode = 2
+text = "견적 요청 후 가격 공개"
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="SelectButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard1/Body"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 text = "이 판매처 선택"
 
 [node name="BuyerCard2" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList"]
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
 [node name="Body" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="NameRow" type="HBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="BuyerName" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body/NameRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "전문 판매처 2"
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Status" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body/NameRow"]
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
-text = "견적 미확인"
+text = "미확인"
+horizontal_alignment = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Summary" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 text = "구매자 성향"
-autowrap_mode = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Reason" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
-text = "가격은 견적 요청 후 공개"
-autowrap_mode = 2
+text = "견적 요청 후 가격 공개"
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="SelectButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard2/Body"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 text = "이 판매처 선택"
 
 [node name="BuyerCard3" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList"]
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
 [node name="Body" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="NameRow" type="HBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="BuyerName" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body/NameRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "전문 판매처 3"
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Status" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body/NameRow"]
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.39, 0.28, 0.77, 1)
-text = "견적 미확인"
+text = "미확인"
+horizontal_alignment = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Summary" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 text = "구매자 성향"
-autowrap_mode = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Reason" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.42, 0.45, 0.49, 1)
-text = "가격은 견적 요청 후 공개"
-autowrap_mode = 2
+text = "견적 요청 후 가격 공개"
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="SelectButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerList/BuyerCard3/Body"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 text = "이 판매처 선택"
 
 [node name="SafeTitle" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 text = "즉시 판매"
 
 [node name="BuyerCard4" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_styles/panel = SubResource("Panel")
 
 [node name="Body" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="NameRow" type="HBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="BuyerName" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body/NameRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "고물상"
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Status" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body/NameRow"]
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.15, 0.47, 0.29, 1)
-text = "즉시 매입가 공개"
+text = "즉시가"
+horizontal_alignment = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Summary" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 text = "거의 무엇이든 바로 사지만 제안가는 낮음"
-autowrap_mode = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="Reason" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.18, 0.42, 0.72, 1)
 text = "즉시 매입 0G"
-autowrap_mode = 2
+max_lines_visible = 1
+text_overrun_behavior = 3
 
 [node name="SelectButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/BuyerCard4/Body"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 text = "고물상 선택"
 
 [node name="ActionPanel" type="PanelContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box"]
@@ -1282,27 +1319,32 @@ theme_override_styles/panel = SubResource("Panel")
 
 [node name="Box" type="VBoxContainer" parent="Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 4
 
 [node name="SelectedLabel" type="Label" parent="Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 text = "판매처를 선택하세요"
+max_lines_visible = 2
+text_overrun_behavior = 3
 autowrap_mode = 2
 
 [node name="QuoteButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "선택한 전문 판매처에 견적 요청"
 
 [node name="SellButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box"]
-custom_minimum_size = Vector2(0, 46)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "판매"
 
 [node name="SaleInventoryButton" type="Button" parent="Margin/RootVBox/SalePanel/Scroll/Box/ActionPanel/Box"]
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "아직 팔지 않고 보유품으로"
 
 
