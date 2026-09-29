@@ -451,6 +451,7 @@ func _ready() -> void:
 	$CommercialShell/ArtBackground.texture = Art.texture_for("ui", "title_background")
 	$CommercialShell/Center/Card/TitleView/Brand.texture = Art.texture_for("ui", "brand")
 	$CommercialShell/Center/Card/OnboardingView/Art.texture = Art.texture_for("ui", "onboarding_world")
+	$Margin/RootVBox/WorkshopPanel/Scroll/Box/HeroArt.texture = Art.texture_for("ui", "workshop")
 	_load_presentation_settings()
 	_configure_mobile_ui()
 	_capture_base_font_sizes()
