@@ -46,6 +46,58 @@ func describe_listing(listing: Dictionary, featured: bool = false) -> Dictionary
 	}
 
 
+func matches_filter(listing: Dictionary, query: String, tab_id: String, category_id: String) -> bool:
+	var seller: Dictionary = listing.get("seller", {})
+	var personality: Dictionary = seller.get("personality", {})
+	var viewed = bool(listing.get("viewed", false)) or not listing.get("inspected_actions", []).is_empty()
+	var q = query.strip_edges().to_lower()
+
+	if not q.is_empty():
+		var haystack = "%s %s %s" % [
+			Art.item_name(listing),
+			Art.seller_name(seller),
+			str(listing.get("category", ""))
+		]
+		if not haystack.to_lower().contains(q):
+			return false
+
+	if tab_id == "negotiable":
+		if str(seller.get("type", "")) != "urgent" and float(personality.get("discount_receptiveness", 0.0)) < 0.6:
+			return false
+	elif tab_id == "viewed":
+		if not viewed:
+			return false
+	elif tab_id == "category":
+		if category_id != "전체" and category_group(str(listing.get("category", ""))) != category_id:
+			return false
+
+	return true
+
+
+func category_group(raw_category: String) -> String:
+	if raw_category in ["장신구", "보석"]:
+		return "장신구"
+	if raw_category in ["재료", "연금재료"]:
+		return "재료"
+	if raw_category == "유물":
+		return "유물"
+	if raw_category == "마도구":
+		return "마도구"
+	if raw_category == "잡화":
+		return "잡화"
+	return "기타"
+
+
+func public_age_text(listing: Dictionary) -> String:
+	var fingerprint = abs(int(str(listing.get("listing_id", "")).hash()))
+	var minutes = 2 + fingerprint % 58
+	return "%d분 전" % minutes
+
+
+func public_location_text(_listing: Dictionary) -> String:
+	return "어둠마을 야시장"
+
+
 func choose_featured_index(market: Array) -> int:
 	if market.is_empty():
 		return -1
