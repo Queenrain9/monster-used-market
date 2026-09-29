@@ -17,6 +17,35 @@ func _init() -> void:
 	var investigation_profile_signatures = {}
 	var profile_usage = {}
 
+	# Information economy must scale from known purchase price, not hidden truth.
+	var low_info_listing = engine.generate_listing(Content.ITEMS[0])
+	low_info_listing["purchase_price"] = 1500
+	var low_inspection = engine.post_inspection_options(low_info_listing)
+	if [int(low_inspection[0]["cost"]), int(low_inspection[1]["cost"]), int(low_inspection[2]["cost"])] != [100, 150, 200]:
+		_fail("low-price information floors changed unexpectedly")
+		return
+	if engine.professional_appraisal_cost(low_info_listing) != 300:
+		_fail("low-price professional appraisal floor must be 300G")
+		return
+
+	var high_info_listing = low_info_listing.duplicate(true)
+	high_info_listing["purchase_price"] = 20000
+	var high_inspection = engine.post_inspection_options(high_info_listing)
+	if [int(high_inspection[0]["cost"]), int(high_inspection[1]["cost"]), int(high_inspection[2]["cost"])] != [400, 600, 800]:
+		_fail("20k purchase must scale inspection costs to 400/600/800G")
+		return
+	if engine.professional_appraisal_cost(high_info_listing) != 1500:
+		_fail("20k purchase must scale professional appraisal to 1500G")
+		return
+
+	var hidden_changed = high_info_listing.duplicate(true)
+	hidden_changed["actual_value"] = 999999
+	hidden_changed["state"] = "모조품"
+	hidden_changed["rarity"] = "전설"
+	if engine.post_inspection_options(hidden_changed) != high_inspection or engine.professional_appraisal_cost(hidden_changed) != 1500:
+		_fail("information price must not leak hidden actual value, authenticity or rarity")
+		return
+
 	for item in Content.ITEMS:
 		var profile_id = str(item.get("investigation_profile", ""))
 		profile_usage[profile_id] = int(profile_usage.get(profile_id, 0)) + 1
@@ -197,7 +226,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.2.13: reusable content profiles, synthetic new-item inheritance, layered clues, 20 markets / 60 listings and full trade flow")
+	print("SMOKE OK v0.2.14: scalable information economy, no hidden-value leakage, reusable content profiles and full trade flow")
 	quit(0)
 
 
