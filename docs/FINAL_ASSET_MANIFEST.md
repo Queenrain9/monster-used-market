@@ -120,13 +120,29 @@ Runtime rule:
 - `res://assets/art/ui/appraiser.png`
 - `res://assets/art/ui/fallback.png`
 
-선택적 확장 슬롯:
+### Meta screen art
 
+작업실 상단 배너:
 - `res://assets/art/ui/workshop.png`
-- `res://assets/art/ui/relationships.png`
-- `res://assets/art/ui/collection.png`
+- 권장 1200×675
 
-선택 슬롯이 없어도 게임 기능/레이아웃은 완성 상태를 유지한다.
+관계/도감 화면은 각각 판매자 초상과 아이템 아트를 직접 사용하므로 별도 배너 없이도 final composition이 완성된다.
+
+### UI 9-slice skin
+
+아래 이미지는 **128×128 PNG / 안전한 24px 9-slice border** 기준으로 제작한다.
+
+- `res://assets/art/ui/skin/panel.png`
+- `res://assets/art/ui/skin/button_normal.png`
+- `res://assets/art/ui/skin/button_hover.png`
+- `res://assets/art/ui/skin/button_pressed.png`
+- `res://assets/art/ui/skin/button_disabled.png`
+- `res://assets/art/ui/skin/input.png`
+
+파일이 존재하면 `MarketTheme`가 자동으로 사용한다.
+없으면 현재 neutral production theme가 그대로 fallback 된다.
+
+따라서 황동/목재/양피지 기반의 최종 UI skin도 **코드 수정 없이 이미지 파일만 교체**할 수 있다.
 
 ---
 
