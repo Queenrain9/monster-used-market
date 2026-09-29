@@ -436,6 +436,7 @@ var active_context_tip = ""
 var current_bgm_state = ""
 var last_presentation_event = ""
 var save_recovery_notice = false
+var _skip_backup_on_next_save = false
 var _base_font_sizes: Dictionary = {}
 var _syncing_settings = false
 var _toast_serial = 0
@@ -928,6 +929,8 @@ func _reset_core_progress() -> void:
 	achievement_unlocks = {}
 	selected_collection_index = 0
 	last_collection_reward = ""
+	tutorial_flags = {}
+	active_context_tip = ""
 
 
 func _merchant_rank() -> String:
@@ -3520,28 +3523,76 @@ func _save_game() -> void:
 		"collection_records": collection_records,
 		"collection_goal_claimed": collection_goal_claimed,
 		"achievement_unlocks": achievement_unlocks,
-		"selected_collection_index": selected_collection_index
+		"selected_collection_index": selected_collection_index,
+		"tutorial_flags": tutorial_flags
 	}
-	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if file != null:
-		file.store_string(JSON.stringify(payload))
+	_write_save_payload(payload)
+
+
+func _read_save_dictionary(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var file = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var parsed = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	return parsed
+
+
+func _write_save_payload(payload: Dictionary) -> bool:
+	var primary_absolute = ProjectSettings.globalize_path(SAVE_PATH)
+	var backup_absolute = ProjectSettings.globalize_path(SAVE_BACKUP_PATH)
+	var temp_absolute = ProjectSettings.globalize_path(SAVE_TEMP_PATH)
+
+	if FileAccess.file_exists(SAVE_PATH) and not _skip_backup_on_next_save:
+		DirAccess.copy_absolute(primary_absolute, backup_absolute)
+
+	var serialized = JSON.stringify(payload)
+	var temp_file = FileAccess.open(SAVE_TEMP_PATH, FileAccess.WRITE)
+	if temp_file == null:
+		return false
+	temp_file.store_string(serialized)
+	temp_file.close()
+
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.remove_absolute(primary_absolute)
+	var rename_error = DirAccess.rename_absolute(temp_absolute, primary_absolute)
+	if rename_error != OK:
+		var fallback = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+		if fallback == null:
+			return false
+		fallback.store_string(serialized)
+		fallback.close()
+		if FileAccess.file_exists(SAVE_TEMP_PATH):
+			DirAccess.remove_absolute(temp_absolute)
+
+	if _skip_backup_on_next_save:
+		# We loaded the backup because primary was invalid. Never copy the bad
+		# primary over the good backup; repair both from the recovered payload.
+		DirAccess.copy_absolute(primary_absolute, backup_absolute)
+		_skip_backup_on_next_save = false
+	return true
 
 
 func _load_game() -> void:
 	today_date = Time.get_date_string_from_system()
-	var load_path = SAVE_PATH
-	if not FileAccess.file_exists(load_path):
-		# Desktop Godot uses the project title as its default save directory.
-		# Xogot can keep user:// in place; keeping the existing filename covers it.
-		load_path = OS.get_user_data_dir().get_base_dir().path_join("괴물 중고마켓 MVP v0.2.2").path_join(SAVE_PATH.get_file())
-		if not FileAccess.file_exists(load_path):
-			return
-	var file = FileAccess.open(load_path, FileAccess.READ)
-	if file == null:
+	var legacy_path = OS.get_user_data_dir().get_base_dir().path_join("괴물 중고마켓 MVP v0.2.2").path_join(SAVE_PATH.get_file())
+	var parsed: Dictionary = {}
+	var load_path = ""
+	for candidate in [SAVE_PATH, SAVE_BACKUP_PATH, legacy_path]:
+		var candidate_data = _read_save_dictionary(str(candidate))
+		if candidate_data.is_empty():
+			continue
+		parsed = candidate_data
+		load_path = str(candidate)
+		break
+	if parsed.is_empty():
 		return
-	var parsed = JSON.parse_string(file.get_as_text())
-	if typeof(parsed) != TYPE_DICTIONARY:
-		return
+	if load_path == SAVE_BACKUP_PATH:
+		save_recovery_notice = true
+		_skip_backup_on_next_save = true
 	home_scroll_offset = max(0, int(parsed.get("home_scroll_offset", 0)))
 	home_query = str(parsed.get("home_query", ""))
 	home_tab = str(parsed.get("home_tab", "recommended"))
@@ -3606,6 +3657,8 @@ func _load_game() -> void:
 		0,
 		max(0, Content.ITEMS.size() - 1)
 	)
+	var loaded_tutorial_flags = parsed.get("tutorial_flags", {})
+	tutorial_flags = loaded_tutorial_flags if typeof(loaded_tutorial_flags) == TYPE_DICTIONARY else {}
 	_migrate_legacy_collection_without_rewards()
 
 
