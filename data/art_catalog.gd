@@ -63,6 +63,18 @@ const ENTRIES = {
       "name": "유령이 든 병",
       "legacy_name": "빙결 정수 병"
     }
+    "echo_compass": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/echo_compass.png","name":"메아리 나침반","legacy_name":"메아리 나침반"},
+    "bottled_shadow": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/bottled_shadow.png","name":"병에 든 그림자","legacy_name":"병에 든 그림자"},
+    "watching_brooch": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/watching_brooch.png","name":"눈알 브로치","legacy_name":"눈알 브로치"},
+    "moon_moth_case": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/moon_moth_case.png","name":"달나방 표본함","legacy_name":"달나방 표본함"},
+    "drowned_bell": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/drowned_bell.png","name":"물에 잠긴 은종","legacy_name":"물에 잠긴 은종"},
+    "rune_glove": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/rune_glove.png","name":"룬 재봉사의 장갑","legacy_name":"룬 재봉사의 장갑"},
+    "basilisk_scale": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/basilisk_scale.png","name":"바실리스크 비늘","legacy_name":"바실리스크 비늘"},
+    "clockwork_beetle": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/clockwork_beetle.png","name":"태엽 딱정벌레","legacy_name":"태엽 딱정벌레"},
+    "grave_candle": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/grave_candle.png","name":"묘지의 푸른 초","legacy_name":"묘지의 푸른 초"},
+    "star_map_fragment": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/star_map_fragment.png","name":"별자리 지도 조각","legacy_name":"별자리 지도 조각"},
+    "sea_witch_comb": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/sea_witch_comb.png","name":"해마녀의 산호빗","legacy_name":"해마녀의 산호빗"},
+    "alchemist_spoon": {"texture":"res://assets/art/ui/fallback.png","final_texture":"res://assets/art/items/alchemist_spoon.png","name":"연금술사의 계량숟가락","legacy_name":"연금술사의 계량숟가락"}
   },
   "sellers": {
     "blue": {
