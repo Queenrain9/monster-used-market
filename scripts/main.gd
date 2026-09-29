@@ -599,6 +599,7 @@ func _merchant_rank() -> String:
 
 
 func _apply_trade_progress(profit: int, listing: Dictionary) -> Dictionary:
+	var previous_rank = _merchant_rank()
 	var reputation_gain = 10
 	if profit > 0:
 		reputation_gain += 5
@@ -621,6 +622,9 @@ func _apply_trade_progress(profit: int, listing: Dictionary) -> Dictionary:
 	last_progress_message = "평판 +%d" % total_rep
 	if goal_gold > 0:
 		last_progress_message += " · 첫 거래 목표 완료 +%sG" % _money(goal_gold)
+	var new_rank = _merchant_rank()
+	if new_rank != previous_rank:
+		last_progress_message += " · 등급 상승: %s" % new_rank
 	return {
 		"reputation_gain":total_rep,
 		"goal_gold":goal_gold,
@@ -695,7 +699,6 @@ func _next_rank_info() -> Dictionary:
 
 func _render_workshop() -> void:
 	_update_header()
-	workshop_gold_label.text = "%s G" % _money(gold)
 	workshop_gold_label.text = "%s G" % _money(gold)
 	workshop_rank_label.text = "%s · 평판 %d" % [_merchant_rank(), merchant_reputation]
 	var next_rank = _next_rank_info()
@@ -1649,6 +1652,7 @@ func _complete_purchase(price: int) -> void:
 		"appraisal_data": {},
 		"buyer_offers": [],
 		"quote_requests_remaining": _quote_request_capacity(),
+		"quote_capacity": _quote_request_capacity(),
 		"selected_buyer_index": -1
 	}
 	owned_items.append(owned)
@@ -1752,6 +1756,7 @@ func _render_records() -> void:
 
 
 func _render_inventory() -> void:
+	$Margin/RootVBox/InventoryPanel/Scroll/Box/InventoryHelp.text = "보관 공간 %d/%d · 감정하거나 판매하고, 작업실에서 선반을 확장할 수 있습니다." % [owned_items.size(), _inventory_capacity()]
 	inventory_list.clear()
 	for owned in owned_items:
 		var listing: Dictionary = owned["listing"]
@@ -1970,11 +1975,17 @@ func _open_sale() -> void:
 	var owned = _current_owned()
 	if owned.is_empty():
 		return
+	var current_quote_capacity = _quote_request_capacity()
+	var old_quote_capacity = int(owned.get("quote_capacity", Content.QUOTE_REQUEST_BUDGET))
+	if current_quote_capacity > old_quote_capacity:
+		owned["quote_requests_remaining"] = int(owned.get("quote_requests_remaining", old_quote_capacity)) + (current_quote_capacity - old_quote_capacity)
+		owned["quote_capacity"] = current_quote_capacity
 	if owned.get("buyer_offers", []).is_empty():
 		owned["buyer_offers"] = engine.make_buyer_offers(owned["listing"])
-		owned["quote_requests_remaining"] = _quote_request_capacity()
+		owned["quote_requests_remaining"] = current_quote_capacity
+		owned["quote_capacity"] = current_quote_capacity
 		owned["selected_buyer_index"] = -1
-		owned_items[selected_owned_index] = owned
+	owned_items[selected_owned_index] = owned
 	current_stage = "sale"
 	_render_sale()
 	_show_panel(sale_panel)
