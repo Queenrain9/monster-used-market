@@ -125,6 +125,20 @@ func _init() -> void:
 			_fail("%s investigation IDs changed and would break older saves" % item["id"])
 			return
 		investigation_profile_signatures["|".join(labels)] = true
+
+		var semantic_probe = engine.generate_listing(item)
+		for action_id in ["exterior", "mark", "function", "origin"]:
+			var semantic_result = engine.investigate(semantic_probe, action_id)
+			if not bool(semantic_result["consumed"]):
+				_fail("%s semantic investigation %s did not consume" % [item["id"], action_id])
+				return
+			semantic_probe = semantic_result["listing"]
+			var discovered: Array = semantic_probe.get("discovered_clues", [])
+			var latest: Dictionary = discovered[discovered.size() - 1]
+			if not str(latest.get("id", "")).begins_with("action_%s_" % action_id):
+				_fail("%s investigation returned a clue from the wrong semantic channel: %s" % [action_id, latest.get("id", "")])
+				return
+
 	if investigation_profile_signatures.size() < 8:
 		_fail("item investigation overrides do not create enough visible variety")
 		return
@@ -235,7 +249,7 @@ func _init() -> void:
 		_fail("aligned discovered evidence no longer changes the negotiation outcome")
 		return
 
-	print("SMOKE OK v0.2.16: conversational investigations, local seller behavior, scalable economy and full trade flow")
+	print("SMOKE OK v0.2.17: coherent investigation channels, purchase handoff, local marketplace and full trade flow")
 	quit(0)
 
 
